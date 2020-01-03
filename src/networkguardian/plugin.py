@@ -1,9 +1,8 @@
 import platform
-import time
 from abc import abstractmethod
 from enum import Enum
 
-from networkguardian import log
+from src.networkguardian import log
 
 
 class Platform(Enum):
@@ -13,25 +12,17 @@ class Platform(Enum):
 
     Be careful not to confuse with Pythons in-built platform module
     """
-
-    WINDOWS = 'Windows',
-    LINUX = 'Linux',
-    MAC_OS = 'Mac OS X',
+    WINDOWS = 'Windows'
+    LINUX = 'Linux'
+    MAC_OS = 'Darwin'
 
     @staticmethod
     def detect() -> Enum:
         """
         Return's correct Platform enum for the running operating system
         """
-        if platform.system() == 'Windows':
-            return Platform.WINDOWS
-        elif platform.system() == 'Linux':
-            return Platform.LINUX
-        elif platform.system() == 'Darwin':
-            return Platform.MAC_OS
-        else:
-            # realistically this should never happen, but if an absolute mad-lad decides to run on an unsupported os
-            raise NotImplementedError('Running operating system platform is not supported')
+        system = platform.system()  # get system tag
+        return Platform(system)
 
     def __str__(self):
         """
@@ -41,13 +32,7 @@ class Platform(Enum):
 
         :return: string representation of enum
         """
-        return self.value[0]
-
-
-class PluginManager:
-
-    def __init__(self):
-        self._plugins = []
+        return self.value
 
 
 class BasePlugin:
@@ -59,8 +44,9 @@ class BasePlugin:
         self.author = author
         self.version = version
         self.supported_platforms = supported_platforms
+
         # Running information
-        self._supported = False
+        self._platform_support = False
 
     def __repr__(self):
         return 'Plugin(name=%r, description=%r, author=%r, version=%r)' \
@@ -74,7 +60,8 @@ class BasePlugin:
         Do not override this function, if a plugin requires additional functionality when being loaded, the initialize()
         function should be used.
         """
-        self._supported = True if platform in self.supported_platforms else False
+        self._platform_support = True if platform in self.supported_platforms else False # update supported variable
+
         log.debug(f'Attempting to initialize {self.name} plugin')
         self.initialize()
         log.debug(f'Initialized {self.name} plugin')
@@ -88,13 +75,21 @@ class BasePlugin:
         """
         pass
 
+    def process(self):
+        if self.supported: # further check to ensure somehow the plugin isn't executed if it is unsupported
+            self.execute()
+
     @abstractmethod
-    async def scan(self):
+    def execute(self):
         pass
 
     @property
     def supported(self) -> bool:
-        return self._supported
+        return self._platform_support
+
+
+class PluginInitializationError(Exception):
+    pass
 
 
 class ExamplePlugin(BasePlugin):
@@ -103,18 +98,11 @@ class ExamplePlugin(BasePlugin):
         super().__init__("Example", "Example Description", "Declan W", 0.1,
                          [Platform.WINDOWS, Platform.MAC_OS])
 
-    def scan(self):
+    def execute(self):
         print("EXAMPLE")
 
     def initialize(self):
-        print("just doin some initialization stuff")
+        if "test" not in "test":
+            raise PluginInitializationError("Test was not in test, so the plugin could not be initialized properly")
 
 
-if __name__ == '__main__':
-    plugins = [ExamplePlugin()]
-    for p in plugins:
-        p.load(Platform.WINDOWS)
-
-    print("STARTING SCANNING")
-    for p in plugins:
-        p.scan()
