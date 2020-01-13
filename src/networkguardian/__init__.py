@@ -21,6 +21,4 @@ def initialize_logger():
 
     return logger
 
-
 log = initialize_logger()
-
