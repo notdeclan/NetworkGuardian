@@ -1,11 +1,10 @@
 import inspect
 import os
 import platform
-import psutil
-import socket
 from abc import abstractmethod
 from enum import Enum
 
+import psutil
 from jinja2 import Template
 
 from networkguardian import log

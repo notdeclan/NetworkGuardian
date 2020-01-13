@@ -1,32 +1,18 @@
 from asyncio import sleep
-from threading import Thread
 from http.client import HTTPConnection
+from threading import Thread
 
 import webview
-from jinja2 import Template
 
-from networkguardian import log
+from networkguardian import log, application_name
 from networkguardian.plugin import ExamplePlugin, Platform, SystemInformationPlugin
 from networkguardian.server import run_server
-
-
-def main():
-    plugins = [ExamplePlugin()]
-    platform = Platform.detect()
-
-    for p in plugins:
-        p.load(platform)
-
-    for p in plugins:
-        if p.supported:
-            print(f'Scanning with {p.name}')
-            p.template.render(p.execute)
 
 
 def url_ok(url, port):
     try:
         conn = HTTPConnection(url, port)
-        conn.request('GET', '/')
+        conn.request('HEAD', '/')
         r = conn.getresponse()
         return r.status == 200
     except:
@@ -58,9 +44,9 @@ if __name__ == '__main__':
     start_server()
 
     log.debug('Checking server')
-    while not url_ok('127.0.0.1', 23948):
+    while not url_ok('127.0.0.1', 23948): # wait until web server is running and application  is responding
         sleep(1)
 
     log.debug('Server started')
-    window = webview.create_window('My first pywebview application', 'http://127.0.0.1:23948')
+    window = webview.create_window(application_name, 'http://127.0.0.1:23948')
     webview.start(debug=True)
