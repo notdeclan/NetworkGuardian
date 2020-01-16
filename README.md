@@ -3,7 +3,7 @@
 ## Folder / File Documentation ##
 * protoyping/
     - Used to store prototypes for the software such as features that may be implemented later, or to help with 
-    development 
+    development. All code in here should be documented by the author.
 * src/
     * /network guardian
         * /blueprints

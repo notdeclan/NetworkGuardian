@@ -5,6 +5,8 @@ from concurrent.futures import ThreadPoolExecutor
 """
     Prototype attempt at an idea how plugins within Network Guardian will be processed in parallel with the use of
     multi-threading and pooling.
+    
+    Declan W. 16/01/2020
 """
 
 
