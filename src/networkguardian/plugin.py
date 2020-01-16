@@ -11,7 +11,7 @@ from networkguardian import log
 
 """ 
     TODO: When installing, processing a plugin, use sys.modules[__name__] to get the list of packages required by the 
-    plugin, then check if it is installed on the system, atttempt to include the plugin and if it raises a ImportError,
+    plugin, then check if it is installed on the system, attempt to include the plugin and if it raises a ImportError,
     throw an error to the user asking them to install the module to the running python environment
 
     OR ...
@@ -54,9 +54,13 @@ class Platform(Enum):
 
 
 class Category(Enum):
+    """
+    Enum is used to differentiate between plugin types
+    """
     INFO = 'Informational'
     SCANNER = 'Scanner'
     ATTACK = 'Attack'
+    OTHER = 'Other'
 
 
 class BasePlugin:
@@ -100,6 +104,11 @@ class BasePlugin:
 
     @abstractmethod
     def execute(self) -> {}:
+        """
+        Function is to be overridden by subclasses to provide the functionality for the plugin and should return the
+        information required to appropriately display the plugin Template
+        :return: dictionary containing result values
+        """
         return {}
 
     def initialize(self):
@@ -123,7 +132,7 @@ class BasePlugin:
 
 
 class PluginInitializationError(Exception):
-    pass
+    ...
 
 
 class ExamplePlugin(BasePlugin):
@@ -143,6 +152,7 @@ class ExamplePlugin(BasePlugin):
         # Do plugin execution here, IE scan or produce results from some data source
         # Then data should be formatted into a dictionary used for storage, and for rendering in the plugin template
         return {
+
             "results": {
                 1: "yessir",
             },
@@ -235,4 +245,3 @@ class SystemInformationPlugin(BasePlugin):
             n += 1
 
         return byte_count, power_labels[n]
-
