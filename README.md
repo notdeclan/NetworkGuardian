@@ -1,6 +1,9 @@
 # Network Guardian #
 
 ## Folder / File Documentation ##
+* protoyping/
+    - Used to store prototypes for the software such as features that may be implemented later, or to help with 
+    development 
 * src/
     * /network guardian
         * /blueprints
@@ -17,4 +20,3 @@
             - Used to store HTML templates used in the flask application for the GUI
                 * /layouts
                 * /pages
-                
