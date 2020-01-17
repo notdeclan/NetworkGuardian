@@ -8,6 +8,7 @@ import psutil
 from jinja2 import Template
 
 from networkguardian import log
+from networkguardian.exceptions import PluginInitializationError
 
 """ 
     TODO: When installing, processing a plugin, use sys.modules[__name__] to get the list of packages required by the 
@@ -37,7 +38,7 @@ class Platform(Enum):
     @staticmethod
     def detect() -> Enum:
         """
-        Return's correct Platform enum for the running operating system
+        Function return's correct Platform enum for the running operating system
         """
         system = platform.system()  # get system tag
         return Platform(system)
@@ -129,10 +130,6 @@ class BasePlugin:
     @property
     def supported(self) -> bool:
         return self._platform_support
-
-
-class PluginInitializationError(Exception):
-    ...
 
 
 class ExamplePlugin(BasePlugin):
