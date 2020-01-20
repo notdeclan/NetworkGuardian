@@ -40,11 +40,10 @@ if __name__ == '__main__':
             print(f'Scanning with {p.name}')
             print(p.template.render(p.execute()))
 
-
     start_server()
 
     log.debug('Checking server')
-    while not url_ok('127.0.0.1', 23948): # wait until web server is running and application  is responding
+    while not url_ok('127.0.0.1', 23948):  # wait until web server is running and application  is responding
         sleep(1)
 
     log.debug('Server started')
