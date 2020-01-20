@@ -7,18 +7,6 @@ from jinja2 import Template
 
 from networkguardian import log
 
-""" 
-    TODO: When installing, processing a plugin, use sys.modules[__name__] to get the list of packages required by the 
-    plugin, then check if it is installed on the system, attempt to include the plugin and if it raises a ImportError,
-    throw an error to the user asking them to install the module to the running python environment
-
-    OR ...
-    
-    Create a plugin installation erorr, and provide documentation in the exception which can be displayed in the GUI.
-    For example, if import error is given because the plugin requires uninstalled python package, display "Plugin 
-    requires extra installation, python package "psutil" requires installation. 
-"""
-
 
 class Platform(Enum):
     """
@@ -73,9 +61,10 @@ class BasePlugin:
         self.version = version
         self.supported_platforms = supported_platforms
         # Additional Plugin Information
-        self.required_python_packages = []
+        self.required_python_packages = required_python_packages
         # Running information
         self._platform_support = False
+        self.environment_state = False
 
     def __repr__(self):
         return 'Plugin(name=%r, description=%r, author=%r, version=%r)' \
@@ -119,7 +108,8 @@ class BasePlugin:
         ...
 
     def process(self):
-        if self.supported:  # further check to ensure somehow the plugin isn't executed if it is unsupported
+        if self.supported and self.environment_state:  # further check to ensure somehow the plugin isn't executed if
+            # it is unsupported or
             self.execute()
         else:
             raise EnvironmentError("Running platform is not supported by %r" % self)
