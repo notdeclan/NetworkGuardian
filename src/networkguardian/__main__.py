@@ -26,7 +26,6 @@ def start_server():
     t.daemon = True
     t.start()
 
-
 if __name__ == '__main__':
     platform = Platform.detect()
 
