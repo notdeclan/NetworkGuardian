@@ -2,7 +2,6 @@
 
 """
 Py QT Example from https://raw.githubusercontent.com/pyqt/examples/_/src/02%20PyQt%20Widgets/main.py
-
 """
 
 #############################################################################

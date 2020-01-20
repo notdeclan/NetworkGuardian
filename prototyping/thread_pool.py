@@ -54,7 +54,7 @@ def start_pool():
 
     for future in futures:
         try:
-            print(future.result())
+            print(type(future.result()))
         except:
             print("Exception occurred in ")
 

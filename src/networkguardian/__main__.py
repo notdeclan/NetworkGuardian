@@ -5,8 +5,9 @@ from threading import Thread
 import webview
 
 from networkguardian import log, application_name
-from networkguardian.plugin import ExamplePlugin, Platform, SystemInformationPlugin
+from networkguardian.plugin import Platform
 from networkguardian.server import run_server
+from networkguardian.standard_plugins import ExamplePlugin, SystemInformationPlugin
 
 
 def url_ok(url, port):
@@ -25,6 +26,7 @@ def start_server():
     t = Thread(target=run_server)
     t.daemon = True
     t.start()
+
 
 if __name__ == '__main__':
     platform = Platform.detect()

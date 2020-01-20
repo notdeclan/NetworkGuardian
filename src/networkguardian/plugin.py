@@ -64,7 +64,6 @@ class BasePlugin:
         self.required_python_packages = required_python_packages
         # Running information
         self._platform_support = False
-        self.environment_state = False
 
     def __repr__(self):
         return 'Plugin(name=%r, description=%r, author=%r, version=%r)' \
@@ -108,7 +107,7 @@ class BasePlugin:
         ...
 
     def process(self):
-        if self.supported and self.environment_state:  # further check to ensure somehow the plugin isn't executed if
+        if self.supported:  # further check to ensure somehow the plugin isn't executed if
             # it is unsupported or
             self.execute()
         else:
