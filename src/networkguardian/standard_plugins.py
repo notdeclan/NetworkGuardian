@@ -1,5 +1,7 @@
 import os
 import platform
+import time
+import uuid
 
 import psutil
 from jinja2 import Template
@@ -66,7 +68,7 @@ class SystemInformationPlugin(BasePlugin):
         system = platform.system()
         processor = platform.processor()
         memory = self.get_memory()
-
+        time.sleep(4)
         # return information to be formatted in the template with appropriate data label
         return {
             "information": {
@@ -118,3 +120,27 @@ class SystemInformationPlugin(BasePlugin):
             n += 1
 
         return byte_count, power_labels[n]
+
+
+class TestPlugin(BasePlugin):
+    """
+    Plugin returns
+    """
+
+    def __init__(self, sleep_time):
+        super().__init__("Test Plugin", Category.INFO, "Declan W", 0.1,
+                         [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
+        self.sleep_time = sleep_time
+
+    def execute(self) -> {}:
+        print("Starting Sleep")
+        time.sleep(self.sleep_time)
+        return {
+            "uuid": uuid.uuid4(),
+            "sleep": self.sleep_time
+        }
+
+
+    @property
+    def template(self) -> Template:
+        return Template("""Test Plugin Completed {{uuid}} {{sleep}}""")

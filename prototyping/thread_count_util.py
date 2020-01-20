@@ -1,16 +1,12 @@
 import multiprocessing
 
-
 """
     Class contains a prototype function that can be used by Network Guardian to determine the amount of threads used by
     the software
 """
 
 
-max_allowed_threads = 4
-
-
-def get_thread_count(max_required: int = None, max_threads: int = max_allowed_threads):
+def get_thread_count(max_required: int = None, max_threads: int = None):
     """
     Function is used to calculate the amount of threads that should be used based on three different factors, the function
     can be used in multiple use cases
@@ -28,11 +24,21 @@ def get_thread_count(max_required: int = None, max_threads: int = max_allowed_th
     thread_count = multiprocessing.cpu_count()
 
     # if theres a max required specified, IE theres only like 2 plugins loaded so why bother creating a larger pool
-    if max_required is int:
+    if isinstance(max_required, int):
         if max_required < thread_count:  # if the required is smaller than thread count
             thread_count = max_required  # just set it the required amount
 
-    if thread_count > max_threads:  # if the thread count is higher than the max allowed threads set by the user
-        thread_count = max_threads # set the thread count
+    if isinstance(max_threads, int):
+        if thread_count > max_threads:  # if the thread count is higher than the max allowed threads set by the user
+            thread_count = max_threads  # set the thread count
 
     return thread_count
+
+
+if __name__ == '__main__':
+    # TODO: Copy this into unit tests for this function when in development
+    print(get_thread_count())  # should return maximum amount of cpu cores installed in system
+    print(get_thread_count(max_required=4))  # should return 4 because only 4 threads are required
+    print(get_thread_count(max_threads=3))  # should return 3 because max allowed
+    print(get_thread_count(max_required=4, max_threads=2))  # should return 2 because max allowed
+    print(get_thread_count(max_required=2, max_threads=4))  # should return 2 despite max threads

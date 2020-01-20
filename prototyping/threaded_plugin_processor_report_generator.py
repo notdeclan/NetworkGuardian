@@ -8,7 +8,7 @@ from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 
 from networkguardian.plugin import Platform
-from networkguardian.standard_plugins import SystemInformationPlugin
+from networkguardian.standard_plugins import TestPlugin
 from prototyping.thread_count_util import get_thread_count
 
 
@@ -25,7 +25,7 @@ def done_callback(future):
 
 if __name__ == '__main__':
     # plugin object list
-    plugins = [SystemInformationPlugin()]
+    plugins = [TestPlugin(4), TestPlugin(1), TestPlugin(10), TestPlugin(15)]
 
     # list to store the results, in software will be used to generate the final report html etc
 
@@ -40,12 +40,12 @@ if __name__ == '__main__':
 
     thread_count = get_thread_count(max_required=len(plugins))
     print(f'Thread Count: {thread_count}')
-    with ThreadPoolExecutor(max_workers=thread_count) as executor:
-        future_to_plugin = {
-            executor.submit(p.execute): p for p in plugins
-        }
 
-        print(future_to_plugin)
+    with ThreadPoolExecutor(max_workers=thread_count) as executor:
+
+        future_to_plugin = {
+             executor.submit(p.execute): p for p in plugins
+        }
 
         for future in futures.as_completed(future_to_plugin):
             plugin = future_to_plugin[future]
