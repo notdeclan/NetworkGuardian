@@ -9,6 +9,10 @@ from jinja2 import Template
 from networkguardian.exceptions import PluginInitializationError
 from networkguardian.plugin import BasePlugin, Category, Platform
 
+"""
+    Module is used to store all the standard plugins
+"""
+
 
 class ExamplePlugin(BasePlugin):
     """
