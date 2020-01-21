@@ -6,6 +6,7 @@ from networkguardian import flask_configuration
 from networkguardian.blueprints.api import mod as api
 from networkguardian.blueprints.panel import mod as panel
 
+# FLASK CONFIGURATION
 server = Flask(__name__)
 server.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1  # disable caching
 server.register_blueprint(panel)
@@ -23,11 +24,17 @@ def add_header(response):
 
 
 def _run_flask():
+    """
+    Function is used to wrap the arguments required to start the flask web server in its own thread.
+    """
     host, port = flask_configuration
     server.run(host=host, port=port, threaded=True)
 
 
 def start_server():
+    """
+    Start's the flask web server in its own thread
+    """
     t = Thread(target=_run_flask)  # create new thread and run flask inside of it
-    t.daemon = True # make thread non blocking
+    t.daemon = True  # make thread non blocking
     t.start()

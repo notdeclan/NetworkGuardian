@@ -4,6 +4,9 @@ Module contains exceptions raised within Network Guardian
 
 
 class PluginException(Exception):
+    """
+    Base Exception for all custom exceptions that are raised from a Plugin
+    """
     ...
 
 

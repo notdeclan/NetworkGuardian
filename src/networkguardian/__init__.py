@@ -5,7 +5,7 @@ application_version = 0.1
 
 logging_mode = logging.DEBUG
 
-flask_configuration = ('127.0.0.1', 23948)  # host, port
+flask_configuration = '127.0.0.1', 23948  # host, port TODO: Maybe create function to generate guaranteed free port
 
 
 def initialize_logger():

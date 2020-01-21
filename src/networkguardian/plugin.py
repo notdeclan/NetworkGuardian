@@ -77,7 +77,9 @@ class BasePlugin:
         Do not override this function, if a plugin requires additional functionality when being loaded, the initialize()
         function should be used.
         """
-        self._platform_support = True if running_platform in self.supported_platforms else False  # update supported variable
+
+        # update supported variable
+        self._platform_support = True if running_platform in self.supported_platforms else False
 
         log.debug(f'Attempting to initialize {self.name} plugin')
         self.initialize()
