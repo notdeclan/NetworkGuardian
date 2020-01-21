@@ -16,6 +16,8 @@
     Create a plugin installation error, and provide documentation in the exception which can be displayed in the GUI.
     For example, if import error is given because the plugin requires uninstalled python package, display "Plugin
     requires extra installation, python package "psutil" requires installation.
+
+    Declan W. 20/01/2020
 """
 from importlib._bootstrap_external import SourceFileLoader
 

@@ -3,6 +3,8 @@ import multiprocessing
 """
     Class contains a prototype function that can be used by Network Guardian to determine the amount of threads used by
     the software
+    
+    Declan W. 20/01/2020
 """
 
 

@@ -5,4 +5,4 @@ mod = Blueprint('panel', __name__, static_folder='static', template_folder='temp
 
 @mod.route('/')
 def index():
-    return render_template('pages/dashboard.html', title="Dashboard")
+    return render_template('pages/dashboard.html')

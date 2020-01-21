@@ -6,6 +6,8 @@
     Some plugins require the same information such as Network Interface Information, and program elevation level, by creating
     an object in memory of this information efficiency can be improved because there will be less reads to the system if
     the information is only read and stored once.
+
+    Declan W.
 """
 
 
