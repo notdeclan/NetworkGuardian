@@ -2,7 +2,10 @@ import logging
 
 application_name = "Network Guardian"
 application_version = 0.1
+
 logging_mode = logging.DEBUG
+
+flask_configuration = ('127.0.0.1', 23948)  # host, port
 
 
 def initialize_logger():
@@ -21,5 +24,6 @@ def initialize_logger():
     logger.addHandler(ch)
 
     return logger
+
 
 log = initialize_logger()
