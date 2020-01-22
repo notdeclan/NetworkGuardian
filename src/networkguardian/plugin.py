@@ -45,7 +45,6 @@ class Category(Enum):
     """
     INFO = 'Informational'
     SCANNER = 'Scanner'
-    ATTACK = 'Attack'
     OTHER = 'Other'
 
 

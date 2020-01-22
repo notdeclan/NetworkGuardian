@@ -148,3 +148,8 @@ class TestPlugin(BasePlugin):
     @property
     def template(self) -> Template:
         return Template("""Test Plugin Completed {{uuid}} {{sleep}}""")
+
+
+if __name__ == '__main__':
+    p = ExamplePlugin()
+    print(p.__doc__)

@@ -7,10 +7,18 @@ from networkguardian import log, application_name, flask_configuration
 from networkguardian.server import start_server
 
 
-def is_alive(host, port):
+def is_alive(host: str, port: int, path: str = '/'):
+    """
+    Function is used to test whether a web server is responding by sending a HTTP HEAD request
+
+    :param host: Web Server domain or IP
+    :param port: Web Server port
+    :param path: Page to request
+    :return: True if the web server responds, False if not
+    """
     try:
         conn = HTTPConnection(host, port)
-        conn.request('HEAD', '/')
+        conn.request('HEAD', path)
         r = conn.getresponse()
         return r.status == 200
     except:  # TODO: figure out actual exception raise here and add to catch
