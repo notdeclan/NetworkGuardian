@@ -144,12 +144,61 @@ class TestPlugin(BasePlugin):
             "sleep": self.sleep_time
         }
 
-
     @property
     def template(self) -> Template:
         return Template("""Test Plugin Completed {{uuid}} {{sleep}}""")
 
 
+class NetworkInterfaceInformation(BasePlugin):
+    """
+        Plugin returns
+    """
+
+    def __init__(self, sleep_time):
+        super().__init__("Network Interface Information", Category.INFO, "Owen", 0.1,
+                         [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
+        self.sleep_time = sleep_time
+
+    def execute(self) -> {}:
+        """Takes network interfaces using psutil and puts into list"""
+        address = psutil.net_if_addrs()
+        adapter_names = list(address.keys())
+        i = 0
+        x = 1
+        nested_dict = {}
+        while i < len(adapter_names):
+            length = len(address[adapter_names[i]])
+            if length == 3:
+                nested_dict.update({adapter_names[i]: {'Mac': address[adapter_names[i]][0][1],
+                                    'IP': address[adapter_names[i]][1][1]}})
+            elif length != 3:
+                nested_dict.update({adapter_names[i]: {'Address1': address[adapter_names[i]][0][1]}})
+                while x < length:
+                    key = "Address" + str(x + 1)
+                    nested_dict[adapter_names[i]].update({key: address[adapter_names[i]][x][1]})
+                    x += 1
+            i += 1
+
+        return nested_dict
+
+    @property
+    def template(self) -> Template:
+        return Template("""
+                    <table>
+                        {% for name, value in nested_dict.items() %}
+                        <tr>
+                            <td>{{name}}</td>
+                            <td>{{value}}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                """)
+
+
 if __name__ == '__main__':
-    p = ExamplePlugin()
-    print(p.__doc__)
+    """p = ExamplePlugin()
+    print(p.__doc__)"""
+    p = NetworkInterfaceInformation(1)
+    result = p.execute()
+    template = p.template.render(result)
+    print(template)
