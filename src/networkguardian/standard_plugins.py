@@ -25,7 +25,7 @@ class ExamplePlugin(BasePlugin):
     """
 
     def __init__(self):
-        super().__init__("Example", Category.ATTACK, "Declan W", 0.1, [Platform.MAC_OS, Platform.WINDOWS])
+        super().__init__("Example", Category.ATTACK, "Declan W", 0.1, [Platform.MAC_OS, Platform.WINDOWS, Platform.LINUX])
 
     def execute(self) -> {}:
         # Do plugin execution here, IE scan or produce results from some data source
@@ -72,7 +72,6 @@ class SystemInformationPlugin(BasePlugin):
         system = platform.system()
         processor = platform.processor()
         memory = self.get_memory()
-        time.sleep(4)
         # return information to be formatted in the template with appropriate data label
         return {
             "information": {
@@ -143,7 +142,6 @@ class TestPlugin(BasePlugin):
             "uuid": uuid.uuid4(),
             "sleep": self.sleep_time
         }
-
 
     @property
     def template(self) -> Template:

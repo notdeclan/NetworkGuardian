@@ -46,6 +46,7 @@ class Category(Enum):
     INFO = 'Informational'
     SCANNER = 'Scanner'
     OTHER = 'Other'
+    ATTACK = 'Attack'
 
 
 class BasePlugin:
