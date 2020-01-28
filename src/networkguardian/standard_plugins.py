@@ -1,7 +1,10 @@
 import os
 import platform
 import time
+import urllib
 import uuid
+from urllib.error import URLError
+from urllib.request import urlopen
 
 import psutil
 from jinja2 import Template
@@ -148,6 +151,50 @@ class TestPlugin(BasePlugin):
         return Template("""Test Plugin Completed {{uuid}} {{sleep}}""")
 
 
+class CheckInternetConnectivityPlugin(BasePlugin):
+    """
+        This plugin determines whether the local machine has access to the internet
+    """
+
+    def __init__(self):
+        super().__init__("Internet Connectivity Plugin", Category.INFO, "Velislav V", 1.0,
+                         [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
+
+    @property
+    def template(self) -> Template:
+        return Template("""
+            {% if internet %}
+            <b>You are connected to the Internet !</b>
+            {% else %}
+            <b>No Internet Connection Present !</b>
+            {% endif %}
+        """)
+
+    @property
+    def execute(self) -> {}:
+        return self.check_internet()
+
+    @staticmethod
+    def check_internet():
+        """
+        Function is used to return whether the local machine has internet access
+
+        Works by looping through multiple URL's and connecting to them, if one successfully connects
+        it will return True, otherwise False
+
+        :return: True/False
+        """
+        urls = ["https://google.co.uk", "https://youtube.com", "https://bbc.co.uk"]
+        for url in urls:
+            try:
+                urlopen(url, timeout=5)
+                return {"internet": True}
+            except URLError as Error:
+                continue
+
+        return {"internet": False}
+
+
 if __name__ == '__main__':
-    p = ExamplePlugin()
-    print(p.__doc__)
+    p = CheckInternetConnectivityPlugin()
+    print(p.template.render(p.execute))
