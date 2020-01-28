@@ -168,14 +168,22 @@ class CheckInternetConnectivityPlugin(BasePlugin):
             {% endif %}
         """)
 
+    @property
     def execute(self) -> {}:
-        try:
-            urlopen('https://www.google.co.uk', timeout=1)
-            return {"internet": True}
-        except URLError as Error:
-            return {"internet": False}
+        return self.check_internet()
+
+    def check_internet(self):
+        urls = ["https://google.co.uk", "https://youtube.com", "https://bbc.co.uk"]
+        for url in urls:
+            try:
+                urlopen(url, timeout=5)
+                return {"internet": True}
+            except URLError as Error:
+                continue
+
+        return {"internet": False}
 
 
 if __name__ == '__main__':
     p = CheckInternetConnectivityPlugin()
-    print(p.template.render(p.execute()))
+    print(p.template.render(p.execute))
