@@ -54,6 +54,6 @@ if __name__ == '__main__':
             plugin = future_to_plugin[future]
             try:
                 print(plugin.name)
-                print(plugin.template.render(future.result()))
+                print(plugin.template.template(future.result()))
             except Exception as exc:
                 print(exc)
