@@ -153,9 +153,12 @@ class TestPlugin(BasePlugin):
 
 
 class CheckInternetConnectivityPlugin(BasePlugin):
+    """
+        This plugin determines whether the local machine has access to the internet
+    """
 
     def __init__(self):
-        super().__init__("Internet Connectivity Plugin", Category.INFO, "Velislav V", 0.1,
+        super().__init__("Internet Connectivity Plugin", Category.INFO, "Velislav V", 1.0,
                          [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
 
     @property
@@ -172,7 +175,16 @@ class CheckInternetConnectivityPlugin(BasePlugin):
     def execute(self) -> {}:
         return self.check_internet()
 
-    def check_internet(self):
+    @staticmethod
+    def check_internet():
+        """
+        Function is used to return whether the local machine has internet access
+
+        Works by looping through multiple URL's and connecting to them, if one successfully connects
+        it will return True, otherwise False
+
+        :return: True/False
+        """
         urls = ["https://google.co.uk", "https://youtube.com", "https://bbc.co.uk"]
         for url in urls:
             try:
