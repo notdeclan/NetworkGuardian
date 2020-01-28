@@ -1,8 +1,6 @@
 from asyncio import sleep
 from http.client import HTTPConnection
 
-import webview
-
 from networkguardian import log
 from networkguardian.server import start_server, app
 
