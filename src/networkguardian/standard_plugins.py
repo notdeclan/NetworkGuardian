@@ -185,11 +185,15 @@ class NetworkInterfaceInformation(BasePlugin):
                                            'Broadcast': address[name][1][3],
                                            'Netmask': address[name][1][2]}})
             elif length != 3:
-                nested_dict.update({adapter_names[i]: {'Address1': address[adapter_names[i]][0][1]}})
+                nested_dict.update({name: {'Address': address[name][0][1],
+                                           'Broadcast': address[name][0][3],
+                                           'Netmask': address[name][0][2]}})
+                """
                 while x < length:
                     key = "Address" + str(x + 1)
                     nested_dict[adapter_names[i]].update({key: address[adapter_names[i]][x][1]})
                     x += 1
+                """
             i += 1
 
         return {"result": nested_dict}
@@ -200,6 +204,7 @@ class NetworkInterfaceInformation(BasePlugin):
         returns a template that will print all information using jinja2 loops
         """
         return Template("""
+            <h3> Network Interfaces </h3>
             <table>
                 <tr>
                     <th>Adapter Name</th>
@@ -210,19 +215,38 @@ class NetworkInterfaceInformation(BasePlugin):
                     <th>Netmask</th>
                 </tr>
                 {% for name, value in result.items() %}
+                {%- if value.Mac is defined %}
                 <tr>
                     <td>{{name}}</td>
-                    {% if value.Mac is defined %}
                     <td>{{value.IsUp}}</td>
                     <td>{{value.Mac}}</td>
                     <td>{{value.IP}}</td>
                     <td>{{value.Broadcast}}</td>
-                    <td>{{value.Netmask}}</td>
-                    {% endif %}
+                    <td>{{value.Netmask}}</td> 
                 </tr>
-                {% endfor %}
-                </table>
+                {%- endif %}
+                {%- endfor %}
+            </table>
                 
+            <h3> Non-Standard Interfaces </h3>
+            <table>
+                <tr>
+                    <th>Adapter Name</th>
+                    <th>IP</th>
+                    <th>Broadcast</th>
+                    <th>Netmask</th>
+                </tr>
+                {%- for name, value in result.items() -%}
+                {%- if value.Mac is undefined %}
+                <tr>
+                    <td> {{name}} </td>
+                    <td> {{value.Address}} </td>
+                    <td>{{value.Broadcast}}</td>
+                    <td>{{value.Netmask}}</td>
+                </tr>
+                {%- endif -%}
+                {%- endfor %}
+            </table>
             
         """)
 
