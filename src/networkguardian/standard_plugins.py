@@ -25,7 +25,7 @@ class ExamplePlugin(BasePlugin):
     """
 
     def __init__(self):
-        super().__init__("Example", Category.ATTACK, "Declan W", 0.1, [Platform.MAC_OS, Platform.WINDOWS])
+        super().__init__("Example", Category.INFO, "Declan W", 0.1, [Platform.MAC_OS, Platform.WINDOWS])
 
     def execute(self) -> {}:
         # Do plugin execution here, IE scan or produce results from some data source
@@ -154,13 +154,11 @@ class NetworkInterfaceInformation(BasePlugin):
         Plugin returns
     """
 
-    def __init__(self, sleep_time):
+    def __init__(self):
         super().__init__("Network Interface Information", Category.INFO, "Owen", 0.1,
                          [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
-        self.sleep_time = sleep_time
 
     def execute(self) -> {}:
-        """Takes network interfaces using psutil and puts into list"""
         address = psutil.net_if_addrs()
         adapter_names = list(address.keys())
         i = 0
@@ -170,7 +168,7 @@ class NetworkInterfaceInformation(BasePlugin):
             length = len(address[adapter_names[i]])
             if length == 3:
                 nested_dict.update({adapter_names[i]: {'Mac': address[adapter_names[i]][0][1],
-                                    'IP': address[adapter_names[i]][1][1]}})
+                                                       'IP': address[adapter_names[i]][1][1]}})
             elif length != 3:
                 nested_dict.update({adapter_names[i]: {'Address1': address[adapter_names[i]][0][1]}})
                 while x < length:
@@ -179,26 +177,39 @@ class NetworkInterfaceInformation(BasePlugin):
                     x += 1
             i += 1
 
-        return nested_dict
+        return {"result": nested_dict}
 
     @property
     def template(self) -> Template:
         return Template("""
-                    <table>
-                        {% for name, value in nested_dict.items() %}
-                        <tr>
-                            <td>{{name}}</td>
-                            <td>{{value}}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                """)
+            <table>
+                <tr>
+                    <th>Adapter Name</th>
+                    <th>Address1</th>
+                    <th>Address2</th>
+                </tr>
+                {% for name, value in result.items() %}
+                <tr>
+                    <td>{{name}}</td>
+                    {% if value.Mac is defined %}
+                    <td>{{value.Mac}}</td>
+                    <td>{{value.IP}}</td>
+                    {% endif %}
+                    {% if value.Address1 is defined %}
+                    <td>{{value.Address1}}</td>
+                    <td>{{value.Address2}}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+        """)
 
 
 if __name__ == '__main__':
     """p = ExamplePlugin()
     print(p.__doc__)"""
-    p = NetworkInterfaceInformation(1)
-    result = p.execute()
-    template = p.template.render(result)
+
+    p = NetworkInterfaceInformation()
+    results = p.execute()
+    template = p.template.render(results)
     print(template)
