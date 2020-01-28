@@ -159,16 +159,31 @@ class NetworkInterfaceInformation(BasePlugin):
                          [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
 
     def execute(self) -> {}:
+        """
+            Get information using psutil and stores into variables
+        """
         address = psutil.net_if_addrs()
+        online = psutil.net_if_stats()
         adapter_names = list(address.keys())
         i = 0
         x = 1
         nested_dict = {}
+        """
+            Loop through each adapter
+        """
         while i < len(adapter_names):
             length = len(address[adapter_names[i]])
+            name = adapter_names[i]
+            """
+                If adapter has 3 variables then it holds standard information so goes through this,
+                Otherwise goes through the 2nd loop below that will dynamically add the information it stores
+            """
             if length == 3:
-                nested_dict.update({adapter_names[i]: {'Mac': address[adapter_names[i]][0][1],
-                                                       'IP': address[adapter_names[i]][1][1]}})
+                nested_dict.update({name: {'IsUp': online[name][0],
+                                           'Mac': address[name][0][1],
+                                           'IP': address[name][1][1],
+                                           'Broadcast': address[name][1][3],
+                                           'Netmask': address[name][1][2]}})
             elif length != 3:
                 nested_dict.update({adapter_names[i]: {'Address1': address[adapter_names[i]][0][1]}})
                 while x < length:
@@ -181,27 +196,34 @@ class NetworkInterfaceInformation(BasePlugin):
 
     @property
     def template(self) -> Template:
+        """
+        returns a template that will print all information using jinja2 loops
+        """
         return Template("""
             <table>
                 <tr>
                     <th>Adapter Name</th>
-                    <th>Address1</th>
-                    <th>Address2</th>
+                    <th>Is Up?</th>
+                    <th>Mac</th>
+                    <th>IP</th>
+                    <th>Broadcast</th>
+                    <th>Netmask</th>
                 </tr>
                 {% for name, value in result.items() %}
                 <tr>
                     <td>{{name}}</td>
                     {% if value.Mac is defined %}
+                    <td>{{value.IsUp}}</td>
                     <td>{{value.Mac}}</td>
                     <td>{{value.IP}}</td>
-                    {% endif %}
-                    {% if value.Address1 is defined %}
-                    <td>{{value.Address1}}</td>
-                    <td>{{value.Address2}}</td>
+                    <td>{{value.Broadcast}}</td>
+                    <td>{{value.Netmask}}</td>
                     {% endif %}
                 </tr>
                 {% endfor %}
-            </table>
+                </table>
+                
+            
         """)
 
 
