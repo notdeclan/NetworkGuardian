@@ -1,8 +1,10 @@
 from asyncio import sleep
 from http.client import HTTPConnection
 
-from networkguardian import log
+from networkguardian import log, application_name
 from networkguardian.server import start_server
+
+import webview
 
 
 def is_alive(remote_url: str, remote_port: int, path: str = '/'):
@@ -35,10 +37,7 @@ if __name__ == '__main__':
 
     log.debug('Creating Webview Window')
 
-    while True:
-        pass
-
     # TODO: find cross platform way of calculating screen resolution so window can start in maximised mode=======
 
-    # window = webview.create_window(application_name, url, width=1500)
+    # window = webview.create_window(application_name, f'http://{host}:{port}', width=1500)
     # webview.start(debug=True)

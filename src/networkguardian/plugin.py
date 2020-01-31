@@ -118,4 +118,3 @@ class BasePlugin:
     @property
     def supported(self) -> bool:
         return self._platform_support
-

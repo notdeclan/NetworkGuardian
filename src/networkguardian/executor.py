@@ -17,9 +17,9 @@ class PluginExecutor:
     def add_plugin(self, plugin: BasePlugin):
         self.plugins.append(plugin)
 
-    def process(self, selected_plugins: []) -> Report:
+    def process(self, scan_name, selected_plugins: []) -> Report:
         thread_count = self.get_thread_count(max_required=len(selected_plugins))
-        report_v = Report("SYSTEM NAME", "CURRENT TIME/DATE", "VERSION")  # TODO: get actual values
+        report_v = Report(scan_name)  # TODO: get actual values
 
         with ThreadPoolExecutor(max_workers=thread_count) as tpe:
             # loop through all plugins, submit future for each one
@@ -27,19 +27,17 @@ class PluginExecutor:
                 tpe.submit(p.execute): p for p in selected_plugins
             }
 
-            # for f in future_to_plugin:
-            #    f.add_done_callback(done_callback)
-
             for future in futures.as_completed(future_to_plugin):
                 plugin = future_to_plugin[future]
+                result = Result(plugin)
                 try:
-                    result = future.result()
-                    template = plugin.template
-                    report_v.add_result(Result(plugin, result, template))
+                    result.add_data(future.result())
                 except PluginProcessingError as ppe:
                     # TODO : add handling for this, whether its adding exception to "Result" object or displaying on
                     #  UI etc
-                    pass
+                    result.add_exception(ppe)
+
+                report_v.add_result(result)
 
         return report_v
 

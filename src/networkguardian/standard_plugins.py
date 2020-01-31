@@ -192,12 +192,6 @@ class NetworkInterfaceInformation(BasePlugin):
                 nested_dict.update({name: {'Address': address[name][0][1],
                                            'Broadcast': address[name][0][3],
                                            'Netmask': address[name][0][2]}})
-                """
-                while x < length:
-                    key = "Address" + str(x + 1)
-                    nested_dict[adapter_names[i]].update({key: address[adapter_names[i]][x][1]})
-                    x += 1
-                """
             i += 1
 
         return {"result": nested_dict}

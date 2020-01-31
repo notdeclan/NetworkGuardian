@@ -3,6 +3,7 @@ from datetime import datetime
 
 from jinja2 import Template
 
+from networkguardian import application_version
 from networkguardian.plugin import Platform
 
 
@@ -11,17 +12,34 @@ class Result:
     Potentially temporary way of storing a plugin result (could be maybe replaced with a
     """
 
-    def __init__(self, plugin, result, template):
+    def __init__(self, plugin):
         self.plugin = plugin
-        self.result = result
-        self.template = template
+        self.template = plugin.template
+        self.data = None
+        self.exception = None
+
+    def add_exception(self, exception):
+        self.exception = exception
+
+    def add_data(self, data):
+        self.data = data
 
     def render(self):
-        return self.template.render(self.result)
+        return self.template.render(self.data)
+
+
+# TODO: Finish These functions
+
+def store_report():
+    pass
+
+
+def load_report():
+    pass
 
 
 def report_time():
-    return datetime.now()
+    return str(datetime.now())
 
 
 def report_platform():
@@ -38,11 +56,11 @@ class Report:
         Somehow this class will be serialized into a database so it can be loaded, exported e.t.c...
     """
 
-    def __init__(self, scan_name, system_name, date, software_version):
+    def __init__(self, scan_name):
         self.scan_name = scan_name
-        self.system_name = system_name
-        self.date = date
-        self.software_version = software_version
+        self.system_name = report_system_name()
+        self.date = report_time()
+        self.software_version = application_version
         self.system_platform = None  # TODO: this
 
         self.results = []
@@ -60,4 +78,7 @@ class Report:
         return report_template.render(results=self.results)
 
     def add_result(self, result: Result):
-        self.results.append(result)
+        if isinstance(result, Result):
+            self.results.append(result)
+        else:
+            raise ValueError("result should be an instance of Result")
