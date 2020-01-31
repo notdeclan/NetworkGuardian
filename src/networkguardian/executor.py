@@ -4,8 +4,27 @@ from concurrent.futures import ThreadPoolExecutor
 
 from networkguardian.exceptions import PluginProcessingError
 from networkguardian.plugin import BasePlugin
-from networkguardian.report import Result, Report
-from networkguardian.standard_plugins import TestPlugin
+
+
+class PluginResult:
+    """
+    Potentially temporary way of storing a plugin result (could be maybe replaced with a
+    """
+
+    def __init__(self, plugin):
+        self.plugin = plugin
+        self.template = plugin.template
+        self.data = None
+        self.exception = None
+
+    def add_exception(self, exception):
+        self.exception = exception
+
+    def add_data(self, data):
+        self.data = data
+
+    def render(self):
+        return self.template.render(self.data)
 
 
 class PluginExecutor:
@@ -18,6 +37,13 @@ class PluginExecutor:
         self.plugins.append(plugin)
 
     def process(self, selected_plugins: []) -> []:
+        """
+        Function will process all plugins that are passed asynchronously using a ThreadPool and return a list
+        of Result objects
+
+        :param selected_plugins: plugins to execute
+        :return: List of Result objects
+        """
         thread_count = self.get_thread_count(max_required=len(selected_plugins))
         results = []
 
@@ -29,7 +55,7 @@ class PluginExecutor:
 
             for future in futures.as_completed(future_to_plugin):
                 plugin = future_to_plugin[future]
-                result = Result(plugin)
+                result = PluginResult(plugin)
                 try:
                     result.add_data(future.result())
                 except PluginProcessingError as ppe:
@@ -70,13 +96,3 @@ class PluginExecutor:
                 thread_count = self.max_threads  # set the thread count
 
         return thread_count
-
-
-if __name__ == '__main__':
-    e = PluginExecutor()
-    e.max_threads = 3
-    results = e.process([TestPlugin(4), TestPlugin(2), TestPlugin(3), TestPlugin(1)])
-    report = Report("Report Name")
-    report.add_results(results)
-
-    print(report.render())
