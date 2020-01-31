@@ -51,8 +51,8 @@ class Category(Enum):
 
 class BasePlugin:
 
-    def __init__(self, name: str, category: Category, author: str, version: float, supported_platforms: [],
-                 required_python_packages=...):
+    def __init__(self, name: str, category: Category, author: str, version: float, supported_platforms: []):
+
         # Required Plugin Information
         self.name = name
         self.category = category
@@ -60,10 +60,10 @@ class BasePlugin:
         self.author = author
         self.version = version
         self.supported_platforms = supported_platforms
-        # Additional Plugin Information
-        self.required_python_packages = required_python_packages
+
         # Running information
         self._platform_support = False
+        self._running_platform = None
 
     def __repr__(self):
         return 'Plugin(name=%r, description=%r, author=%r, version=%r)' \
@@ -80,6 +80,7 @@ class BasePlugin:
 
         # update supported variable
         self._platform_support = True if running_platform in self.supported_platforms else False
+        self._running_platform = running_platform
 
         log.debug(f'Attempting to initialize {self.name} plugin')
         self.initialize()
@@ -88,7 +89,7 @@ class BasePlugin:
     @property
     @abstractmethod
     def template(self) -> Template:
-        return Template()
+        return Template("")
 
     @abstractmethod
     def execute(self) -> {}:

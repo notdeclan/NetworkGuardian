@@ -30,11 +30,11 @@ class Result:
 
 # TODO: Finish These functions
 
-def store_report():
+def store_report(report):
     pass
 
 
-def load_report():
+def load_report(path):
     pass
 
 
@@ -71,6 +71,7 @@ class Report:
 
         report_template = Template("""
             {% for result in results %}
+                <h3>{{ result.plugin.name }}</h3>
                 {{ result.render() }}
             {% endfor %}
         """)
@@ -82,3 +83,7 @@ class Report:
             self.results.append(result)
         else:
             raise ValueError("result should be an instance of Result")
+
+    def add_results(self, results: [Result]):
+        for result in results:
+            self.add_result(result)

@@ -17,9 +17,9 @@ class PluginExecutor:
     def add_plugin(self, plugin: BasePlugin):
         self.plugins.append(plugin)
 
-    def process(self, scan_name, selected_plugins: []) -> Report:
+    def process(self, selected_plugins: []) -> []:
         thread_count = self.get_thread_count(max_required=len(selected_plugins))
-        report_v = Report(scan_name)  # TODO: get actual values
+        results = []
 
         with ThreadPoolExecutor(max_workers=thread_count) as tpe:
             # loop through all plugins, submit future for each one
@@ -37,9 +37,9 @@ class PluginExecutor:
                     #  UI etc
                     result.add_exception(ppe)
 
-                report_v.add_result(result)
+                results.append(result)
 
-        return report_v
+        return results
 
     def get_thread_count(self, max_required: int = None):
         """
@@ -75,6 +75,8 @@ class PluginExecutor:
 if __name__ == '__main__':
     e = PluginExecutor()
     e.max_threads = 3
-    report = e.process([TestPlugin(4), TestPlugin(2), TestPlugin(3), TestPlugin(1)])
+    results = e.process([TestPlugin(4), TestPlugin(2), TestPlugin(3), TestPlugin(1)])
+    report = Report("Report Name")
+    report.add_results(results)
 
     print(report.render())

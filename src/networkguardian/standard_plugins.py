@@ -193,7 +193,9 @@ class NetworkInterfaceInformation(BasePlugin):
                                            'Netmask': address[name][0][2]}})
             i += 1
 
-        return {"result": nested_dict}
+        return {
+            "result": nested_dict
+        }
 
     @property
     def template(self) -> Template:
