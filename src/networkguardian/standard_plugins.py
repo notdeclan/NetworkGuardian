@@ -151,7 +151,11 @@ class TestPlugin(BasePlugin):
 
 class NetworkInterfaceInformation(BasePlugin):
     """
-        Plugin returns
+        Network Interface Information Plugin
+
+        This plugin will return details about the network interfaces.
+        Such as whether the device is online or not, the IP, broadcast address,
+        netmask and mac address.
     """
 
     def __init__(self):
