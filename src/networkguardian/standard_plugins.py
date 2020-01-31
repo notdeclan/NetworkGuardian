@@ -283,11 +283,11 @@ class CheckInternetConnectivityPlugin(BasePlugin):
         :return: True/False
         """
         urls = ["https://google.co.uk", "https://youtube.com", "https://bbc.co.uk"]
-        for url in urls:
+        for url in urls:  # loop through all URL's
             try:
                 urlopen(url, timeout=5)
-                return True
+                return True  # if connect, internet is working, return True
             except URLError:
-                continue
+                continue  # if fail, go to next URL in loop
 
-        return False
+        return False  # if all URL's fail, return False
