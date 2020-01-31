@@ -30,32 +30,45 @@ class ExamplePlugin(BasePlugin):
         super().__init__("Example", Category.ATTACK, "Declan W", 0.1,
                          [Platform.MAC_OS, Platform.WINDOWS, Platform.LINUX])
 
+    def initialize(self):
+        # Should a plugin require a dependency or further checks when loading, this should be done here.
+        if "test" not in "test":
+            # if a plugin for whatever reason cannot be loaded, PluginInitializationError should be raised
+            raise PluginInitializationError("Test was not in test, so the plugin could not be initialized properly")
+
     def execute(self) -> {}:
         # Do plugin execution here, IE scan or produce results from some data source
         # Then data should be formatted into a dictionary used for storage, and for rendering in the plugin template
         return {
-
             "results": {
-                1: "yessir",
+                1: "Example Result",
+                2: "Another Result"
             },
-            "name": "dad",
         }
-
-    def initialize(self):
-        if "test" not in "test":
-            raise PluginInitializationError("Test was not in test, so the plugin could not be initialized properly")
 
     @property
     def template(self) -> Template:
+        # The plugins Jinja template should be returned here
+        # Data that is returned from execute should be rendered here
+        # For more information on how Jinja templating works, see https://jinja.palletsprojects.com/en/2.11.x/templates/
         return Template("""
-            ID -  NAME
-            {% for id, name in results.items() %}
-            {{ id }} - {{ name }} 
-            {% endfor %} 
-            NAME: {{ name }}           
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for id, result in results.items() %}
+                        <tr>
+                            <td>{{ id }}</td>
+                            <td>{{ result }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         """)
-
-        # return Template(open("example.template").read())
 
 
 class SystemInformationPlugin(BasePlugin):

@@ -52,7 +52,7 @@ def report_system_name():
 
 class Report:
     """
-        Object used to store the result of a scan when initated.
+        Object used to store the result of a scan when initiated.
         Somehow this class will be serialized into a database so it can be loaded, exported e.t.c...
     """
 
