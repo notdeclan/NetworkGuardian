@@ -1,7 +1,6 @@
 import os
 import platform
 import time
-import urllib
 import uuid
 from urllib.error import URLError
 from urllib.request import urlopen
@@ -270,10 +269,11 @@ class CheckInternetConnectivityPlugin(BasePlugin):
 
     @property
     def execute(self) -> {}:
-        return self.check_internet()
+        status = self.check_internet()  # get internet status
+        return {"internet": status}
 
     @staticmethod
-    def check_internet():
+    def check_internet() -> bool:
         """
         Function is used to return whether the local machine has internet access
 
@@ -286,8 +286,8 @@ class CheckInternetConnectivityPlugin(BasePlugin):
         for url in urls:
             try:
                 urlopen(url, timeout=5)
-                return {"internet": True}
+                return True
             except URLError:
                 continue
 
-        return {"internet": False}
+        return False
