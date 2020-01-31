@@ -1,7 +1,10 @@
 import os
 import platform
 import time
+import urllib
 import uuid
+from urllib.error import URLError
+from urllib.request import urlopen
 
 import psutil
 from jinja2 import Template
@@ -25,7 +28,7 @@ class ExamplePlugin(BasePlugin):
     """
 
     def __init__(self):
-        super().__init__("Example", Category.INFO, "Declan W", 0.1, [Platform.MAC_OS, Platform.WINDOWS])
+        super().__init__("Example", Category.ATTACK, "Declan W", 0.1, [Platform.MAC_OS, Platform.WINDOWS, Platform.LINUX])
 
     def execute(self) -> {}:
         # Do plugin execution here, IE scan or produce results from some data source
@@ -72,7 +75,6 @@ class SystemInformationPlugin(BasePlugin):
         system = platform.system()
         processor = platform.processor()
         memory = self.get_memory()
-        time.sleep(4)
         # return information to be formatted in the template with appropriate data label
         return {
             "information": {
@@ -252,12 +254,45 @@ class NetworkInterfaceInformation(BasePlugin):
             
         """)
 
+class CheckInternetConnectivityPlugin(BasePlugin):
+    """
+        This plugin determines whether the local machine has access to the internet
+    """
 
-if __name__ == '__main__':
-    """p = ExamplePlugin()
-    print(p.__doc__)"""
+    def __init__(self):
+        super().__init__("Internet Connectivity Plugin", Category.INFO, "Velislav V", 1.0,
+                         [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
 
-    p = NetworkInterfaceInformation()
-    results = p.execute()
-    template = p.template.render(results)
-    print(template)
+    @property
+    def template(self) -> Template:
+        return Template("""
+            {% if internet %}
+            <b>You are connected to the Internet !</b>
+            {% else %}
+            <b>No Internet Connection Present !</b>
+            {% endif %}
+        """)
+
+    @property
+    def execute(self) -> {}:
+        return self.check_internet()
+
+    @staticmethod
+    def check_internet():
+        """
+        Function is used to return whether the local machine has internet access
+
+        Works by looping through multiple URL's and connecting to them, if one successfully connects
+        it will return True, otherwise False
+
+        :return: True/False
+        """
+        urls = ["https://google.co.uk", "https://youtube.com", "https://bbc.co.uk"]
+        for url in urls:
+            try:
+                urlopen(url, timeout=5)
+                return {"internet": True}
+            except URLError as Error:
+                continue
+
+        return {"internet": False}

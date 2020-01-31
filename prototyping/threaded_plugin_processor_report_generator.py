@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     # use with operator to ensure threads are deconstructed / cleaned up properly
 
-    thread_count = get_thread_count(max_required=len(plugins))
+    thread_count = get_thread_count(max_required=len(plugins), max_threads=2)
     print(f'Thread Count: {thread_count}')
 
     with ThreadPoolExecutor(max_workers=thread_count) as executor:
@@ -47,10 +47,13 @@ if __name__ == '__main__':
              executor.submit(p.execute): p for p in plugins
         }
 
+        for f in future_to_plugin:
+            f.add_done_callback(done_callback)
+
         for future in futures.as_completed(future_to_plugin):
             plugin = future_to_plugin[future]
             try:
                 print(plugin.name)
-                print(plugin.template.render(future.result()))
+                print(plugin.template.template(future.result()))
             except Exception as exc:
                 print(exc)

@@ -5,10 +5,13 @@ application_version = 0.1
 
 logging_mode = logging.DEBUG
 
-flask_configuration = '127.0.0.1', 23949  # host, port TODO: Maybe create function to generate guaranteed free port
-
 
 def initialize_logger():
+    """
+    Function is used to
+    :return:
+    """
+
     logger = logging.getLogger('Network Guardian')
     logger.setLevel(logging_mode)
 
