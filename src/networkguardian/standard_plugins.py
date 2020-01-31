@@ -28,7 +28,8 @@ class ExamplePlugin(BasePlugin):
     """
 
     def __init__(self):
-        super().__init__("Example", Category.ATTACK, "Declan W", 0.1, [Platform.MAC_OS, Platform.WINDOWS, Platform.LINUX])
+        super().__init__("Example", Category.ATTACK, "Declan W", 0.1,
+                         [Platform.MAC_OS, Platform.WINDOWS, Platform.LINUX])
 
     def execute(self) -> {}:
         # Do plugin execution here, IE scan or produce results from some data source
@@ -170,7 +171,6 @@ class NetworkInterfaceInformation(BasePlugin):
         online = psutil.net_if_stats()
         adapter_names = list(address.keys())
         i = 0
-        x = 1
         nested_dict = {}
         """
             Loop through each adapter
@@ -254,6 +254,7 @@ class NetworkInterfaceInformation(BasePlugin):
             
         """)
 
+
 class CheckInternetConnectivityPlugin(BasePlugin):
     """
         This plugin determines whether the local machine has access to the internet
@@ -292,7 +293,7 @@ class CheckInternetConnectivityPlugin(BasePlugin):
             try:
                 urlopen(url, timeout=5)
                 return {"internet": True}
-            except URLError as Error:
+            except URLError:
                 continue
 
         return {"internet": False}

@@ -1,4 +1,9 @@
+import platform
+from datetime import datetime
+
 from jinja2 import Template
+
+from networkguardian.plugin import Platform
 
 
 class Result:
@@ -15,17 +20,30 @@ class Result:
         return self.template.render(self.result)
 
 
+def report_time():
+    return datetime.now()
+
+
+def report_platform():
+    return Platform.detect().name
+
+
+def report_system_name():
+    return platform.node()
+
+
 class Report:
     """
         Object used to store the result of a scan when initated.
-
         Somehow this class will be serialized into a database so it can be loaded, exported e.t.c...
     """
 
-    def __init__(self, system_name, date, software_version):
+    def __init__(self, scan_name, system_name, date, software_version):
+        self.scan_name = scan_name
         self.system_name = system_name
         self.date = date
         self.software_version = software_version
+        self.system_platform = None  # TODO: this
 
         self.results = []
 

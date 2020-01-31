@@ -15,10 +15,13 @@ def index():
     plugin_count = 4  # total amount of plugin's loaded
     previous_scans = 10000
 
-    test_report = Report("TEST_PC_DAD", "12:12:40", application_version)
+    test_report = Report("LOL", "TEST_PC_DAD", "12:12:40", application_version)
     recent_scans = [test_report]
 
-    return render_template('pages/dashboard.html', plugin_count=plugin_count, previous_scans=previous_scans, recent_scans=recent_scans)
+    return render_template('pages/dashboard.html',
+                           plugin_count=plugin_count,
+                           previous_scans=previous_scans,
+                           recent_scans=recent_scans[-3:])
 
 
 @mod.route('/scans/view')
