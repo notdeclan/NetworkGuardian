@@ -2,7 +2,7 @@ from asyncio import sleep
 from http.client import HTTPConnection
 
 from networkguardian import log
-from networkguardian.server import start_server, app
+from networkguardian.server import start_server
 
 
 def is_alive(remote_url: str, remote_port: int, path: str = '/'):
