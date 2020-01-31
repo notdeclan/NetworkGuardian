@@ -260,17 +260,15 @@ class CheckInternetConnectivityPlugin(BasePlugin):
     @property
     def template(self) -> Template:
         return Template("""
-            {% if internet %}
-            <b>You are connected to the Internet !</b>
-            {% else %}
-            <b>No Internet Connection Present !</b>
-            {% endif %}
+            System is {{ 'Connected' if internet else 'not Connected' }} to the Internet
         """)
 
     @property
     def execute(self) -> {}:
         status = self.check_internet()  # get internet status
-        return {"internet": status}
+        return {
+            "internet": status
+        }
 
     @staticmethod
     def check_internet() -> bool:
