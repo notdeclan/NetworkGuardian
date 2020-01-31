@@ -151,6 +151,109 @@ class TestPlugin(BasePlugin):
         return Template("""Test Plugin Completed {{uuid}} {{sleep}}""")
 
 
+class NetworkInterfaceInformation(BasePlugin):
+    """
+        This plugin will return details about the network interfaces.
+        Such as whether the device is online or not, the IP, broadcast address,
+        netmask and mac address.
+    """
+
+    def __init__(self):
+        super().__init__("Network Interface Information", Category.INFO, "Owen", 0.1,
+                         [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
+
+    def execute(self) -> {}:
+        """
+            Get information using psutil and stores into variables
+        """
+        address = psutil.net_if_addrs()
+        online = psutil.net_if_stats()
+        adapter_names = list(address.keys())
+        i = 0
+        x = 1
+        nested_dict = {}
+        """
+            Loop through each adapter
+        """
+        while i < len(adapter_names):
+            length = len(address[adapter_names[i]])
+            name = adapter_names[i]
+            """
+                If adapter has 3 variables then it holds standard information so goes through this,
+                Otherwise goes through the 2nd loop below that will dynamically add the information it stores
+            """
+            if length == 3:
+                nested_dict.update({name: {'IsUp': online[name][0],
+                                           'Mac': address[name][0][1],
+                                           'IP': address[name][1][1],
+                                           'Broadcast': address[name][1][3],
+                                           'Netmask': address[name][1][2]}})
+            elif length != 3:
+                nested_dict.update({name: {'Address': address[name][0][1],
+                                           'Broadcast': address[name][0][3],
+                                           'Netmask': address[name][0][2]}})
+                """
+                while x < length:
+                    key = "Address" + str(x + 1)
+                    nested_dict[adapter_names[i]].update({key: address[adapter_names[i]][x][1]})
+                    x += 1
+                """
+            i += 1
+
+        return {"result": nested_dict}
+
+    @property
+    def template(self) -> Template:
+        """
+        returns a template that will print all information using jinja2 loops
+        """
+        return Template("""
+            <h3> Network Interfaces </h3>
+            <table>
+                <tr>
+                    <th>Adapter Name</th>
+                    <th>Is Up?</th>
+                    <th>Mac</th>
+                    <th>IP</th>
+                    <th>Broadcast</th>
+                    <th>Netmask</th>
+                </tr>
+                {% for name, value in result.items() %}
+                {%- if value.Mac is defined %}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{value.IsUp}}</td>
+                    <td>{{value.Mac}}</td>
+                    <td>{{value.IP}}</td>
+                    <td>{{value.Broadcast}}</td>
+                    <td>{{value.Netmask}}</td> 
+                </tr>
+                {%- endif %}
+                {%- endfor %}
+            </table>
+                
+            <h3> Non-Standard Interfaces </h3>
+            <table>
+                <tr>
+                    <th>Adapter Name</th>
+                    <th>IP</th>
+                    <th>Broadcast</th>
+                    <th>Netmask</th>
+                </tr>
+                {%- for name, value in result.items() -%}
+                {%- if value.Mac is undefined %}
+                <tr>
+                    <td> {{name}} </td>
+                    <td> {{value.Address}} </td>
+                    <td>{{value.Broadcast}}</td>
+                    <td>{{value.Netmask}}</td>
+                </tr>
+                {%- endif -%}
+                {%- endfor %}
+            </table>
+            
+        """)
+
 class CheckInternetConnectivityPlugin(BasePlugin):
     """
         This plugin determines whether the local machine has access to the internet
@@ -193,8 +296,3 @@ class CheckInternetConnectivityPlugin(BasePlugin):
                 continue
 
         return {"internet": False}
-
-
-if __name__ == '__main__':
-    p = CheckInternetConnectivityPlugin()
-    print(p.template.render(p.execute))

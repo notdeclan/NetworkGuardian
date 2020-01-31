@@ -38,7 +38,7 @@ if __name__ == '__main__':
     while True:
         pass
 
-    # TODO: find cross platform way of calculating screen resolution so window can start in maximised mode
+    # TODO: find cross platform way of calculating screen resolution so window can start in maximised mode=======
 
     # window = webview.create_window(application_name, url, width=1500)
     # webview.start(debug=True)
