@@ -206,19 +206,30 @@ class UserEnumerationPlugin(BasePlugin):
             
         """)
 
+    @property
     def execute(self) -> {}:
+        # Variables
+        winUsersCSV = ""  # string location of outputFile - TBC
+        lUsersCSV = ""  # string location of outputFile - TBC
+        mUsersCSV = ""  # string location of outputFile - TBC
+
         operating_system = Platform.detect()
 
-        usersCSV = "" # string location of outputFile - TBC
-
         if operating_system is Platform.WINDOWS:
-            # all info for all users
-            # adds whitespace to start of file
-            users = os.system("wmic /output:" + usersCSV + " useraccount list full /format:csv")
+            # currently dumping all info for all users
+            #    $options =
+            #       AccountType, Description, Disabled, Domain, InstallDate, LocalAccount, Lockout,
+            #       PasswordChangeable, PasswordExpires, PasswordRequired, SID, SIDType, and Status
+            # adds line of whitespace to start of file
+            users = os.system("wmic /output:" + winUsersCSV + " useraccount list full /format:csv")
+            # syntax is "wmic $outputLocation useraccount $user $options $outputType"
         elif operating_system is Platform.LINUX:
-            pass
+            # hasn't been tested as of 02/02/2020
+            os.system("cat /etc/passwd | tee " + lUsersCSV + "")  # unknown if ending of command is correct
         elif operating_system is Platform.MAC_OS:
-            pass
+            # cannot be tested by alexandra
+            os.system("dscl . list /Users | grep -v \"^_\" | tee " + mUsersCSV + "")
+            # unknown if ending of command is correct
 
         return {}
 
