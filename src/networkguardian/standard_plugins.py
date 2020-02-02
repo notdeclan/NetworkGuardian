@@ -28,7 +28,8 @@ class ExamplePlugin(BasePlugin):
     """
 
     def __init__(self):
-        super().__init__("Example", Category.ATTACK, "Declan W", 0.1, [Platform.MAC_OS, Platform.WINDOWS, Platform.LINUX])
+        super().__init__("Example", Category.ATTACK, "Declan W", 0.1,
+                         [Platform.MAC_OS, Platform.WINDOWS, Platform.LINUX])
 
     def execute(self) -> {}:
         # Do plugin execution here, IE scan or produce results from some data source
@@ -195,6 +196,33 @@ class CheckInternetConnectivityPlugin(BasePlugin):
         return {"internet": False}
 
 
+class UserEnumerationPlugin(BasePlugin):
+    def __init__(self):
+        super().__init__("Example", Category.ATTACK, "Declan W", 0.1,
+                         [Platform.MAC_OS, Platform.WINDOWS, Platform.LINUX])
+
+    def template(self) -> Template:
+        return Template("""
+            
+        """)
+
+    def execute(self) -> {}:
+        operating_system = Platform.detect()
+
+        usersCSV = "" # string location of outputFile - TBC
+
+        if operating_system is Platform.WINDOWS:
+            # all info for all users
+            # adds whitespace to start of file
+            users = os.system("wmic /output:" + usersCSV + " useraccount list full /format:csv")
+        elif operating_system is Platform.LINUX:
+            pass
+        elif operating_system is Platform.MAC_OS:
+            pass
+
+        return {}
+
+
 if __name__ == '__main__':
-    p = CheckInternetConnectivityPlugin()
+    p = UserEnumerationPlugin()
     print(p.template.render(p.execute))
