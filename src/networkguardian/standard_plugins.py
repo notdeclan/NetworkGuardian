@@ -202,9 +202,41 @@ class UserEnumerationPlugin(BasePlugin):
                          [Platform.MAC_OS, Platform.WINDOWS, Platform.LINUX])
 
     def template(self) -> Template:
-        return Template("""
-            
-        """)
+        operating_system = Platform.detect()
+
+        if operating_system is Platform.WINDOWS:
+            return Template("""
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Node</th>
+                            <th>AccountType</th>
+                            <th>Description</th>
+                            <th>Disabled</th>
+                            <th>Domain</th>
+                            <th>FullName</th>
+                            <th>InstallDate</th>
+                            <th>LocalAccount</th>
+                            <th>Lockout</th>
+                            <th>Name</th>
+                            <th>PasswordChangeable</th>
+                            <th>PasswordExpires</th>
+                            <th>PasswordRequired</th>
+                            <th>SID</th>
+                            <th>SIDType</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+                        """)
+        elif operating_system is Platform.LINUX:
+            return Template("""
+                
+            """)
 
     # noinspection PyUnresolvedReferences
     @property
@@ -240,9 +272,11 @@ class UserEnumerationPlugin(BasePlugin):
             users = {}
             for p in psutil.pwd.getpwall():
                 users[p[0]] = grp.getgrgid(p[3])[0]
-        elif operating_system is Platform.MAC_OS:
-            # cannot be tested by alexandra
-            os.system("dscl . list /Users | grep -v \"^_\" ")
+        # elif operating_system is Platform.MAC_OS:
+        #     import grp
+        #     users = {}
+        #     for p in psutil.pwd.getpwall():
+        #         users[p[0]] = grp.getgrgid(p[3])[0]
         return {}
 
 
