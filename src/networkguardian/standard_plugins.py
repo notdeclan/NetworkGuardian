@@ -1,5 +1,6 @@
 import os
 import platform
+import subprocess
 import time
 import urllib
 import uuid
@@ -152,50 +153,64 @@ class TestPlugin(BasePlugin):
         return Template("""Test Plugin Completed {{uuid}} {{sleep}}""")
 
 
-class CheckInternetConnectivityPlugin(BasePlugin):
+class LocalFirewallStatus(BasePlugin):
     """
-        This plugin determines whether the local machine has access to the internet
-    """
+        This plugin determines whether the local machine has firewall turned on or off
 
-    def __init__(self):
-        super().__init__("Internet Connectivity Plugin", Category.INFO, "Velislav V", 1.0,
-                         [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
+        Function is used to return whether the local machine has firewall turned on or off
+
+        Works by looping through multiple commands for different OS and if firewall is on, it will return True, otherwise it will return False
+
+        :return: True/False
+    """
 
     @property
     def template(self) -> Template:
         return Template("""
-            {% if internet %}
-            <b>You are connected to the Internet !</b>
-            {% else %}
-            <b>No Internet Connection Present !</b>
+            {% if firewall %}
+                Firewall Enabled
+            {% elif False %}
+                Firewall Disabled
+            {% elif None %}
+                Unable to Detect
             {% endif %}
         """)
 
+    def __init__(self):
+        super().__init__("Local Firewall Status Plugin", Category.INFO, "Velislav V", 0.1,
+                         [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
+
     @property
     def execute(self) -> {}:
-        return self.check_internet()
+        os = Platform.detect()
+        result = None
+
+        if os is Platform.MAC_OS:
+            result = self.check_mac_os()
+        elif os is Platform.WINDOWS:
+            result = self.check_windows()
+        elif os is Platform.LINUX:
+            return False
+
+        return {"firewall": result}
 
     @staticmethod
-    def check_internet():
+    def check_mac_os():
         """
-        Function is used to return whether the local machine has internet access
-
-        Works by looping through multiple URL's and connecting to them, if one successfully connects
-        it will return True, otherwise False
-
-        :return: True/False
+        Mac OS X Firewall Checker
         """
-        urls = ["https://google.co.uk", "https://youtube.com", "https://bbc.co.uk"]
-        for url in urls:
-            try:
-                urlopen(url, timeout=5)
-                return {"internet": True}
-            except URLError as Error:
-                continue
+        process = subprocess.Popen(["defaults", "read" ,"/Library/Preferences/com.apple.alf" , "globalstate"], stdout=subprocess.PIPE)
+        return bool(int(process.communicate()[0].rstrip()))
 
-        return {"internet": False}
+    @staticmethod
+    def check_windows():
+        """
+        Windows Firewall Checker
+        """
+        process = subprocess.check_call('netsh advfirewall show allprofiles')
+        return bool(int(process.communicate()[0].rstrip()))
 
 
 if __name__ == '__main__':
-    p = CheckInternetConnectivityPlugin()
+    p = LocalFirewallStatus()
     print(p.template.render(p.execute))
