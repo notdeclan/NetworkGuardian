@@ -17,7 +17,7 @@
             <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Network Guardian</a>
         </nav>
         <div class="container-fluid">
-            <div class="row">
+            < class="row">
                 <nav class="col-md-2 d-none d-md-block bg-light sidebar">
                     <div class="sidebar-sticky">
                         <ul class="nav flex-column">
@@ -28,7 +28,7 @@
                             </li>
                             <li class="nav-item">
                                 <a id="devices" class="nav-link" href="/scans/create">
-                                    <i class="fa fa-exchange"></i> Create Scan
+                                    <i class="fa fa-desktop"></i> Create Scan
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -43,7 +43,7 @@
                             </li>
                             <li class="nav-item">
                                 <a id="devices" class="nav-link" href="/help/view">
-                                    <i class="fa fa-exchange"></i> Help
+                                    <i class="fa fa-question"></i> Help
                                 </a>
                             </li>
                         </ul>
@@ -51,34 +51,53 @@
                 </nav>
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h2><i class="fa fa-home"></i> Previous Scans</h2>
+                        <h2><i class="fa fa-desktop"></i> Scanning...</h2>
                     </div>
 
-                    <section id="previous_scans">
+                    <div class="container">
+                        <label for="current_scan"> Progress of the current scan: </label>
+
+                        <div class="row">
+
+                            <div id="current_scan" class="col-sm-10 progress">
+                                <div class="progress-bar-animated progress-bar-striped bg-dark" role="progressbar" style="width: 50%"></div>
+                            </div>
+                            <div class="col-sm-2">
+                                <a href="#" class="btn btn-dark btn-sm btn-block">Stop Scan</a>
+                            </div>
+                         </div>
+
+                    </div>
+                     <section id="selected_plugins">
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                            <h4><i class="fa fa-exchange"></i> Selected Plugins</h4>
+                        </div>
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Scan Name</th>
-                                    <th>System Name</th>
-                                    <th>Date</th>
-                                    <th>Plugin Count</th>
+                                    <th>Plugin Name</th>
+                                    <th>Description</th>
+                                    <th>Supported Platforms</th>
+                                    <th>Author</th>
                                     <th>Version</th>
-                                    <th>Platform</th>
-                                    <th>Notes</th>
+                                    <th>Standard/Custom</th>
                                 </tr>
                             </thead>
                             <tbody>
                             <tr>
-                                <td>The first scan</td>
-                                <td>Pentagon PC</td>
-                                <td>12/12/12</td>
-                                <td>8</td>
-                                <td>2.0</td>
-                                <td>Windows</td>
+                                <td>System Information</td>
+                                <td>This plugin does blah blah  blah blah</td>
+                                <td>Windows, Linux, Max OS</td>
+                                <td>Team Pentagon</td>
+                                <td>1.0</td>
+                                <td>Standard</td>
                             </tr>
                             </tbody>
                         </table>
-                    </section>
+                     </section>
+
+
+
                 </main>
             </div>
         </div>
