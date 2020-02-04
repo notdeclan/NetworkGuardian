@@ -240,7 +240,7 @@ class NetworkInterfaceInformation(BasePlugin):
                     {%- endfor %}
                 </tbody>
             </table>
-                
+
             <h3> Non-Standard Interfaces </h3>
             <table>
                 <thead>

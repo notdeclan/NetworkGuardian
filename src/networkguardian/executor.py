@@ -8,7 +8,7 @@ from networkguardian.plugin import BasePlugin
 
 class PluginResult:
     """
-    Potentially temporary way of storing a plugin result (could be maybe replaced with a
+    Potentially temporary way of storing a plugin result
     """
 
     def __init__(self, plugin):
