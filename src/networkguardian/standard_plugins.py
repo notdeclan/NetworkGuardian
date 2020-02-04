@@ -190,36 +190,35 @@ class NetworkInterfaceInformation(BasePlugin):
         stats = psutil.net_if_stats()
         io_counters = psutil.net_io_counters(pernic=True)
         for nic, addrs in psutil.net_if_addrs().items():
-            main_list.update({nic: {
+            st = stats[nic]
+            io = io_counters[nic]
 
+            main_list.update({nic: {
+                "Speed": st.speed or "-",
+                "Duplex": duplex_map[st.duplex] or "-",
+                "MTU": st.mtu or "-",
+                "up": st.isup or "False",
+                "bytesin": bytes2human(io.bytes_recv) or "0",
+                "packetsin": io.packets_recv or "0",
+                "errorsin": io.errin or "0",
+                "dropsin": io.dropin or "0",
+                "bytesout": bytes2human(io.bytes_sent) or "0",
+                "packetsout": io.packets_sent or "0",
+                "errorsout": io.errout or "0",
+                "dropsout": io.dropout or "0",
             }})
-            """if nic in stats:
-                st = stats[nic]
-                print("    stats          : ", end='')
-                print("speed=%sMB, duplex=%s, mtu=%s, up=%s" % (
-                    st.speed, duplex_map[st.duplex], st.mtu,
-                    "yes" if st.isup else "no"))
-            if nic in io_counters:
-                io = io_counters[nic]
-                print("    incoming       : ", end='')
-                print("bytes=%s, pkts=%s, errs=%s, drops=%s" % (
-                    bytes2human(io.bytes_recv), io.packets_recv, io.errin,
-                    io.dropin))
-                print("    outgoing       : ", end='')
-                print("bytes=%s, pkts=%s, errs=%s, drops=%s" % (
-                    bytes2human(io.bytes_sent), io.packets_sent, io.errout,
-                    io.dropout))
+
             for addr in addrs:
-                print("    %-4s" % af_map.get(addr.family, addr.family), end="")
-                print(" address   : %s" % addr.address)
-                if addr.broadcast:
-                    print("         broadcast : %s" % addr.broadcast)
-                if addr.netmask:
-                    print("         netmask   : %s" % addr.netmask)
-                if addr.ptp:
-                    print("      p2p       : %s" % addr.ptp)"""
-            print("")
-        return "beep"
+                key = af_map.get(addr.family, addr.family)
+                if key == "MAC":
+                    main_list[nic]["Mac"] = addr.address or "-"
+                else:
+                    keyB = key + "Broadcast"
+                    keyN = key + "Netmask"
+                    main_list[nic][keyB] = addr.address or "-"
+                    main_list[nic][keyN] = addr.netmask or "-"
+
+        return {"result": main_list}
 
     @property
     def template(self) -> Template:
@@ -231,43 +230,47 @@ class NetworkInterfaceInformation(BasePlugin):
             <table>
                 <tr>
                     <th>Adapter Name</th>
-                    <th>Is Up?</th>
+                    <th>Speed</th>
+                    <th>Duplex</th>
+                    <th>MTU</th>
+                    <th>Is-Up?</th>
+                    <th>Bytes In</th>
+                    <th>Packets In</th>
+                    <th>Errors In</th>
+                    <th>Drops In</th>
+                    <th>Bytes Out</th>
+                    <th>Packets Out</th>
+                    <th>Errors Out</th>
+                    <th>Drops Out</th>
                     <th>Mac</th>
-                    <th>IP</th>
-                    <th>Broadcast</th>
-                    <th>Netmask</th>
+                    <th>IPv4 Broadcast</th>
+                    <th>IPv4 Netmask</th>
+                    <th>IPv6 Broadcast</th>
+                    <th>IPv6 Netmask</th>
                 </tr>
                 {% for name, value in result.items() %}
                 {%- if value.Mac is defined %}
                 <tr>
                     <td>{{name}}</td>
-                    <td>{{value.IsUp}}</td>
-                    <td>{{value.Mac}}</td>
-                    <td>{{value.IP}}</td>
-                    <td>{{value.Broadcast}}</td>
-                    <td>{{value.Netmask}}</td> 
+                    <td>{{value.Speed}}MB</td>
+                    <td>{{value.Duplex}}</td>
+                    <td>{{value.MTU}}</td>
+                    <td>{{value.up}}</td>
+                    <td>{{value.bytesin}}</td> 
+                    <td>{{value.packetsin}}</td> 
+                    <td>{{value.errorsin}}</td> 
+                    <td>{{value.dropsin}}</td> 
+                    <td>{{value.bytesout}}</td> 
+                    <td>{{value.packetsout}}</td> 
+                    <td>{{value.errorsout}}</td> 
+                    <td>{{value.dropsout}}</td> 
+                    <td>{{value.Mac}}</td> 
+                    <td>{{value.IPv4Broadcast}}</td> 
+                    <td>{{value.IPv4Netmask}}</td> 
+                    <td>{{value.IPv6Broadcast}}</td> 
+                    <td>{{value.IPv6Netmask}}</td> 
                 </tr>
                 {%- endif %}
-                {%- endfor %}
-            </table>
-                
-            <h3> Non-Standard Interfaces </h3>
-            <table>
-                <tr>
-                    <th>Adapter Name</th>
-                    <th>IP</th>
-                    <th>Broadcast</th>
-                    <th>Netmask</th>
-                </tr>
-                {%- for name, value in result.items() -%}
-                {%- if value.Mac is undefined %}
-                <tr>
-                    <td> {{name}} </td>
-                    <td> {{value.Address}} </td>
-                    <td>{{value.Broadcast}}</td>
-                    <td>{{value.Netmask}}</td>
-                </tr>
-                {%- endif -%}
                 {%- endfor %}
             </table>
             
@@ -400,6 +403,7 @@ class NetstatInformation(BasePlugin):
 
 
 if __name__ == '__main__':
-    p = NetstatInformation()
+    p = NetworkInterfaceInformation()
     d = p.execute()
+    print(d)
     print(p.template.render(d))
