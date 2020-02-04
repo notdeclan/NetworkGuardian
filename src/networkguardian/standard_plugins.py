@@ -206,31 +206,43 @@ class UserEnumerationPlugin(BasePlugin):
             
         """)
 
+    # noinspection PyUnresolvedReferences
     @property
     def execute(self) -> {}:
         # Variables
-        winUsersCSV = ""  # string location of outputFile - TBC
-        lUsersCSV = ""  # string location of outputFile - TBC
-        mUsersCSV = ""  # string location of outputFile - TBC
 
         operating_system = Platform.detect()
 
         if operating_system is Platform.WINDOWS:
+
             # currently dumping all info for all users
             #    $options =
             #       AccountType, Description, Disabled, Domain, InstallDate, LocalAccount, Lockout,
             #       PasswordChangeable, PasswordExpires, PasswordRequired, SID, SIDType, and Status
             # adds line of whitespace to start of file
-            users = os.system("wmic /output:" + winUsersCSV + " useraccount list full /format:csv")
-            # syntax is "wmic $outputLocation useraccount $user $options $outputType"
+
+            process = subprocess.Popen(["wmic", "useraccount", "list", "full", "/format:csv"], stdout=subprocess.PIPE)
+            users_output = process.communicate()[0]
+            file_stream = StringIO(users_output.decode())
+            file_stream.readline()
+            reader = csv.DictReader(file_stream)
+
+            print(reader.fieldnames)
+            print(list(reader))
+
+            for row in reader:
+                print(row["Node"])
+
+
         elif operating_system is Platform.LINUX:
-            # hasn't been tested as of 02/02/2020
-            os.system("cat /etc/passwd | tee " + lUsersCSV + "")  # unknown if ending of command is correct
+            # user + group
+            import grp
+            users = {}
+            for p in psutil.pwd.getpwall():
+                users[p[0]] = grp.getgrgid(p[3])[0]
         elif operating_system is Platform.MAC_OS:
             # cannot be tested by alexandra
-            os.system("dscl . list /Users | grep -v \"^_\" | tee " + mUsersCSV + "")
-            # unknown if ending of command is correct
-
+            os.system("dscl . list /Users | grep -v \"^_\" ")
         return {}
 
 
