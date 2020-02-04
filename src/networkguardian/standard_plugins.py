@@ -169,9 +169,6 @@ class NetworkInterfaceInformation(BasePlugin):
                          [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
 
     def execute(self) -> {}:
-        """
-            Get information using psutil and stores into variables
-        """
 
         af_map = {
             socket.AF_INET: 'IPv4',
@@ -213,10 +210,10 @@ class NetworkInterfaceInformation(BasePlugin):
                 if key == "MAC":
                     main_list[nic]["Mac"] = addr.address or "-"
                 else:
-                    keyB = key + "Broadcast"
-                    keyN = key + "Netmask"
-                    main_list[nic][keyB] = addr.address or "-"
-                    main_list[nic][keyN] = addr.netmask or "-"
+                    key_broadcast = key + "Broadcast"
+                    key_netmask = key + "Netmask"
+                    main_list[nic][key_broadcast] = addr.address or "-"
+                    main_list[nic][key_netmask] = addr.netmask or "-"
 
         return {"result": main_list}
 
@@ -321,7 +318,7 @@ class CheckInternetConnectivityPlugin(BasePlugin):
         return {"internet": False}
 
 
-class NetstatInformation(BasePlugin):
+class NetStatInformation(BasePlugin):
     """
         The plugin returns netstat information
 
