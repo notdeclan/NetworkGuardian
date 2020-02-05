@@ -1,6 +1,6 @@
 import inspect
 import platform
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from enum import Enum
 
 from jinja2 import Template
@@ -49,7 +49,7 @@ class Category(Enum):
     ATTACK = 'Attack'
 
 
-class BasePlugin:
+class AbstractPlugin(ABC):
 
     def __init__(self, name: str, category: Category, author: str, version: float, supported_platforms: []):
 
@@ -119,3 +119,24 @@ class BasePlugin:
     @property
     def supported(self) -> bool:
         return self._platform_support
+
+
+class PluginResult:
+    """
+    Potentially temporary way of storing a plugin result
+    """
+
+    def __init__(self, plugin: AbstractPlugin):
+        self.plugin = plugin
+        self.template = plugin.template
+        self.data = None
+        self.exception = None
+
+    def add_exception(self, exception):
+        self.exception = exception
+
+    def add_data(self, data):
+        self.data = data
+
+    def render(self):
+        return self.template.render(self.data)

@@ -2,6 +2,7 @@ import os
 import platform
 import time
 import uuid
+from random import randint
 from urllib.error import URLError
 from urllib.request import urlopen
 
@@ -9,14 +10,16 @@ import psutil
 from jinja2 import Template
 
 from networkguardian.exceptions import PluginInitializationError
-from networkguardian.plugin import BasePlugin, Category, Platform
+from networkguardian.plugin import AbstractPlugin, Category, Platform
+from networkguardian.registry import register_plugin
 
 """
     Module is used to store all the standard plugins
 """
 
 
-class ExamplePlugin(BasePlugin):
+@register_plugin
+class ExamplePlugin(AbstractPlugin):
     """
         An example plugin to demonstrate the functionality and api to developers of custom plugins.
 
@@ -71,7 +74,8 @@ class ExamplePlugin(BasePlugin):
         """)
 
 
-class SystemInformationPlugin(BasePlugin):
+@register_plugin
+class SystemInformationPlugin(AbstractPlugin):
     """
     Plugin returns
     """
@@ -141,15 +145,16 @@ class SystemInformationPlugin(BasePlugin):
         return byte_count, power_labels[n]
 
 
-class TestPlugin(BasePlugin):
+@register_plugin
+class TestPlugin(AbstractPlugin):
     """
     Plugin returns
     """
 
-    def __init__(self, sleep_time):
+    def __init__(self):
         super().__init__("Test Plugin", Category.INFO, "Declan W", 0.1,
                          [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
-        self.sleep_time = sleep_time
+        self.sleep_time = randint(1, 4)
 
     def execute(self) -> {}:
         print("Starting Sleep")
@@ -164,7 +169,8 @@ class TestPlugin(BasePlugin):
         return Template("""Test Plugin Completed {{uuid}} {{sleep}}""")
 
 
-class NetworkInterfaceInformation(BasePlugin):
+@register_plugin
+class NetworkInterfaceInformation(AbstractPlugin):
     """
         This plugin will return details about the network interfaces.
         Such as whether the device is online or not, the IP, broadcast address,
@@ -267,7 +273,8 @@ class NetworkInterfaceInformation(BasePlugin):
         """)
 
 
-class CheckInternetConnectivityPlugin(BasePlugin):
+@register_plugin
+class CheckInternetConnectivityPlugin(AbstractPlugin):
     """
         This plugin determines whether the local machine has access to the internet
     """

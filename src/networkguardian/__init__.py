@@ -1,8 +1,14 @@
 import logging
+from glob import glob
+from os.path import basename, dirname, join
+
+max_threads = None
+log = None
+
+from networkguardian.registry import registered_plugins
 
 application_name = "Network Guardian"
 application_version = 0.1
-
 logging_mode = logging.DEBUG
 
 
@@ -11,9 +17,9 @@ def initialize_logger():
     Function is used to
     :return:
     """
-
-    logger = logging.getLogger('Network Guardian')
-    logger.setLevel(logging_mode)
+    global log
+    log = logging.getLogger('Network Guardian')
+    log.setLevel(logging_mode)
 
     # create console handler with a higher log level (ie only print important shite to console etc)
     ch = logging.StreamHandler()
@@ -24,9 +30,18 @@ def initialize_logger():
     ch.setFormatter(formatter)
 
     # add the handler to the logger
-    logger.addHandler(ch)
-
-    return logger
+    log.addHandler(ch)
 
 
-log = initialize_logger()
+def initialize_plugins():
+    # Import all classes in this directory so that classes with @register_plugin are registered.
+    # TODO: when freezing and building work out how to specify a user directory to load plugins from etc...
+    pwd = dirname(__file__)
+
+    for x in glob(join(pwd, '*.py')):  # for each file in working directory that have file
+        if not x.startswith('__'):  # if not private
+            __import__(basename(x)[:-3], globals(), locals())  # import it
+
+
+initialize_logger()
+initialize_plugins()

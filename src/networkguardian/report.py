@@ -2,8 +2,7 @@ import platform
 from datetime import datetime
 
 from networkguardian import application_version
-from networkguardian.executor import PluginResult
-from networkguardian.plugin import Platform
+from networkguardian.plugin import Platform, PluginResult
 
 
 # TODO: Finish These functions
