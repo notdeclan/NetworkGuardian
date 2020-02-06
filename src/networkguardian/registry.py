@@ -27,6 +27,22 @@ def register_plugin(name: str, category: Category, author: str, version: float):
     return __init__
 
 
+def test_plugin(cls):
+    """
+    Temporary way of testing whether a plugin works as expected ...
+
+    to use comment out the @register annotation above an AbstractPlugin abstraction, and place above...
+    """
+    print("Testing: ", cls)
+    instance = cls("Test", Category.INFO, "Author", 1)
+    instance.load(Platform.detect())
+    data, template = instance.process()
+    print("\tSupports:", instance.supported_platforms)
+    print("\tData:", data)
+    print("\tRender:", template.render(data))
+    return instance
+
+
 def load_plugins():
     running_platform = Platform.detect()
     for p in registered_plugins:

@@ -15,7 +15,7 @@ def initialize_logger():
     :return:
     """
     global logger
-    logger = logging.getLogger('Network Guardian')
+    logger = logging.getLogger(application_name)
     logger.setLevel(logging_mode)
 
     # create console handler with a higher log level (ie only print important shite to console etc)
