@@ -1,11 +1,8 @@
 import inspect
 import platform
-from abc import abstractmethod, ABC
 from enum import Enum
 
 from jinja2 import Template
-
-from networkguardian import log
 
 
 class Platform(Enum):
@@ -49,20 +46,53 @@ class Category(Enum):
     ATTACK = 'Attack'
 
 
-class AbstractPlugin(ABC):
+"""
+    Decorators are called BEFORE class is built i.e __new__, so with a decorator we can tag the function with the 
+    supported platform e.t.c, and then post process it later with the base class
+"""
 
-    def __init__(self, name: str, category: Category, author: str, version: float, supported_platforms: []):
 
+def executor(template: Template, *platforms: Platform):
+    def ret_fun(fn):
+        fn._template = template
+
+        if len(platforms) == 0:  # if no platform specified, automatically support all Platforms...
+            fn._platforms = [p for p in Platform]
+        else:
+            fn._platforms = platforms
+
+        return fn
+
+    return ret_fun
+
+
+class MetaPlugin(type):
+    # using __new__ because it's called when the class is created, i.e before __init__
+    def __new__(mcs, name, bases, attrs):
+        executors = {}
+        for fn_name, fn in attrs.items():  # for each NAME, FUNCTION in class
+            if inspect.isfunction(fn):  # if it's a function
+                supported_platforms = getattr(fn, '_platforms', None)  # if its been marked by the annotation get value
+                if supported_platforms is not None:  # if there's some platforms supplied
+                    for sp in supported_platforms:  # for each platform supplied
+                        executors[sp] = fn
+
+        attrs["_executors"] = executors
+
+        return type.__new__(mcs, name, bases, attrs)
+
+
+class AbstractPlugin(metaclass=MetaPlugin):
+
+    def __init__(self, name: str, category: Category, author: str, version: float):
         # Required Plugin Information
         self.name = name
         self.category = category
         self.description = inspect.cleandoc(self.__doc__) if self.__doc__ else "No description available."
         self.author = author
         self.version = version
-        self.supported_platforms = supported_platforms
 
         # Running information
-        self._platform_support = False
         self._running_platform = None
 
     def __repr__(self):
@@ -77,28 +107,11 @@ class AbstractPlugin(ABC):
         Do not override this function, if a plugin requires additional functionality when being loaded, the initialize()
         function should be used.
         """
-
-        # update supported variable
-        self._platform_support = True if running_platform in self.supported_platforms else False
         self._running_platform = running_platform
 
-        log.debug(f'Attempting to initialize {self.name} plugin')
+        # log.debug(f'Attempting to initialize {self.name} plugin')
         self.initialize()
-        log.debug(f'Initialized {self.name} plugin')
-
-    @property
-    @abstractmethod
-    def template(self) -> Template:
-        return Template("")
-
-    @abstractmethod
-    def execute(self) -> {}:
-        """
-        Function is to be overridden by subclasses to provide the functionality for the plugin and should return the
-        information required to appropriately display the plugin Template
-        :return: dictionary containing result values
-        """
-        return {}
+        # log.debug(f'Initialized {self.name} plugin')
 
     def initialize(self):
         """
@@ -107,18 +120,22 @@ class AbstractPlugin(ABC):
 
         This function is always called when a plugin is loaded into the Plugin Manager
         """
-        ...
+        pass
 
     def process(self):
         if self.supported:  # further check to ensure somehow the plugin isn't executed if
-            # it is unsupported or
-            self.execute()
-        else:
+            pe = self._executors[self._running_platform]  # pe == platform executor
+            return pe(self), pe._template
+        else:  # TODO: change this to a plugin exception error, then again its kinda WTF because it shouldn't happen
             raise EnvironmentError("Running platform is not supported by %r" % self)
 
     @property
     def supported(self) -> bool:
-        return self._platform_support
+        return self._running_platform in self._executors
+
+    @property
+    def supported_platforms(self):
+        return list(self._executors.keys())
 
 
 class PluginResult:
@@ -128,8 +145,7 @@ class PluginResult:
 
     def __init__(self, plugin: AbstractPlugin):
         self.plugin = plugin
-        self.template = plugin.template
-        self.data = None
+        self.data, template = None
         self.exception = None
 
     def add_exception(self, exception):

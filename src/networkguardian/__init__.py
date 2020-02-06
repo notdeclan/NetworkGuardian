@@ -2,14 +2,11 @@ import logging
 from glob import glob
 from os.path import basename, dirname, join
 
-max_threads = None
-log = None
-
-from networkguardian.registry import registered_plugins
-
 application_name = "Network Guardian"
 application_version = 0.1
+
 logging_mode = logging.DEBUG
+logger = None
 
 
 def initialize_logger():
@@ -17,9 +14,9 @@ def initialize_logger():
     Function is used to
     :return:
     """
-    global log
-    log = logging.getLogger('Network Guardian')
-    log.setLevel(logging_mode)
+    global logger
+    logger = logging.getLogger('Network Guardian')
+    logger.setLevel(logging_mode)
 
     # create console handler with a higher log level (ie only print important shite to console etc)
     ch = logging.StreamHandler()
@@ -30,7 +27,12 @@ def initialize_logger():
     ch.setFormatter(formatter)
 
     # add the handler to the logger
-    log.addHandler(ch)
+    if logger.hasHandlers():
+        logger.handlers.clear()
+
+    logger.addHandler(ch)
+
+    return logger
 
 
 def initialize_plugins():

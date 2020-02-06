@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 
-from networkguardian import registered_plugins
+from networkguardian.registry import registered_plugins
 from networkguardian.report import Report
 
 """

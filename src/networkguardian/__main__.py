@@ -1,7 +1,8 @@
 from asyncio import sleep
 from http.client import HTTPConnection
 
-from networkguardian import log, registered_plugins
+from networkguardian import logger
+from networkguardian.registry import registered_plugins, load_plugins
 from networkguardian.server import start_server
 
 
@@ -24,20 +25,20 @@ def is_alive(remote_url: str, remote_port: int, path: str = '/'):
 
 
 if __name__ == '__main__':
-    log.debug('Starting Flask Server')
+    logger.debug('Starting Flask Server')
     host, port = "127.0.0.1", 24982
 
     start_server(host, port)
 
-    for p in registered_plugins:
-        print(p.name)
+    logger.debug('Loading Plugins')
+    load_plugins()
+    logger.debug(f'Loaded {len(registered_plugins)} plugins')
 
-    log.debug('Waiting for Server Availability')
+    logger.debug('Waiting for Server Availability')
     while not is_alive(host, port):  # wait until web server is running and application  is responding
         sleep(1)
 
-    log.debug('Creating Webview Window')
-
+    logger.debug('Creating Webview Window')
     # TODO: find cross platform way of calculating screen resolution so window can start in maximised mode=======
 
     while True:

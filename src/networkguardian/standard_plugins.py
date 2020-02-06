@@ -10,7 +10,7 @@ import psutil
 from jinja2 import Template
 
 from networkguardian.exceptions import PluginInitializationError
-from networkguardian.plugin import AbstractPlugin, Category, Platform
+from networkguardian.plugin import AbstractPlugin, Category, Platform, executor
 from networkguardian.registry import register_plugin
 
 """
@@ -18,7 +18,7 @@ from networkguardian.registry import register_plugin
 """
 
 
-@register_plugin
+@register_plugin("Example", Category.ATTACK, "Declan W", 0.1)
 class ExamplePlugin(AbstractPlugin):
     """
         An example plugin to demonstrate the functionality and api to developers of custom plugins.
@@ -29,16 +29,35 @@ class ExamplePlugin(AbstractPlugin):
         <b>HTML elements are supported, but major changes to formatting is discouraged.</b>
     """
 
-    def __init__(self):
-        super().__init__("Example", Category.ATTACK, "Declan W", 0.1,
-                         [Platform.MAC_OS, Platform.WINDOWS, Platform.LINUX])
-
     def initialize(self):
         # Should a plugin require a dependency or further checks when loading, this should be done here.
         if "test" not in "test":
             # if a plugin for whatever reason cannot be loaded, PluginInitializationError should be raised
             raise PluginInitializationError("Test was not in test, so the plugin could not be initialized properly")
 
+    # The plugins Jinja template should be returned here
+    # Data that is returned from execute should be rendered here
+    # For more information on how Jinja templating works, see https://jinja.palletsprojects.com/en/2.11.x/templates/
+    template = Template("""
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for id, result in results.items() %}
+                    <tr>
+                        <td>{{ id }}</td>
+                        <td>{{ result }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    """)
+
+    @executor(template, Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS)
     def execute(self) -> {}:
         # Do plugin execution here, IE scan or produce results from some data source
         # Then data should be formatted into a dictionary used for storage, and for rendering in the plugin template
@@ -49,42 +68,26 @@ class ExamplePlugin(AbstractPlugin):
             },
         }
 
-    @property
-    def template(self) -> Template:
-        # The plugins Jinja template should be returned here
-        # Data that is returned from execute should be rendered here
-        # For more information on how Jinja templating works, see https://jinja.palletsprojects.com/en/2.11.x/templates/
-        return Template("""
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Result</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for id, result in results.items() %}
-                        <tr>
-                            <td>{{ id }}</td>
-                            <td>{{ result }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        """)
 
-
-@register_plugin
+@register_plugin("System Information", Category.INFO, "Declan W", 0.1)
 class SystemInformationPlugin(AbstractPlugin):
     """
     Plugin returns
     """
 
-    def __init__(self):
-        super().__init__("System Information", Category.INFO, "Declan W", 0.1,
-                         [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
+    template = Template("""
+            <table>
+                {% for name, value in information.items() %}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{value}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        """)
 
-    def execute(self) -> {}:
+    @executor(template)
+    def execute(self):
         # get information required
         system_name = platform.node()
         username = os.getlogin()
@@ -103,19 +106,6 @@ class SystemInformationPlugin(AbstractPlugin):
                 "Memory": memory
             }
         }
-
-    @property
-    def template(self) -> Template:
-        return Template("""
-            <table>
-                {% for name, value in information.items() %}
-                <tr>
-                    <td>{{name}}</td>
-                    <td>{{value}}</td>
-                </tr>
-                {% endfor %}
-            </table>
-        """)
 
     def get_memory(self):
         """
@@ -145,31 +135,23 @@ class SystemInformationPlugin(AbstractPlugin):
         return byte_count, power_labels[n]
 
 
-@register_plugin
+@register_plugin("Test Plugin", Category.INFO, "Declan W", 0.1)
 class TestPlugin(AbstractPlugin):
     """
     Plugin returns
     """
 
-    def __init__(self):
-        super().__init__("Test Plugin", Category.INFO, "Declan W", 0.1,
-                         [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
-        self.sleep_time = randint(1, 4)
-
-    def execute(self) -> {}:
-        print("Starting Sleep")
-        time.sleep(self.sleep_time)
+    @executor(Template("UUID: {{uuid}}, Slept for: {{sleep}}"))
+    def execute(self):
+        sleep_time = randint(1, 4)
+        time.sleep(sleep_time)
         return {
             "uuid": uuid.uuid4(),
-            "sleep": self.sleep_time
+            "sleep": sleep_time
         }
 
-    @property
-    def template(self) -> Template:
-        return Template("""Test Plugin Completed {{uuid}} {{sleep}}""")
 
-
-@register_plugin
+@register_plugin("Network Interface Information", Category.INFO, "Owen", 0.1)
 class NetworkInterfaceInformation(AbstractPlugin):
     """
         This plugin will return details about the network interfaces.
@@ -177,11 +159,62 @@ class NetworkInterfaceInformation(AbstractPlugin):
         netmask and mac address.
     """
 
-    def __init__(self):
-        super().__init__("Network Interface Information", Category.INFO, "Owen", 0.1,
-                         [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
+    template = Template("""
+        <h3> Network Interfaces </h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Adapter Name</th>
+                        <th>Is Up?</th>
+                        <th>Mac</th>
+                        <th>IP</th>
+                        <th>Broadcast</th>
+                        <th>Netmask</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, value in result.items() %}
+                        {%- if value.Mac is defined %}
+                            <tr>
+                                <td>{{name}}</td>
+                                <td>{{value.IsUp}}</td>
+                                <td>{{value.Mac}}</td>
+                                <td>{{value.IP}}</td>
+                                <td>{{value.Broadcast}}</td>
+                                <td>{{value.Netmask}}</td> 
+                            </tr>
+                        {%- endif %}
+                    {%- endfor %}
+                </tbody>
+            </table>
+    
+            <h3> Non-Standard Interfaces </h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Adapter Name</th>
+                        <th>IP</th>
+                        <th>Broadcast</th>
+                        <th>Netmask</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {%- for name, value in result.items() -%}
+                        {%- if value.Mac is undefined %}
+                            <tr>
+                                <td>{{name}}</td>
+                                <td>{{value.Address}}</td>
+                                <td>{{value.Broadcast}}</td>
+                                <td>{{value.Netmask}}</td>
+                            </tr>
+                        {%- endif -%}
+                    {%- endfor %}
+                </thead>
+            </table>
+        """)
 
-    def execute(self) -> {}:
+    @executor(template)
+    def execute(self):
         """
             Get information using psutil and stores into variables
         """
@@ -216,102 +249,34 @@ class NetworkInterfaceInformation(AbstractPlugin):
             "result": nested_dict
         }
 
-    @property
-    def template(self) -> Template:
-        return Template("""
-            <h3> Network Interfaces </h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Adapter Name</th>
-                        <th>Is Up?</th>
-                        <th>Mac</th>
-                        <th>IP</th>
-                        <th>Broadcast</th>
-                        <th>Netmask</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for name, value in result.items() %}
-                        {%- if value.Mac is defined %}
-                            <tr>
-                                <td>{{name}}</td>
-                                <td>{{value.IsUp}}</td>
-                                <td>{{value.Mac}}</td>
-                                <td>{{value.IP}}</td>
-                                <td>{{value.Broadcast}}</td>
-                                <td>{{value.Netmask}}</td> 
-                            </tr>
-                        {%- endif %}
-                    {%- endfor %}
-                </tbody>
-            </table>
 
-            <h3> Non-Standard Interfaces </h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Adapter Name</th>
-                        <th>IP</th>
-                        <th>Broadcast</th>
-                        <th>Netmask</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {%- for name, value in result.items() -%}
-                        {%- if value.Mac is undefined %}
-                            <tr>
-                                <td>{{name}}</td>
-                                <td>{{value.Address}}</td>
-                                <td>{{value.Broadcast}}</td>
-                                <td>{{value.Netmask}}</td>
-                            </tr>
-                        {%- endif -%}
-                    {%- endfor %}
-                </thead>
-            </table>
-        """)
-
-
-@register_plugin
+@register_plugin("Internet Connectivity", Category.INFO, "Velislav V", 1.0)
 class CheckInternetConnectivityPlugin(AbstractPlugin):
     """
         This plugin determines whether the local machine has access to the internet
     """
 
-    def __init__(self):
-        super().__init__("Internet Connectivity Plugin", Category.INFO, "Velislav V", 1.0,
-                         [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
+    @executor(Template("System is {{ 'Connected' if internet else 'not Connected' }} to the Internet"))
+    def execute(self):
+        def check_internet():
+            """x
+            Function is used to return whether the local machine has internet access
 
-    @property
-    def template(self) -> Template:
-        return Template("""
-            System is {{ 'Connected' if internet else 'not Connected' }} to the Internet
-        """)
+            Works by looping through multiple URL's and connecting to them, if one successfully connects
+            it will return True, otherwise False
 
-    @property
-    def execute(self) -> {}:
-        status = self.check_internet()  # get internet status
+            :return: True/False
+            """
+            urls = ["https://google.co.uk", "https://youtube.com", "https://bbc.co.uk"]
+            for url in urls:  # loop through all URL's
+                try:
+                    urlopen(url, timeout=5)
+                    return True  # if connect, internet is working, return True
+                except URLError:
+                    continue  # if fail, go to next URL in loop
+
+            return False  # if all URL's fail, return False
+
         return {
-            "internet": status
+            "internet": check_internet()
         }
-
-    @staticmethod
-    def check_internet() -> bool:
-        """
-        Function is used to return whether the local machine has internet access
-
-        Works by looping through multiple URL's and connecting to them, if one successfully connects
-        it will return True, otherwise False
-
-        :return: True/False
-        """
-        urls = ["https://google.co.uk", "https://youtube.com", "https://bbc.co.uk"]
-        for url in urls:  # loop through all URL's
-            try:
-                urlopen(url, timeout=5)
-                return True  # if connect, internet is working, return True
-            except URLError:
-                continue  # if fail, go to next URL in loop
-
-        return False  # if all URL's fail, return False

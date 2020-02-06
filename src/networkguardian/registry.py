@@ -2,16 +2,35 @@ import multiprocessing
 from concurrent import futures
 from concurrent.futures.thread import ThreadPoolExecutor
 
-from networkguardian import max_threads
 from networkguardian.exceptions import PluginProcessingError
-from networkguardian.plugin import PluginResult
+from networkguardian.plugin import PluginResult, Category, Platform
 
 registered_plugins = []
+max_threads = None
 
 
-def register_plugin(cls):
-    instance = cls()  # create an instance
-    registered_plugins.append(instance)  # add to list
+def register_plugin(name: str, category: Category, author: str, version: float):
+    """
+    Function annotation used to dynamically load/register plugins into the module
+
+    :param name: Name of plugin
+    :param category: Category of the plugin
+    :param author: Author/Developer of the plugin
+    :param version:
+    :return:
+    """
+
+    def __init__(cls):
+        instance = cls(name, category, author, version)  # create an instance
+        registered_plugins.append(instance)  # add to list
+
+    return __init__
+
+
+def load_plugins():
+    running_platform = Platform.detect()
+    for p in registered_plugins:
+        p.load(running_platform)
 
 
 def process_plugins(selected_plugins: []) -> []:
@@ -28,7 +47,7 @@ def process_plugins(selected_plugins: []) -> []:
     with ThreadPoolExecutor(max_workers=thread_count) as tpe:
         # loop through all plugins, submit future for each one
         future_to_plugin = {
-            tpe.submit(p.execute): p for p in selected_plugins
+            tpe.submit(p.process): p for p in selected_plugins
         }
 
         for future in futures.as_completed(future_to_plugin):
