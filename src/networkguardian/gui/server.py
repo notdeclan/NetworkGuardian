@@ -1,5 +1,3 @@
-import logging
-import sys
 from http.client import HTTPConnection
 from threading import Thread
 
@@ -8,11 +6,11 @@ from flask import Flask
 from networkguardian.gui.blueprints import api, panel
 
 # DISABLE FLASK MESSAGE
-cli = sys.modules['flask.cli']
-cli.show_server_banner = lambda *x: None
-
-# LOWER FLASK LOGGING LEVEL
-logging.getLogger('werkzeug').setLevel(logging.ERROR)
+# cli = sys.modules['flask.cli']
+# cli.show_server_banner = lambda *x: None
+#
+# # LOWER FLASK LOGGING LEVEL
+# logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 # FLASK CONFIGURATION
 app = Flask(__name__)
