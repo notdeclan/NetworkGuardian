@@ -4,8 +4,7 @@ from threading import Thread
 
 from flask import Flask
 
-from networkguardian.gui.blueprints.api import mod as api
-from networkguardian.gui.blueprints.panel import mod as panel
+from networkguardian.gui.blueprints import api, panel
 
 # DISABLE FLASK MESSAGE
 cli = sys.modules['flask.cli']
@@ -17,8 +16,8 @@ logging.getLogger('werkzeug').setLevel(logging.ERROR)
 # FLASK CONFIGURATION
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1  # disable caching
-app.register_blueprint(panel)
-app.register_blueprint(api)
+app.register_blueprint(panel.mod)
+app.register_blueprint(api.mod)
 
 
 @app.after_request

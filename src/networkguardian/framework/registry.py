@@ -2,10 +2,12 @@ import multiprocessing
 from concurrent import futures
 from concurrent.futures.thread import ThreadPoolExecutor
 
+from networkguardian import logger
 from networkguardian.exceptions import PluginProcessingError
 from networkguardian.framework.plugin import PluginResult, Category, Platform
 
 registered_plugins = []
+
 max_threads = None
 
 
@@ -46,7 +48,12 @@ def test_plugin(cls):
 def load_plugins():
     running_platform = Platform.detect()
     for p in registered_plugins:
-        p.load(running_platform)
+        try:
+            p.load(running_platform)
+            logger.debug(f'Loaded {p}')
+        except Exception as loading_exception:
+            logger.error(f'Failed to load {p} due to {loading_exception}, disabling.')
+            p.loading_exception = loading_exception
 
 
 def process_plugins(selected_plugins: []) -> []:
@@ -104,7 +111,7 @@ def get_thread_count(max_required: int = None):
         if max_required < thread_count:  # if the required is smaller than thread count
             thread_count = max_required  # just set it the required amount
 
-    if max_threads is not None:
+    if max_threads is not None:  # ie if it has been set by the user TODO: add this into config when done
         if thread_count > max_threads:  # if the thread count is higher than the max allowed threads set by
             # the user
             thread_count = max_threads  # set the thread count

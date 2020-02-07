@@ -94,6 +94,7 @@ class AbstractPlugin(metaclass=MetaPlugin):
 
         # Running information
         self._running_platform = None
+        self.loading_exception = None
 
     def __repr__(self):
         return 'Plugin(name=%r, description=%r, author=%r, version=%r)' \
@@ -108,10 +109,7 @@ class AbstractPlugin(metaclass=MetaPlugin):
         function should be used.
         """
         self._running_platform = running_platform
-
-        # log.debug(f'Attempting to initialize {self.name} plugin')
         self.initialize()
-        # log.debug(f'Initialized {self.name} plugin')
 
     def initialize(self):
         """
