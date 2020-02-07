@@ -1,4 +1,4 @@
 jinja2
 flask
-pywebview[qt]
+pywebview
 psutil

@@ -1,8 +1,9 @@
 import logging
+import sys
 from asyncio import sleep
 from glob import glob
 from http.client import HTTPConnection
-from os.path import dirname, basename, join
+from os.path import basename, join
 
 from networkguardian import application_name, logging_mode
 from networkguardian.framework.registry import registered_plugins, load_plugins
@@ -56,24 +57,32 @@ def initialize_logger():
 def import_plugins(directory: str):
     # Import all classes in this directory so that classes with @register_plugin are registered.
     # TODO: when freezing and building work out how to specify a user directory to load plugins from etc...
+    sys.path.append(directory)
     for x in glob(join(directory, '*.py')):  # for each file in working directory that have file
         if not x.startswith('__'):  # if not private
-            __import__(basename(x)[:-3], globals(), locals())  # import it
+            __import__(basename(x)[:-3], globals(), locals())
 
 
 if __name__ == '__main__':
     initialize_logger()
     logger.debug('Logger initialized')
 
-    import_plugins(dirname(__file__))  # TODO: init plugins in current directory but will change when frozen etc...
+    logger.debug('Importing Standard Plugins')
+
+    logger.debug('Importing External Plugins')
+    import_plugins("../plugins")  # TODO: figure out what the actual path will be when freezing
+
+    logger.debug("Attempting to load Plugins")
+    load_plugins()
+
+    for plugin in registered_plugins:
+        logger.debug(f'Loaded {plugin}')
+
+    logger.debug(f'Loaded {len(registered_plugins)} plugins')
 
     logger.debug('Starting Flask Server')
     host, port = "127.0.0.1", 24982
     start_server(host, port)
-
-    logger.debug('Loading Plugins')
-    load_plugins()
-    logger.debug(f'Loaded {len(registered_plugins)} plugins')
 
     logger.debug('Waiting for Server Availability')
     while not is_alive(host, port):  # wait until web server is running and application  is responding

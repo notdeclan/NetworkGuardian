@@ -1,8 +1,5 @@
 import os
 import platform
-import time
-import uuid
-from random import randint
 from urllib.error import URLError
 from urllib.request import urlopen
 
@@ -133,22 +130,6 @@ class SystemInformationPlugin(AbstractPlugin):
             n += 1
 
         return byte_count, power_labels[n]
-
-
-@register_plugin("Test Plugin", Category.INFO, "Declan W", 0.1)
-class TestPlugin(AbstractPlugin):
-    """
-    Plugin returns
-    """
-
-    @executor(Template("UUID: {{uuid}}, Slept for: {{sleep}}"))
-    def execute(self):
-        sleep_time = randint(1, 4)
-        time.sleep(sleep_time)
-        return {
-            "uuid": uuid.uuid4(),
-            "sleep": sleep_time
-        }
 
 
 @register_plugin("Network Interface Information", Category.INFO, "Owen", 0.1)
