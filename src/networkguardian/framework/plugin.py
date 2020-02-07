@@ -67,7 +67,7 @@ def executor(template: Template, *platforms: Platform):
 
 
 class MetaPlugin(type):
-    # using __new__ because it's called when the class is created, i.e before __init__
+
     def __new__(mcs, name, bases, attrs):
         executors = {}
         for fn_name, fn in attrs.items():  # for each NAME, FUNCTION in class

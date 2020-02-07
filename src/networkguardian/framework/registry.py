@@ -3,7 +3,7 @@ from concurrent import futures
 from concurrent.futures.thread import ThreadPoolExecutor
 
 from networkguardian.exceptions import PluginProcessingError
-from networkguardian.plugin import PluginResult, Category, Platform
+from networkguardian.framework.plugin import PluginResult, Category, Platform
 
 registered_plugins = []
 max_threads = None

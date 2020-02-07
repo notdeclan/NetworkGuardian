@@ -7,7 +7,7 @@
 from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 
-from networkguardian.plugin import Platform
+from networkguardian.framework.plugin import Platform
 from networkguardian.standard_plugins import TestPlugin
 from prototyping.thread_count_util import get_thread_count
 

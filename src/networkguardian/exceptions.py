@@ -2,6 +2,7 @@
 Module contains exceptions raised within Network Guardian
 """
 
+
 # TODO: Start raising and handling these properly...
 
 class PluginException(Exception):

@@ -10,8 +10,8 @@ import psutil
 from jinja2 import Template
 
 from networkguardian.exceptions import PluginInitializationError
-from networkguardian.plugin import AbstractPlugin, Category, Platform, executor
-from networkguardian.registry import register_plugin, test_plugin
+from networkguardian.framework.plugin import AbstractPlugin, Category, Platform, executor
+from networkguardian.framework.registry import register_plugin
 
 """
     Module is used to store all the standard plugins
@@ -250,8 +250,7 @@ class NetworkInterfaceInformation(AbstractPlugin):
         }
 
 
-# @register_plugin("Internet Connectivity", Category.INFO, "Velislav V", 1.0)
-@test_plugin
+@register_plugin("Internet Connectivity", Category.INFO, "Velislav V", 1.0)
 class CheckInternetConnectivityPlugin(AbstractPlugin):
     """
         This plugin determines whether the local machine has access to the internet

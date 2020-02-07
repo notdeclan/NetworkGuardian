@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template
 
-from networkguardian.registry import registered_plugins
-from networkguardian.report import Report
+from networkguardian.framework.registry import registered_plugins
+from networkguardian.framework.report import Report
 
 """
     TODO: Explain this file ... 
