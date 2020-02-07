@@ -7,7 +7,7 @@ import psutil
 from jinja2 import Template
 
 from networkguardian.exceptions import PluginInitializationError
-from networkguardian.framework.plugin import AbstractPlugin, Category, Platform, executor
+from networkguardian.framework.plugin import AbstractPlugin, PluginCategory, SystemPlatform, executor
 from networkguardian.framework.registry import register_plugin
 
 """
@@ -54,7 +54,7 @@ class ExamplePlugin(AbstractPlugin):
         </table>
     """)
 
-    @executor(template, Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS)
+    @executor(template, SystemPlatform.WINDOWS, SystemPlatform.LINUX, SystemPlatform.MAC_OS)
     def execute(self) -> {}:
         # Do plugin execution here, IE scan or produce results from some data source
         # Then data should be formatted into a dictionary used for storage, and for rendering in the plugin template
@@ -66,7 +66,7 @@ class ExamplePlugin(AbstractPlugin):
         }
 
 
-@register_plugin("System Information", Category.INFO, "Declan W", 0.1)
+@register_plugin("System Information", PluginCategory.INFO, "Declan W", 0.1)
 class SystemInformationPlugin(AbstractPlugin):
     """
     Plugin returns
@@ -132,7 +132,7 @@ class SystemInformationPlugin(AbstractPlugin):
         return byte_count, power_labels[n]
 
 
-@register_plugin("Network Interface Information", Category.INFO, "Owen", 0.1)
+@register_plugin("Network Interface Information", PluginCategory.INFO, "Owen", 0.1)
 class NetworkInterfaceInformation(AbstractPlugin):
     """
         This plugin will return details about the network interfaces.
@@ -231,7 +231,7 @@ class NetworkInterfaceInformation(AbstractPlugin):
         }
 
 
-@register_plugin("Internet Connectivity", Category.INFO, "Velislav V", 1.0)
+# @register_plugin("Internet Connectivity", PluginCategory.INFO, "Velislav V", 1.0)
 class CheckInternetConnectivityPlugin(AbstractPlugin):
     """
         This plugin determines whether the local machine has access to the internet
@@ -254,6 +254,7 @@ class CheckInternetConnectivityPlugin(AbstractPlugin):
                     urlopen(url, timeout=5)
                     return True  # if connect, internet is working, return True
                 except URLError:
+                    print("timeout on", url)
                     continue  # if fail, go to next URL in loop
 
             return False  # if all URL's fail, return False

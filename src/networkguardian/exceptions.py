@@ -26,3 +26,10 @@ class PluginProcessingError(PluginException):
     developers should always suggest the reason in the exception message if possible
     """
     ...
+
+
+class PluginUnsupportedPlatformError(PluginException):
+    """
+    Exception is raised when the plugin's load function is called on a platform which is not supported.
+    """
+    ...

@@ -1,17 +1,20 @@
 import multiprocessing
+import sys
 from concurrent import futures
 from concurrent.futures.thread import ThreadPoolExecutor
+from glob import glob
+from os.path import join, basename
 
 from networkguardian import logger
 from networkguardian.exceptions import PluginProcessingError
-from networkguardian.framework.plugin import PluginResult, Category, Platform
+from networkguardian.framework.plugin import PluginCategory, SystemPlatform
+from networkguardian.framework.report import PluginResult
 
 registered_plugins = []
+max_threads = None  # ie if it has been set by the user TODO: add this into config when done
 
-max_threads = None
 
-
-def register_plugin(name: str, category: Category, author: str, version: float):
+def register_plugin(name: str, category: PluginCategory, author: str, version: float):
     """
     Function annotation used to dynamically load/register plugins into the module
 
@@ -36,8 +39,8 @@ def test_plugin(cls):
     to use comment out the @register annotation above an AbstractPlugin abstraction, and place above...
     """
     print("Testing: ", cls)
-    instance = cls("Test", Category.INFO, "Author", 1)
-    instance.load(Platform.detect())
+    instance = cls("Test", PluginCategory.INFO, "Author", 1)
+    instance.load(SystemPlatform.detect())
     data, template = instance.process()
     print("\tSupports:", instance.supported_platforms)
     print("\tData:", data)
@@ -45,15 +48,31 @@ def test_plugin(cls):
     return instance
 
 
+def import_plugins(directory: str):
+    """
+    Import's python modules from directory paths
+
+    :param directory: directory to look for modules
+    """
+    # Import all classes in this directory so that classes with @register_plugin are registered.
+    sys.path.append(directory)  # append directory to path so can be imported
+    for x in glob(join(directory, '*.py')):  # for each file in working directory that have file
+        if not x.startswith('__'):  # if not private
+            __import__(basename(x)[:-3], globals(), locals())
+
+
 def load_plugins():
-    running_platform = Platform.detect()
-    for p in registered_plugins:
+    """
+    Function is used to all plugins stored in the registered_plugins list
+    """
+    running_platform = SystemPlatform.detect()  # store running platform as a variable for efficiency
+    for plugin in registered_plugins:
         try:
-            p.load(running_platform)
-            logger.debug(f'Loaded {p}')
-        except Exception as loading_exception:
-            logger.error(f'Failed to load {p} due to {loading_exception}, disabling.')
-            p.loading_exception = loading_exception
+            plugin.load(running_platform)  # attempt to load
+            logger.debug(f'Successfully loaded {plugin}')
+        except Exception as loading_exception:  # if exception add to the plugin so it can be displayed later in GUI
+            logger.error(f'Failed to load {plugin} due to {loading_exception}, disabling.')
+            plugin.loading_exception = loading_exception
 
 
 def process_plugins(selected_plugins: []) -> []:
@@ -65,6 +84,7 @@ def process_plugins(selected_plugins: []) -> []:
     :return: List of Result objects
     """
     thread_count = get_thread_count(max_required=len(selected_plugins))
+    logger.debug(f'Processing {len(selected_plugins)} Plugins with {thread_count} Threads')
     results = []
 
     with ThreadPoolExecutor(max_workers=thread_count) as tpe:
@@ -75,9 +95,13 @@ def process_plugins(selected_plugins: []) -> []:
 
         for future in futures.as_completed(future_to_plugin):
             plugin = future_to_plugin[future]
+            print(plugin.name, "has finished yeet")
+
             result = PluginResult(plugin)
             try:
-                result.add_data(future.result())
+                data, template = future.result()
+                result.add_data(data, template)
+
             except PluginProcessingError as ppe:
                 # TODO : add handling for this, whether its adding exception to "Result" object or displaying on
                 #  UI etc
@@ -111,7 +135,7 @@ def get_thread_count(max_required: int = None):
         if max_required < thread_count:  # if the required is smaller than thread count
             thread_count = max_required  # just set it the required amount
 
-    if max_threads is not None:  # ie if it has been set by the user TODO: add this into config when done
+    if max_threads is not None:
         if thread_count > max_threads:  # if the thread count is higher than the max allowed threads set by
             # the user
             thread_count = max_threads  # set the thread count

@@ -1,30 +1,37 @@
+import base64
+import json
 import platform
 from datetime import datetime
 
 from networkguardian import application_version
-from networkguardian.framework.plugin import Platform, PluginResult
+from networkguardian.framework.plugin import SystemPlatform, AbstractPlugin
+
+""" 
+    Report Serialization works as follows:
+    dumped to json, and template is stored as a base64'd pickle
+"""
+
+# KEY == file path,  VALUE == report
+reports = {}
 
 
-# TODO: Finish These functions
+class PluginResult:
+    """
+    Potentially temporary way of storing a plugin result
+    """
 
-def store_report(report):
-    pass
+    def __init__(self, plugin: AbstractPlugin):
+        self.plugin = plugin
+        self.exception = None
+        self.data = None
+        self.template = None
 
+    def add_exception(self, exception):
+        self.exception = exception
 
-def load_report(path):
-    pass
-
-
-def report_time():
-    return str(datetime.now())
-
-
-def report_platform():
-    return Platform.detect().name
-
-
-def report_system_name():
-    return platform.node()
+    def add_data(self, data, template):
+        self.data = data
+        self.template = template
 
 
 class Report:
@@ -36,13 +43,16 @@ class Report:
     """
 
     def __init__(self, scan_name):
+        self.date = str(datetime.now())
         self.scan_name = scan_name
-        self.system_name = report_system_name()
-        self.date = report_time()
+        self.system_name = platform.node()
+        self.system_platform = SystemPlatform.detect()
         self.software_version = application_version
-        self.system_platform = None  # TODO: this
 
         self.results = []
+
+    def __repr__(self):
+        return f"Report(scan_name={self.scan_name}, system_name={self.system_name})"
 
     def add_result(self, result: PluginResult):
         if isinstance(result, PluginResult):
@@ -53,3 +63,28 @@ class Report:
     def add_results(self, results: [PluginResult]):
         for result in results:
             self.add_result(result)
+
+    def store(self, path):
+        print("starting store")
+        data = {
+            'date': self.date,
+            'system_name': self.system_name,
+            'system_platform': self.system_platform.name,
+            'software_version': self.software_version,
+            'plugins': {}
+        }
+
+        for result in self.results:
+            print("attempting as result")
+            print(result.template)
+            rendered_template = result.template.render(result.data).encode()
+            encoded_pickle = base64.b64encode(rendered_template)
+            data['plugins'][result.plugin.name] = {
+                'version': result.plugin.name,
+                'author': result.plugin.author,
+                'template': str(encoded_pickle)
+            }
+
+        with open(path, 'w') as f:
+            print("writing oit")
+            json.dump({self.scan_name: data}, f)

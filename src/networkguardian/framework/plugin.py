@@ -4,8 +4,10 @@ from enum import Enum
 
 from jinja2 import Template
 
+from networkguardian.exceptions import PluginUnsupportedPlatformError, PluginProcessingError
 
-class Platform(Enum):
+
+class SystemPlatform(Enum):
     """
     Enum class to used by Network Guardian to determine the running operating system, and to be used to specify platforms
     are supported by plugins.
@@ -23,7 +25,7 @@ class Platform(Enum):
         Function return's correct Platform enum for the running operating system
         """
         system = platform.system()  # get system tag
-        return Platform(system)
+        return SystemPlatform(system)
 
     def __str__(self):
         """
@@ -36,7 +38,7 @@ class Platform(Enum):
         return self.value
 
 
-class Category(Enum):
+class PluginCategory(Enum):
     """
     Enum is used to differentiate between plugin types
     """
@@ -46,24 +48,23 @@ class Category(Enum):
     ATTACK = 'Attack'
 
 
-"""
-    Decorators are called BEFORE class is built i.e __new__, so with a decorator we can tag the function with the 
-    supported platform e.t.c, and then post process it later with the base class
-"""
+def executor(template: Template, *platforms: SystemPlatform):
+    """
+        Decorators are called BEFORE class is built i.e __new__, so with a decorator we can tag the function with the
+        supported platform e.t.c, and then post process it later with the base class
+    """
 
-
-def executor(template: Template, *platforms: Platform):
-    def ret_fun(fn):
-        fn._template = template
+    def decorator(fn):
+        fn._template = template  # add template attribute to function
 
         if len(platforms) == 0:  # if no platform specified, automatically support all Platforms...
-            fn._platforms = [p for p in Platform]
+            fn._platforms = [p for p in SystemPlatform]
         else:
-            fn._platforms = platforms
+            fn._platforms = platforms  # add platform support attribute to function
 
         return fn
 
-    return ret_fun
+    return decorator
 
 
 class MetaPlugin(type):
@@ -83,8 +84,9 @@ class MetaPlugin(type):
 
 
 class AbstractPlugin(metaclass=MetaPlugin):
+    _executors = {}  # suppress IDE errors but is replaced with __new__ in metaclass
 
-    def __init__(self, name: str, category: Category, author: str, version: float):
+    def __init__(self, name: str, category: PluginCategory, author: str, version: float):
         # Required Plugin Information
         self.name = name
         self.category = category
@@ -92,9 +94,10 @@ class AbstractPlugin(metaclass=MetaPlugin):
         self.author = author
         self.version = version
 
-        # Running information
-        self._running_platform = None
-        self.loading_exception = None
+        # Variables populated during runtime
+        self._loaded = False  # used to signify whether a plugin has been successfully loaded
+        self.loading_exception = None  # used to store any exception raised when load() is called to be displayed in GUI
+        self._running_platform = None  # used to store the system platform that is running
 
     def __repr__(self):
         return 'Plugin(name=%r, description=%r, author=%r, version=%r)' \
@@ -109,7 +112,16 @@ class AbstractPlugin(metaclass=MetaPlugin):
         function should be used.
         """
         self._running_platform = running_platform
-        self.initialize()
+
+        if not self.supported:
+            raise PluginUnsupportedPlatformError(f'Plugin is only supported on {self.supported_platforms}')
+
+        self.initialize()  # call plugin's initialization method  MAY :raise: PluginInitializationError
+        self._loaded = True  # update loaded variable
+
+    @property
+    def loaded(self) -> bool:
+        return self._loaded
 
     def initialize(self):
         """
@@ -120,12 +132,12 @@ class AbstractPlugin(metaclass=MetaPlugin):
         """
         pass
 
-    def process(self):
-        if self.supported:  # further check to ensure somehow the plugin isn't executed if
+    def process(self):  # TODO, MAKE THIS MUCH NICER
+        if self.loaded:  # further check to ensure somehow the plugin isn't executed if
             pe = self._executors[self._running_platform]  # pe == platform executor
             return pe(self), pe._template
         else:  # TODO: change this to a plugin exception error, then again its kinda WTF because it shouldn't happen
-            raise EnvironmentError("Running platform is not supported by %r" % self)
+            raise PluginProcessingError("Plugin must be loaded before processing.")
 
     @property
     def supported(self) -> bool:
@@ -134,23 +146,3 @@ class AbstractPlugin(metaclass=MetaPlugin):
     @property
     def supported_platforms(self):
         return list(self._executors.keys())
-
-
-class PluginResult:
-    """
-    Potentially temporary way of storing a plugin result
-    """
-
-    def __init__(self, plugin: AbstractPlugin):
-        self.plugin = plugin
-        self.data, template = None
-        self.exception = None
-
-    def add_exception(self, exception):
-        self.exception = exception
-
-    def add_data(self, data):
-        self.data = data
-
-    def render(self):
-        return self.template.render(self.data)

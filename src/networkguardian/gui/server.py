@@ -1,5 +1,6 @@
 import logging
 import sys
+from http.client import HTTPConnection
 from threading import Thread
 
 from flask import Flask
@@ -43,3 +44,21 @@ def start_server(host, port):
     t = Thread(target=app.run, kwargs=flask_arguments)  # create new thread and run flask inside of it
     t.daemon = True  # make thread non blocking
     t.start()
+
+
+def is_alive(remote_url: str, remote_port: int, path: str = '/'):
+    """
+    Function is used to test whether a web server is responding by sending a HTTP HEAD request
+
+    :param remote_url: Web Server domain or IP
+    :param remote_port: Web Server port
+    :param path: Page to request
+    :return: True if the web server responds, False if not
+    """
+    try:
+        conn = HTTPConnection(remote_url, remote_port)
+        conn.request('HEAD', path)
+        r = conn.getresponse()
+        return r.status == 200
+    except ConnectionRefusedError:  # TODO: figure out actual exception raise here and add to catch
+        return False
