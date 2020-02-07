@@ -12,5 +12,11 @@ setup(
     long_description=readme,
     author='Pentagon',
     url='http://github.com/notdeclan/Network-Guardian',
-    packages=find_packages()
+    packages=find_packages(),
+    install_requires=[
+        "jinja2",
+        "flask",
+        "pywebview",
+        "psutil",
+    ],
 )

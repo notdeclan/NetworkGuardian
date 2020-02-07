@@ -6,12 +6,7 @@ from datetime import datetime
 from networkguardian import application_version
 from networkguardian.framework.plugin import SystemPlatform, AbstractPlugin
 
-""" 
-    Report Serialization works as follows:
-    dumped to json, and template is stored as a base64'd pickle
-"""
-
-# KEY == file path,  VALUE == report
+# KEY == file path,  VALUE == Report obj
 reports = {}
 
 
@@ -39,7 +34,7 @@ class Report:
         Object used to store the result of a scan when initiated.
         Somehow this class will be serialized into a database so it can be loaded, exported e.t.c...
 
-        essentially a model
+        essentially a model probably convert this to just a dict at some point when its completely figured out
     """
 
     def __init__(self, scan_name):

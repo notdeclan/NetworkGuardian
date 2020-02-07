@@ -1,11 +1,11 @@
 from asyncio import sleep
 
 from networkguardian import logger
-from networkguardian.framework.registry import registered_plugins, load_plugins, import_plugins, process_plugins
-from networkguardian.framework.report import Report
+from networkguardian.framework.registry import registered_plugins, load_plugins, import_plugins
 from networkguardian.gui.server import start_server, is_alive
 
-if __name__ == '__main__':
+
+def run():
     logger.debug('Starting Network Guardian')
 
     logger.debug('Importing Standard Plugins')
@@ -30,22 +30,16 @@ if __name__ == '__main__':
         sleep(1)
 
     logger.debug('Creating Webview Window')
+
+    # PYWEBVIEW WINDOW CODE
     # window = webview.create_window(application_name, f'http://{host}:{port}', width=1500)
     # webview.start(debug=True)
 
-    results = process_plugins([p for p in registered_plugins if p.loaded])
+    # TEST REPORT AND PROCESS PLUGIN
+    # results = process_plugins([p for p in registered_plugins if p.loaded])
+    # report = Report("test_report")
+    # report.add_results(results)
+    # report.store('test.report')
 
-    report = Report("test_report")
-    report.add_results(results)
-    report.store('test.report')
-
-    #
-    # for p in registered_plugins:
-    #     if p.loaded:
-    #         print("Processing", p.name)
-    #         data, template = p.process()
-    #         print(template.render(data))
-
-    print("finished")
     while True:
         pass
