@@ -1,12 +1,16 @@
 # noinspection PyUnresolvedReferences
 import encodings.idna  # needed to fix random LookupError when starting when frozen
 import logging
+import sys
 
 application_name = "Network Guardian"
 application_version = 0.1
 
 logging_mode = logging.DEBUG
-logger = None
+
+
+def detect_frozen() -> bool:
+    return getattr(sys, 'frozen', False)
 
 
 def initialize_logger():
@@ -14,7 +18,6 @@ def initialize_logger():
     Function is used to
     :return:
     """
-    global logger
     logger = logging.getLogger(application_name)
     logger.setLevel(logging_mode)
 
@@ -35,4 +38,5 @@ def initialize_logger():
     return logger
 
 
-initialize_logger()
+frozen = detect_frozen()
+logger = initialize_logger()

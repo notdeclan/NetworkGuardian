@@ -3,6 +3,7 @@ import sys
 
 from flask import Blueprint, render_template
 
+from networkguardian import frozen
 from networkguardian.framework.registry import registered_plugins
 from networkguardian.framework.report import Report
 
@@ -10,7 +11,7 @@ from networkguardian.framework.report import Report
     TODO: Explain this file ... 
 """
 
-if getattr(sys, 'frozen', False):  # if frozen
+if frozen:  # if frozen
     template_folder = os.path.join(sys._MEIPASS, 'templates')
     static_folder = os.path.join(sys._MEIPASS, 'static')
 
