@@ -14,12 +14,9 @@ if getattr(sys, 'frozen', False):  # if frozen
     template_folder = os.path.join(sys._MEIPASS, 'templates')
     static_folder = os.path.join(sys._MEIPASS, 'static')
 
-    print("STATIC FOLDER", static_folder)
-    print("TEMPLATE FOLDER", template_folder)
-
     mod = Blueprint('panel', __name__, static_folder=static_folder, template_folder=template_folder)
 else:  # if not frozen
-    mod = Blueprint('panel', __name__, static_folder='static', template_folder='templates')
+    mod = Blueprint('panel', __name__, static_folder='../static', template_folder='templates')
 
 
 @mod.route('/')

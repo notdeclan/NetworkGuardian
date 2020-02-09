@@ -13,7 +13,8 @@ from networkguardian.gui.blueprints import api, panel
 # logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 # FLASK CONFIGURATION
-app = Flask(__name__)
+app = Flask(__name__, static_folder=None)
+
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1  # disable caching
 app.register_blueprint(panel.mod)
 app.register_blueprint(api.mod)

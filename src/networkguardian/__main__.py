@@ -41,5 +41,6 @@ def run():
     # report.add_results(results)
     # report.store('test.report')
 
+    # TODO: add keyboard interrupt / other interrupt catch case for safely shutting down e.t.c...
     while True:
         pass
