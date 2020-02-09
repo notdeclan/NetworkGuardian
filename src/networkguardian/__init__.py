@@ -1,3 +1,5 @@
+# noinspection PyUnresolvedReferences
+import encodings.idna  # needed to fix random LookupError when starting when frozen
 import logging
 
 application_name = "Network Guardian"
