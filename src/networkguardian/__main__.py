@@ -1,11 +1,44 @@
+import os
+import sys
 from asyncio import sleep
+from pathlib import Path
 
-from networkguardian import logger
+import psutil
+
+from networkguardian import logger, is_frozen
 from networkguardian.framework.registry import registered_plugins, load_plugins, import_plugins
-from networkguardian.gui.server import start_server, is_alive
+from networkguardian.gui.server import start, is_alive
+
+
+def create_directories():
+    home = str(Path.home())
+    ng_directory = os.path.join(home, "Network Guardian")
+    sub_folders = ['plugins', 'reports']
+    if not os.path.exists(ng_directory):
+        os.makedirs(ng_directory)
+        for sub_folder_name in sub_folders:
+            os.makedirs(os.path.join(ng_directory, sub_folder_name))
+
+
+def detect_siblings():
+    """
+    Function detects if another Network Guardian instance is running and then exits
+    """
+    pid = os.getpid()  # get the current PID
+    process_name = psutil.Process(pid).name()  # convert the PID to name
+
+    # if there's multiple processes with same name
+    if len([p for p in psutil.process_iter() if process_name in p.name()]) > 2:
+        logger.critical("Another process running, exiting ... ")  # exit
+        sys.exit(1)
 
 
 def run():
+    if is_frozen:
+        detect_siblings()
+
+    create_directories()
+
     logger.debug('Starting Network Guardian')
 
     logger.debug('Importing Standard Plugins')
@@ -23,7 +56,7 @@ def run():
 
     logger.debug('Starting Flask Server')
     host, port = "127.0.0.1", 24982
-    start_server(host, port)
+    start(host, port)
 
     logger.debug('Waiting for Server Availability')
     while not is_alive(host, port):  # wait until web server is running and application  is responding

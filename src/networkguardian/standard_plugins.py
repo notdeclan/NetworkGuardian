@@ -262,4 +262,3 @@ class CheckInternetConnectivityPlugin(AbstractPlugin):
         return {
             "internet": check_internet()
         }
-

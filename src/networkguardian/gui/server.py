@@ -5,10 +5,10 @@ from threading import Thread
 
 from flask import Flask
 
-from networkguardian import frozen
+from networkguardian import is_frozen
 from networkguardian.gui.blueprints import api, panel
 
-if frozen:
+if is_frozen:
     # DISABLE FLASK MESSAGE
     cli = sys.modules['flask.cli']
     cli.show_server_banner = lambda *x: None
@@ -34,7 +34,7 @@ def add_header(response):
     return response
 
 
-def start_server(host, port):
+def start(host, port):
     """
     Start's the flask web server in its own thread
     """

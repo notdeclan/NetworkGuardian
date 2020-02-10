@@ -3,14 +3,14 @@ import encodings.idna  # needed to fix random LookupError when starting when fro
 import logging
 import sys
 
+import confuse
+
 application_name = "Network Guardian"
 application_version = 0.1
-
+is_frozen = getattr(sys, 'frozen', False)
 logging_mode = logging.DEBUG
 
-
-def detect_frozen() -> bool:
-    return getattr(sys, 'frozen', False)
+config = confuse.Configuration(application_name, __name__)
 
 
 def initialize_logger():
@@ -38,5 +38,4 @@ def initialize_logger():
     return logger
 
 
-frozen = detect_frozen()
 logger = initialize_logger()
