@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h2><i class="fa fa-home"></i> Plugins </h2>
+</div>
+
+<section id="plugins">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Plugin Name</th>
+                <th>Category</th>
+                <th>Supported Platforms</th>
+                <th>Author</th>
+                <th>Version</th>
+                <th>Standard/Custom</th>
+            </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>System Information</td>
+            <td>Information</td>
+            <td>Windows, Linux, Max OS</td>
+            <td>Team Pentagon</td>
+            <td>1.0</td>
+            <td>Standard</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+{% endblock %}

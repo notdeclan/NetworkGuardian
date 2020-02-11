@@ -43,14 +43,14 @@ def create_scan():
 
 @mod.route('/scans/view')
 def previous_scans():
-    return render_template('pages/another-page.html')
+    return render_template('pages/previous-scans.html')
 
 
 @mod.route('/plugins/view')
 def view_plugins():
-    pass
+    return render_template('pages/plugins.html')
 
 
 @mod.route('/help/view')
 def view_help():
-    pass
+    return render_template('pages/help.html')
