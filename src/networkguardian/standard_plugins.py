@@ -1,15 +1,13 @@
 import os
 import platform
+import socket
+from socket import AF_INET, SOCK_STREAM, SOCK_DGRAM
 from urllib.error import URLError
 from urllib.request import urlopen
 
 import psutil
-from psutil._common import bytes2human
-
 from jinja2 import Template
-
-import socket
-from socket import AF_INET, SOCK_STREAM, SOCK_DGRAM
+from psutil._common import bytes2human
 
 from networkguardian.exceptions import PluginInitializationError
 from networkguardian.framework.plugin import AbstractPlugin, PluginCategory, SystemPlatform, executor
@@ -249,7 +247,8 @@ class NetworkInterfaceInformation(AbstractPlugin):
 
         return {"result": main_list}
 
-# @register_plugin("Internet Connectivity", PluginCategory.INFO, "Velislav V", 1.0)
+
+@register_plugin("Internet Connectivity", PluginCategory.INFO, "Velislav V", 1.0)
 class CheckInternetConnectivityPlugin(AbstractPlugin):
     """
         This plugin determines whether the local machine has access to the internet
@@ -279,6 +278,7 @@ class CheckInternetConnectivityPlugin(AbstractPlugin):
 
         return {"internet": check_internet()}
 
+
 @register_plugin("NetStat Information", PluginCategory.INFO, "Owen", 1.0)
 class NetStatInformation(AbstractPlugin):
     """
@@ -287,7 +287,7 @@ class NetStatInformation(AbstractPlugin):
         This tells you about the different connections and information about them such as
         the protocol, local address, remote address, status, PID and the program name
     """
-    
+
     template = Template("""
             <h3> Network Connections </h3>
             <table>
@@ -313,7 +313,7 @@ class NetStatInformation(AbstractPlugin):
                 {%- endfor %}
             </table>
         """)
-    
+
     @executor(template)
     def execute(self):
         """
