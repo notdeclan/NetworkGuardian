@@ -1,8 +1,11 @@
+import csv
 import os
 import platform
 import time
+import subprocess
 import urllib
 import uuid
+from io import StringIO
 from urllib.error import URLError
 from urllib.request import urlopen
 
@@ -197,10 +200,16 @@ class CheckInternetConnectivityPlugin(BasePlugin):
 
 
 class UserEnumerationPlugin(BasePlugin):
+
+    """
+    Plugin to enumerate users - as of 11/02/2020 does not work on Mac
+    """
+
     def __init__(self):
         super().__init__("Example", Category.ATTACK, "Declan W", 0.1,
                          [Platform.MAC_OS, Platform.WINDOWS, Platform.LINUX])
 
+    @property
     def template(self) -> Template:
         operating_system = Platform.detect()
 
@@ -209,40 +218,43 @@ class UserEnumerationPlugin(BasePlugin):
                 <table>
                     <thead>
                         <tr>
-                            <th>Node</th>
-                            <th>AccountType</th>
-                            <th>Description</th>
-                            <th>Disabled</th>
-                            <th>Domain</th>
-                            <th>FullName</th>
-                            <th>InstallDate</th>
-                            <th>LocalAccount</th>
-                            <th>Lockout</th>
-                            <th>Name</th>
-                            <th>PasswordChangeable</th>
-                            <th>PasswordExpires</th>
-                            <th>PasswordRequired</th>
-                            <th>SID</th>
-                            <th>SIDType</th>
-                            <th>Status</th>
+                        <th>Node</th>
+                        <th>AccountType</th>
+                        <th>Description</th>
+                        <th>Disabled</th>
+                        <th>Domain</th>
+                        <th>FullName</th>
+                        <th>InstallDate</th>
+                        <th>LocalAccount</th>
+                        <th>Lockout</th>
+                        <th>Name</th>
+                        <th>PasswordChangeable</th>
+                        <th>PasswordExpires</th>
+                        <th>PasswordRequired</th>
+                        <th>SID</th>
+                        <th>SIDType</th>
+                        <th>Status</th>
                         </tr>
                     </thead>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                    <tbody>
+                        {% for key, value in reader.items() %}
+                            {{ key }}
+                        {% endfor %}     
+                    </tbody>
                 </table>
-                        """)
+            """)
         elif operating_system is Platform.LINUX:
             return Template("""
-                
+            
             """)
 
     # noinspection PyUnresolvedReferences
     @property
     def execute(self) -> {}:
-        # Variables
+        return self.user_enumeration()
 
+    @staticmethod
+    def user_enumeration():
         operating_system = Platform.detect()
 
         if operating_system is Platform.WINDOWS:
@@ -259,12 +271,17 @@ class UserEnumerationPlugin(BasePlugin):
             file_stream.readline()
             reader = csv.DictReader(file_stream)
 
-            print(reader.fieldnames)
+            # print(reader.fieldnames)
             print(list(reader))
 
+            # reader.fieldnames = Node, AccountType, Description, Disabled, Domain, FullName, InstallDate, LocalAccount,
+            #                 Lockout, Name, PasswordChangeable, PasswordExpires, PasswordRequired, SID, SIDType, Status
+            # print(reader)
+            exit(1)
             for row in reader:
-                print(row["Node"])
-
+                print(row["Name"], row["Domain"])
+            # syntax = print(row["fieldname1"], row["fieldname2"] ... row["fieldnamex"])
+            return reader
 
         elif operating_system is Platform.LINUX:
             # user + group
@@ -272,12 +289,13 @@ class UserEnumerationPlugin(BasePlugin):
             users = {}
             for p in psutil.pwd.getpwall():
                 users[p[0]] = grp.getgrgid(p[3])[0]
+            return users
         # elif operating_system is Platform.MAC_OS:
         #     import grp
         #     users = {}
         #     for p in psutil.pwd.getpwall():
         #         users[p[0]] = grp.getgrgid(p[3])[0]
-        return {}
+        # return {}
 
 
 if __name__ == '__main__':
