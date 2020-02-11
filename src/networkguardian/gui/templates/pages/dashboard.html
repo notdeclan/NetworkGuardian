@@ -3,7 +3,6 @@
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h2><i class="fa fa-home"></i> Dashboard</h2>
     </div>
-
     <div class="row text-center">
         <div class="col-md-4">
             <div class="card">
@@ -16,8 +15,9 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
+
                     <i class="fa fa-podcast fa-2x"></i>
-                    <h2 class="timer count-title count-number">4</h2>
+                    <h2 class="timer count-title count-number">{{ scans | length }}</h2>
                     <p class="mb-0">Previous Scans</p>
                 </div>
             </div>
@@ -26,7 +26,7 @@
             <div class="card">
                 <div class="card-body">
                     <i class="fa fa-exchange fa-2x"></i>
-                    <h2 class="timer count-title count-number">{{ plugin_count }}</h2>
+                    <h2 class="timer count-title count-number">{{ plugins | length }}</h2>
                     <p class="mb-0">Plugin Count</p>
                 </div>
             </div>
@@ -48,14 +48,16 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td>The first scan</td>
-                <td>Pentagon PC</td>
-                <td>12/12/12</td>
-                <td>8</td>
-                <td>2.0</td>
-                <td>Windows</td>
-            </tr>
+            {% for scan in scans[-3:] | reverse %}
+                <tr>
+                    <td>{{ scan.scan_name }}</td>
+                    <td>{{ scan.system_name }}</td>
+                    <td>{{ scan.date }}</td>
+                    <td>{{ scan.results | length }}</td>
+                    <td>{{ scan.software_version }}</td>
+                    <td>{{ scan.system_platform }}</td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
     </section>

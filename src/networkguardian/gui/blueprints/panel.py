@@ -22,18 +22,15 @@ else:  # if not frozen
 
 @mod.route('/')
 def index():
-    plugin_count = len(registered_plugins)  # total amount of plugin's loaded
-    previous_scans = 10000
-
     test_report = Report("LOL")
-    recent_scans = [test_report]
+    another_report = Report("ANOTHER")
+    recent_scans = [test_report, another_report, another_report, another_report, another_report, test_report]
 
     #  usable_plugins = [p for p in registered_plugins if p.supported]  TODO: easy way to get supported plugins
 
     return render_template('pages/dashboard.html',
-                           plugin_count=plugin_count,
-                           previous_scans=previous_scans,
-                           recent_scans=recent_scans[-3:])
+                           plugins=registered_plugins,
+                           scans=recent_scans)
 
 
 @mod.route('/scans/create')
