@@ -3,21 +3,13 @@
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h2><i class="fa fa-home"></i> Dashboard</h2>
     </div>
+
     <div class="row text-center">
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
-                    <i class="fa fa-exchange fa-2x"></i>
-                    <p class="mb-0">Start Scan</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <i class="fa fa-exchange fa-2x"></i>
-                    <h2 class="timer count-title count-number">{{ previous_scans }}</h2>
-                    <p class="mb-0">Previous Scans</p>
+                    <a href="#" class=" btn btn-dark">Quick Scan</a>
+                    <p class="mb-0">Quick scan uses standard plugins that are currently installed</p>
                 </div>
             </div>
         </div>
@@ -25,7 +17,16 @@
             <div class="card">
                 <div class="card-body">
                     <i class="fa fa-podcast fa-2x"></i>
-                    <h2 class="timer count-title count-number">{{ plugin_count }}</h2>
+                    <h2 class="timer count-title count-number">4</h2>
+                    <p class="mb-0">Previous Scans</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <i class="fa fa-exchange fa-2x"></i>
+                    <h2 class="timer count-title count-number">2</h2>
                     <p class="mb-0">Plugin Count</p>
                 </div>
             </div>
@@ -37,22 +38,24 @@
         </div>
         <table class="table table-hover">
             <thead>
-                <tr>
-                    <th>System Name</th>
-                    <th>Date</th>
-                    <th>Plugins</th>
-                    <th>Version</th>
-                </tr>
+            <tr>
+                <th>Scan Name</th>
+                <th>System Name</th>
+                <th>Date</th>
+                <th>Plugin Count</th>
+                <th>Version</th>
+                <th>Platform</th>
+            </tr>
             </thead>
             <tbody>
-                {% for report in recent_scans %}
-                <tr>
-                    <td>{{ report.system_name }}</td>
-                    <td>{{ report.date }}</td>
-                    <td>{{ report.results.__len__() }}</td>
-                    <td>{{ report.software_version }}</td>
-                </tr>
-                {% endfor %}
+            <tr>
+                <td>The first scan</td>
+                <td>Pentagon PC</td>
+                <td>12/12/12</td>
+                <td>8</td>
+                <td>2.0</td>
+                <td>Windows</td>
+            </tr>
             </tbody>
         </table>
     </section>

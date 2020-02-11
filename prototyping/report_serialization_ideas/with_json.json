@@ -1,0 +1,23 @@
+{
+    "date": "",
+    "scan_name": "",
+    "system_name": "",
+    "system_platform": "",
+    "software_version": "",
+    "plugins": {
+        "Test": {
+            "data": {
+                "uuid": "lol"
+            },
+            "version": 0.1,
+            "author": "bob",
+            "template": ""
+            // maybe pickle the template... ?
+        },
+        "Again": {
+            "data": {
+                "test": "lollolol"
+            }
+        }
+    }
+}

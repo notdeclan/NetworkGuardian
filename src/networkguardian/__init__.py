@@ -1,18 +1,32 @@
+# noinspection PyUnresolvedReferences
+import encodings.idna  # needed to fix random LookupError when starting when frozen
 import logging
+import sys
+
+# import confuse
 
 application_name = "Network Guardian"
 application_version = 0.1
-
+is_frozen = getattr(sys, 'frozen', False)
 logging_mode = logging.DEBUG
 
+
+# if is_frozen:
+#     default = os.path.join(sys._MEIPASS, confuse.DEFAULT_FILENAME)
+#     print(default)
+#
+#     confuse.DEFAULT_FILENAME = default
+#
+# config = confuse.Configuration(application_name, __name__)
+# #  print("MAXXXXXXXXX THREADS = ", config['max_threads'].get(int))
+#
 
 def initialize_logger():
     """
     Function is used to
     :return:
     """
-
-    logger = logging.getLogger('Network Guardian')
+    logger = logging.getLogger(application_name)
     logger.setLevel(logging_mode)
 
     # create console handler with a higher log level (ie only print important shite to console etc)
@@ -24,9 +38,12 @@ def initialize_logger():
     ch.setFormatter(formatter)
 
     # add the handler to the logger
+    if logger.hasHandlers():
+        logger.handlers.clear()
+
     logger.addHandler(ch)
 
     return logger
 
 
-log = initialize_logger()
+logger = initialize_logger()
