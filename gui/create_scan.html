@@ -38,7 +38,7 @@
                             </li>
                             <li class="nav-item">
                                 <a id="devices" class="nav-link" href="/plugins/view">
-                                    <i class="fa fa-exchange"></i> Plugins
+                                    <i class="fas fa-list"></i> Plugins
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -51,64 +51,41 @@
                 </nav>
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h2><i class="fa fa-home"></i> Dashboard</h2>
+                        <h2><i class="fa fa-desktop"></i> Create a Scan</h2>
                     </div>
+                    <section>
+                   <form>
+                        <div class="form-group row">
+                            <label for="scan_name" class="col-sm-2 col-form-label">Name of Scan</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="scan_name" placeholder="Name of Scan">
+                            </div>
+                        </div>
+                         <div class="form-group row">
+                             <label for="plugin_select" class="col-sm-2 col-form-label">Plugins <small>(Use Ctrl + left click to select)</small>:</label>
+                             <select multiple class="col-sm-10 form-control " id="plugin_select" style="height: 100%">
+                                 <option>System Information</option>
+                                 <option>Network Interface Information</option>
+                                 <option>Firewall Status Check</option>
+                                 <option>NMAP Scan</option>
+                                 <option>User Enumeration</option>
+                             </select>
+                         </div>
+                        <div class="form-group inline">
+                            <label for="notes" class="col-sm-2 col-form-label">Notes:</label>
+                            <div class="col-sm-10">
+                                <textarea type="text" class="form-control" id="notes" placeholder="Write any notes here" height="100"></textarea>
+                            </div>
+                        </div>
+                       <div class="form-group row">
+                           <input type="submit" class="btn btn-dark" value="Start Scan">
+                       </div>
+                    </form>
 
-                    <div class="row text-center">
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <a href="#" class=" btn btn-dark">Quick Scan</a>
-                                    <p class="mb-0">Quick scan uses standard plugins that are currently installed</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <i class="fa fa-podcast fa-2x"></i>
-                                    <h2 class="timer count-title count-number">4</h2>
-                                    <p class="mb-0">Previous Scans</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <i class="fa fa-exchange fa-2x"></i>
-                                    <h2 class="timer count-title count-number">2</h2>
-                                    <p class="mb-0">Plugin Count</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <section id="recent-scans">
-                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                            <h4><i class="fa fa-home"></i> Recent Scans</h4>
-                        </div>
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Scan Name</th>
-                                    <th>System Name</th>
-                                    <th>Date</th>
-                                    <th>Plugin Count</th>
-                                    <th>Version</th>
-                                    <th>Platform</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>The first scan</td>
-                                <td>Pentagon PC</td>
-                                <td>12/12/12</td>
-                                <td>8</td>
-                                <td>2.0</td>
-                                <td>Windows</td>
-                            </tr>
-                            </tbody>
-                        </table>
+
                     </section>
+
+
                 </main>
             </div>
         </div>

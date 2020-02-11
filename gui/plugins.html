@@ -14,7 +14,8 @@
     </head>
     <body>
         <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-            <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Network Guardian</a>
+           <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Network Guardian</a>
+           <!-- <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#"><img border="0" alt="W3Schools" src="static/images/Text-No-Logo-Transparent-Large.png" width="200" height="30"></a> -->
         </nav>
         <div class="container-fluid">
             <div class="row">
@@ -28,7 +29,7 @@
                             </li>
                             <li class="nav-item">
                                 <a id="devices" class="nav-link" href="/scans/create">
-                                    <i class="fa fa-desktop"></i> Create Scan
+                                    <i class="fa fa-exchange"></i> Create Scan
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -51,60 +52,29 @@
                 </nav>
                 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h2><i class="fa fa-home"></i> Dashboard</h2>
+                        <h2><i class="fa fa-home"></i> Plugins </h2>
                     </div>
 
-                    <div class="row text-center">
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <a href="#" class=" btn btn-dark">Quick Scan</a>
-                                    <p class="mb-0">Quick scan uses standard plugins that are currently installed</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <i class="fa fa-podcast fa-2x"></i>
-                                    <h2 class="timer count-title count-number">4</h2>
-                                    <p class="mb-0">Previous Scans</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <i class="fa fa-exchange fa-2x"></i>
-                                    <h2 class="timer count-title count-number">2</h2>
-                                    <p class="mb-0">Plugin Count</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <section id="recent-scans">
-                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                            <h4><i class="fa fa-home"></i> Recent Scans</h4>
-                        </div>
+                    <section id="plugins">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Scan Name</th>
-                                    <th>System Name</th>
-                                    <th>Date</th>
-                                    <th>Plugin Count</th>
+                                    <th>Plugin Name</th>
+                                    <th>Category</th>
+                                    <th>Supported Platforms</th>
+                                    <th>Author</th>
                                     <th>Version</th>
-                                    <th>Platform</th>
+                                    <th>Standard/Custom</th>
                                 </tr>
                             </thead>
                             <tbody>
                             <tr>
-                                <td>The first scan</td>
-                                <td>Pentagon PC</td>
-                                <td>12/12/12</td>
-                                <td>8</td>
-                                <td>2.0</td>
-                                <td>Windows</td>
+                                <td>System Information</td>
+                                <td>Information</td>
+                                <td>Windows, Linux, Max OS</td>
+                                <td>Team Pentagon</td>
+                                <td>1.0</td>
+                                <td>Standard</td>
                             </tr>
                             </tbody>
                         </table>
