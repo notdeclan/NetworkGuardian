@@ -35,7 +35,7 @@ def register_plugin(name: str, category: PluginCategory, author: str, version: f
 def test_plugin(cls):
     """
     Temporary way of testing whether a plugin works as expected ...
-
+    TODO: remove this / look for better alternative
     to use comment out the @register annotation above an AbstractPlugin abstraction, and place above...
     """
     print("Testing: ", cls)
@@ -48,7 +48,7 @@ def test_plugin(cls):
     return instance
 
 
-def import_plugins(directory: str):
+def import_external_plugins(directory: str):
     """
     Import's python modules from directory paths
 

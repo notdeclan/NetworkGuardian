@@ -195,7 +195,7 @@ class NetworkInterfaceInformation(AbstractPlugin):
         """)
 
     @executor(template)
-    def execute(self):
+    def dajwdj(self):
         """
             Get information using psutil and stores into variables
         """
@@ -240,7 +240,7 @@ class CheckInternetConnectivityPlugin(AbstractPlugin):
     @executor(Template("System is {{ 'Connected' if internet else 'not Connected' }} to the Internet"))
     def execute(self):
         def check_internet():
-            """x
+            """
             Function is used to return whether the local machine has internet access
 
             Works by looping through multiple URL's and connecting to them, if one successfully connects

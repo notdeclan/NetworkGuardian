@@ -3,15 +3,23 @@ import encodings.idna  # needed to fix random LookupError when starting when fro
 import logging
 import sys
 
-import confuse
+# import confuse
 
 application_name = "Network Guardian"
 application_version = 0.1
 is_frozen = getattr(sys, 'frozen', False)
 logging_mode = logging.DEBUG
 
-config = confuse.Configuration(application_name, __name__)
 
+# if is_frozen:
+#     default = os.path.join(sys._MEIPASS, confuse.DEFAULT_FILENAME)
+#     print(default)
+#
+#     confuse.DEFAULT_FILENAME = default
+#
+# config = confuse.Configuration(application_name, __name__)
+# #  print("MAXXXXXXXXX THREADS = ", config['max_threads'].get(int))
+#
 
 def initialize_logger():
     """

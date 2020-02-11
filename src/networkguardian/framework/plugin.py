@@ -14,7 +14,6 @@ class SystemPlatform(Enum):
 
     Be careful not to confuse with Pythons in-built platform module
     """
-
     WINDOWS = 'Windows'
     LINUX = 'Linux'
     MAC_OS = 'Darwin'
@@ -146,3 +145,12 @@ class AbstractPlugin(metaclass=MetaPlugin):
     @property
     def supported_platforms(self):
         return list(self._executors.keys())
+
+    def json(self) -> {}:
+        return {
+            "name": self.name,
+            "category": self.category,
+            "description": self.description,
+            "author": self.author,
+            "version": self.version
+        }

@@ -6,7 +6,7 @@ from pathlib import Path
 import psutil
 
 from networkguardian import logger, is_frozen
-from networkguardian.framework.registry import registered_plugins, load_plugins, import_plugins
+from networkguardian.framework.registry import registered_plugins, load_plugins, import_external_plugins
 from networkguardian.gui.server import start, is_alive
 
 
@@ -34,19 +34,47 @@ def detect_siblings():
 
 
 def run():
+    """
+    """
+    """
+        STARTUP CONFIGURATIONS:
+            - run () - Starts everything
+            - quick_scan(config) - Just launches scan
+            
+        psuedo code for startup
+        if find config
+            if reports and plugins dir exists
+                load plugins
+                # get disabled plugins from config
+                for plugin in plugins:
+                    if plugin.name in config[disabled_plugins]:
+                        plugin.disabled = True
+                        
+                load reports
+            else
+                create them
+        else if cli saying just scan(report_dir=, external_plugin_dir=, config)
+            launch scan
+        else
+            launch setup
+    """
+    """
+        USB Scan Config:
+            report_dir
+                            
+    """
     if is_frozen:
         detect_siblings()
-
-    create_directories()
 
     logger.debug('Starting Network Guardian')
 
     logger.debug('Importing Standard Plugins')
+
     # noinspection PyUnresolvedReferences
     import networkguardian.standard_plugins
 
     logger.debug('Importing External Plugins')
-    import_plugins("../plugins")  # TODO: figure out what the actual path will be when freezing
+    import_external_plugins("../plugins")  # TODO: figure out what the actual path will be when freezing  i.e config
 
     logger.debug("Loading Plugins")
     load_plugins()
