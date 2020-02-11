@@ -161,7 +161,8 @@ class NetworkInterfaceInformation(BasePlugin):
     """
         This plugin will return details about the network interfaces.
         Such as whether the device is online or not, the IP, broadcast address,
-        netmask and mac address.
+        netmask and mac address. It will also display information about packets, speed,
+        dropped packets and more.
     """
 
     def __init__(self):
@@ -169,7 +170,10 @@ class NetworkInterfaceInformation(BasePlugin):
                          [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
 
     def execute(self) -> {}:
-
+        """
+        Using psutil it gathers all the information required and puts it all into a list so it
+        can be used in the template to be displayed into a table.
+        """
         af_map = {
             socket.AF_INET: 'IPv4',
             socket.AF_INET6: 'IPv6',
@@ -177,8 +181,8 @@ class NetworkInterfaceInformation(BasePlugin):
         }
 
         duplex_map = {
-            psutil.NIC_DUPLEX_FULL: "full",
-            psutil.NIC_DUPLEX_HALF: "half",
+            psutil.NIC_DUPLEX_FULL: "Full",
+            psutil.NIC_DUPLEX_HALF: "Half",
             psutil.NIC_DUPLEX_UNKNOWN: "?",
         }
 
@@ -327,7 +331,7 @@ class NetStatInformation(BasePlugin):
     """
 
     def __init__(self):
-        super().__init__("Netstat Information", Category.INFO, "Owen", 0.1,
+        super().__init__("NetStat Information", Category.INFO, "Owen", 0.1,
                          [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
 
     def execute(self) -> {}:
