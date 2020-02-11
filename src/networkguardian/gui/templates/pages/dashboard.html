@@ -7,8 +7,8 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
-                    <a href="#" class=" btn btn-dark">Quick Scan</a>
-                    <p class="mb-0">Quick scan uses standard plugins that are currently installed</p>
+                    <a href="#" class=" btn btn-dark">Quick Report</a>
+                    <p class="mb-0">Quick report uses standard plugins that are currently installed</p>
                 </div>
             </div>
         </div>
@@ -18,7 +18,7 @@
 
                     <i class="fa fa-podcast fa-2x"></i>
                     <h2 class="timer count-title count-number">{{ scans | length }}</h2>
-                    <p class="mb-0">Previous Scans</p>
+                    <p class="mb-0">Reports</p>
                 </div>
             </div>
         </div>
@@ -39,7 +39,7 @@
         <table class="table table-hover">
             <thead>
             <tr>
-                <th>Scan Name</th>
+                <th>Report Name</th>
                 <th>System Name</th>
                 <th>Date</th>
                 <th>Plugin Count</th>
@@ -48,14 +48,14 @@
             </tr>
             </thead>
             <tbody>
-            {% for scan in scans[-3:] | reverse %}
+            {% for report in reports[-3:] | reverse %}
                 <tr>
-                    <td>{{ scan.scan_name }}</td>
-                    <td>{{ scan.system_name }}</td>
-                    <td>{{ scan.date }}</td>
-                    <td>{{ scan.results | length }}</td>
-                    <td>{{ scan.software_version }}</td>
-                    <td>{{ scan.system_platform }}</td>
+                    <td>{{ report.scan_name }}</td>
+                    <td>{{ report.system_name }}</td>
+                    <td>{{ report.date }}</td>
+                    <td>{{ report.results | length }}</td>
+                    <td>{{ report.software_version }}</td>
+                    <td>{{ report.system_platform }}</td>
                 </tr>
             {% endfor %}
             </tbody>

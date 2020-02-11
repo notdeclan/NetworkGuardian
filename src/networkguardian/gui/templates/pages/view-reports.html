@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h2><i class="fa fa-home"></i> Reports</h2>
+</div>
+
+<section id="previous_scans">
+    <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Report Name</th>
+                <th>System Name</th>
+                <th>Date</th>
+                <th>Plugin Count</th>
+                <th>Version</th>
+                <th>Platform</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for report in reports | reverse %}
+                <tr>
+                    <td>{{ report.scan_name }}</td>
+                    <td>{{ report.system_name }}</td>
+                    <td>{{ report.date }}</td>
+                    <td>{{ report.results | length }}</td>
+                    <td>{{ report.software_version }}</td>
+                    <td>{{ report.system_platform }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+</section>
+{% endblock %}

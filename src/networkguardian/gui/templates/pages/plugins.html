@@ -9,22 +9,34 @@
         <thead>
             <tr>
                 <th>Plugin Name</th>
+                <th>Status</th>
                 <th>Category</th>
                 <th>Supported Platforms</th>
                 <th>Author</th>
                 <th>Version</th>
-                <th>Standard/Custom</th>
             </tr>
         </thead>
         <tbody>
-        <tr>
-            <td>System Information</td>
-            <td>Information</td>
-            <td>Windows, Linux, Max OS</td>
-            <td>Team Pentagon</td>
-            <td>1.0</td>
-            <td>Standard</td>
-        </tr>
+            {% for plugin in plugins  %}
+            <tr>
+                <td>{{ plugin.name }}</td>
+                <td>
+                    {% if plugin.loaded %}
+                        <span scope="row" class="badge badge-success">Enabled</span>
+                    {% else %}
+                        <span scope="row" class="badge badge-danger">Disabled</span>
+                    {% endif %}
+                </td>
+                <td>{{ plugin.category.value }}</td>
+                <td>
+                    {%  for platform in plugin.supported_platforms %}
+                        {{ platform }}
+                    {% endfor %}
+                </td>
+                <td>{{ plugin.author }}</td>
+                <td>{{ plugin.version }}</td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </section>
