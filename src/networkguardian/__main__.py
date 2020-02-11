@@ -22,7 +22,7 @@ def create_directories():
 
 def detect_siblings():
     """
-    Function detects if another Network Guardian instance is running and then exits
+        Function detects if another Network Guardian instance is running and then exits
     """
     pid = os.getpid()  # get the current PID
     process_name = psutil.Process(pid).name()  # convert the PID to name

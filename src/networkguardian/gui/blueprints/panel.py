@@ -36,6 +36,21 @@ def index():
                            recent_scans=recent_scans[-3:])
 
 
+@mod.route('/scans/create')
+def create_scan():
+    return render_template('pages/create-scan.html')
+
+
 @mod.route('/scans/view')
-def another_thing():
+def previous_scans():
     return render_template('pages/another-page.html')
+
+
+@mod.route('/plugins/view')
+def view_plugins():
+    pass
+
+
+@mod.route('/help/view')
+def view_help():
+    pass

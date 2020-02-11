@@ -195,7 +195,7 @@ class NetworkInterfaceInformation(AbstractPlugin):
         """)
 
     @executor(template)
-    def dajwdj(self):
+    def execute(self):
         """
             Get information using psutil and stores into variables
         """
