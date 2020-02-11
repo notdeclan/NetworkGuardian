@@ -4,7 +4,12 @@ from urllib.error import URLError
 from urllib.request import urlopen
 
 import psutil
+from psutil._common import bytes2human
+
 from jinja2 import Template
+
+import socket
+from socket import AF_INET, SOCK_STREAM, SOCK_DGRAM
 
 from networkguardian.exceptions import PluginInitializationError
 from networkguardian.framework.plugin import AbstractPlugin, PluginCategory, SystemPlatform, executor
@@ -137,99 +142,112 @@ class NetworkInterfaceInformation(AbstractPlugin):
     """
         This plugin will return details about the network interfaces.
         Such as whether the device is online or not, the IP, broadcast address,
-        netmask and mac address.
+        netmask and mac address. It will also display information about packets, speed,
+        dropped packets and more.
     """
 
     template = Template("""
-        <h3> Network Interfaces </h3>
+                    <h3> Network Interfaces </h3>
             <table>
-                <thead>
-                    <tr>
-                        <th>Adapter Name</th>
-                        <th>Is Up?</th>
-                        <th>Mac</th>
-                        <th>IP</th>
-                        <th>Broadcast</th>
-                        <th>Netmask</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for name, value in result.items() %}
-                        {%- if value.Mac is defined %}
-                            <tr>
-                                <td>{{name}}</td>
-                                <td>{{value.IsUp}}</td>
-                                <td>{{value.Mac}}</td>
-                                <td>{{value.IP}}</td>
-                                <td>{{value.Broadcast}}</td>
-                                <td>{{value.Netmask}}</td> 
-                            </tr>
-                        {%- endif %}
-                    {%- endfor %}
-                </tbody>
-            </table>
-    
-            <h3> Non-Standard Interfaces </h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Adapter Name</th>
-                        <th>IP</th>
-                        <th>Broadcast</th>
-                        <th>Netmask</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {%- for name, value in result.items() -%}
-                        {%- if value.Mac is undefined %}
-                            <tr>
-                                <td>{{name}}</td>
-                                <td>{{value.Address}}</td>
-                                <td>{{value.Broadcast}}</td>
-                                <td>{{value.Netmask}}</td>
-                            </tr>
-                        {%- endif -%}
-                    {%- endfor %}
-                </thead>
+                <tr>
+                    <th>Adapter Name</th>
+                    <th>Speed</th>
+                    <th>Duplex</th>
+                    <th>MTU</th>
+                    <th>Is-Up?</th>
+                    <th>Bytes In</th>
+                    <th>Packets In</th>
+                    <th>Errors In</th>
+                    <th>Drops In</th>
+                    <th>Bytes Out</th>
+                    <th>Packets Out</th>
+                    <th>Errors Out</th>
+                    <th>Drops Out</th>
+                    <th>Mac</th>
+                    <th>IPv4 Broadcast</th>
+                    <th>IPv4 Netmask</th>
+                    <th>IPv6 Broadcast</th>
+                    <th>IPv6 Netmask</th>
+                </tr>
+                {% for name, value in result.items() %}
+                {%- if value.Mac is defined %}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{value.Speed}}MB</td>
+                    <td>{{value.Duplex}}</td>
+                    <td>{{value.MTU}}</td>
+                    <td>{{value.up}}</td>
+                    <td>{{value.bytesin}}</td> 
+                    <td>{{value.packetsin}}</td> 
+                    <td>{{value.errorsin}}</td> 
+                    <td>{{value.dropsin}}</td> 
+                    <td>{{value.bytesout}}</td> 
+                    <td>{{value.packetsout}}</td> 
+                    <td>{{value.errorsout}}</td> 
+                    <td>{{value.dropsout}}</td> 
+                    <td>{{value.Mac}}</td> 
+                    <td>{{value.IPv4Broadcast}}</td> 
+                    <td>{{value.IPv4Netmask}}</td> 
+                    <td>{{value.IPv6Broadcast}}</td> 
+                    <td>{{value.IPv6Netmask}}</td> 
+                </tr>
+                {%- endif %}
+                {%- endfor %}
             </table>
         """)
 
     @executor(template)
     def execute(self):
         """
-            Get information using psutil and stores into variables
+        Using psutil it gathers all the information required and puts it all into a list so it
+        can be used in the template to be displayed into a table.
         """
-        address = psutil.net_if_addrs()
-        online = psutil.net_if_stats()
-        adapter_names = list(address.keys())
-        i = 0
-        nested_dict = {}
-        """
-            Loop through each adapter
-        """
-        while i < len(adapter_names):
-            length = len(address[adapter_names[i]])
-            name = adapter_names[i]
-            """
-                If adapter has 3 variables then it holds standard information so goes through this,
-                Otherwise goes through the 2nd loop below that will dynamically add the information it stores
-            """
-            if length == 3:
-                nested_dict.update({name: {'IsUp': online[name][0],
-                                           'Mac': address[name][0][1],
-                                           'IP': address[name][1][1],
-                                           'Broadcast': address[name][1][3],
-                                           'Netmask': address[name][1][2]}})
-            elif length != 3:
-                nested_dict.update({name: {'Address': address[name][0][1],
-                                           'Broadcast': address[name][0][3],
-                                           'Netmask': address[name][0][2]}})
-            i += 1
-
-        return {
-            "result": nested_dict
+        af_map = {
+            socket.AF_INET: 'IPv4',
+            socket.AF_INET6: 'IPv6',
+            psutil.AF_LINK: 'MAC',
         }
 
+        duplex_map = {
+            psutil.NIC_DUPLEX_FULL: "Full",
+            psutil.NIC_DUPLEX_HALF: "Half",
+            psutil.NIC_DUPLEX_UNKNOWN: "?",
+        }
+
+        main_list = {}
+
+        stats = psutil.net_if_stats()
+        io_counters = psutil.net_io_counters(pernic=True)
+        for nic, addrs in psutil.net_if_addrs().items():
+            st = stats[nic]
+            io = io_counters[nic]
+
+            main_list.update({nic: {
+                "Speed": st.speed or "-",
+                "Duplex": duplex_map[st.duplex] or "-",
+                "MTU": st.mtu or "-",
+                "up": st.isup or "False",
+                "bytesin": bytes2human(io.bytes_recv) or "0",
+                "packetsin": io.packets_recv or "0",
+                "errorsin": io.errin or "0",
+                "dropsin": io.dropin or "0",
+                "bytesout": bytes2human(io.bytes_sent) or "0",
+                "packetsout": io.packets_sent or "0",
+                "errorsout": io.errout or "0",
+                "dropsout": io.dropout or "0",
+            }})
+
+            for addr in addrs:
+                key = af_map.get(addr.family, addr.family)
+                if key == "MAC":
+                    main_list[nic]["Mac"] = addr.address or "-"
+                else:
+                    key_broadcast = key + "Broadcast"
+                    key_netmask = key + "Netmask"
+                    main_list[nic][key_broadcast] = addr.address or "-"
+                    main_list[nic][key_netmask] = addr.netmask or "-"
+
+        return {"result": main_list}
 
 # @register_plugin("Internet Connectivity", PluginCategory.INFO, "Velislav V", 1.0)
 class CheckInternetConnectivityPlugin(AbstractPlugin):
@@ -259,6 +277,77 @@ class CheckInternetConnectivityPlugin(AbstractPlugin):
 
             return False  # if all URL's fail, return False
 
-        return {
-            "internet": check_internet()
+        return {"internet": check_internet()}
+
+@register_plugin("NetStat Information", PluginCategory.INFO, "Owen", 1.0)
+class NetStatInformation(AbstractPlugin):
+    """
+        The plugin returns netstat information
+
+        This tells you about the different connections and information about them such as
+        the protocol, local address, remote address, status, PID and the program name
+    """
+    
+    template = Template("""
+            <h3> Network Connections </h3>
+            <table>
+                <tr>
+                    <th>#</th>
+                    <th>Protocol</th>
+                    <th>Local Address</th>
+                    <th>Remote Address</th>
+                    <th>Status</th>
+                    <th>PID</th>
+                    <th>Program Name</th>
+                </tr>
+                {% for name, value in result.items() %}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{value.Protocol}}</td>
+                    <td>{{value.LocalAddress}}</td>
+                    <td>{{value.RemoteAddress}}</td>
+                    <td>{{value.Status}}</td>
+                    <td>{{value.PID}}</td> 
+                    <td>{{value.ProgramName}}</td> 
+                </tr>
+                {%- endfor %}
+            </table>
+        """)
+    
+    @executor(template)
+    def execute(self):
+        """
+            Get information using psutil and stores into variables
+        """
+        AD = "-"
+        AF_INET6 = getattr(socket, 'AF_INET6', object())
+        proto_map = {
+            (AF_INET, SOCK_STREAM): 'tcp',
+            (AF_INET6, SOCK_STREAM): 'tcp6',
+            (AF_INET, SOCK_DGRAM): 'udp',
+            (AF_INET6, SOCK_DGRAM): 'udp6',
         }
+
+        main_list = {}
+        i = 1
+        proc_names = {}
+
+        for p in psutil.process_iter(attrs=['pid', 'name']):
+            proc_names[p.info['pid']] = p.info['name']
+        for c in psutil.net_connections(kind='inet'):
+            laddr = "%s:%s" % (c.laddr)
+            raddr = ""
+            if c.raddr:
+                raddr = "%s:%s" % (c.raddr)
+
+                main_list.update({i: {
+                    "Protocol": proto_map[(c.family, c.type)],
+                    "LocalAddress": laddr,
+                    "RemoteAddress": raddr or "-",
+                    "Status": c.status,
+                    "PID": c.pid or "-",
+                    "ProgramName": proc_names.get(c.pid, '?')[:15],
+                }})
+                i += 1
+
+        return {"result": main_list}
