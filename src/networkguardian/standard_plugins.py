@@ -248,7 +248,23 @@ class UserEnumerationPlugin(BasePlugin):
             """)
         elif operating_system is Platform.LINUX:
             return Template("""
-            
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Users</th>
+                                    <th>User Group</th>
+                                </tr>
+                                </thdead>
+                                <tbody>
+                                
+                                    {% for user, user_group in users.items() %}
+                                       <tr>
+                                            <td> {{user}} </td>
+                                            <td> {{user_group}} </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
             """)
 
     # noinspection PyUnresolvedReferences
@@ -284,7 +300,7 @@ class UserEnumerationPlugin(BasePlugin):
             users = {}
             for p in psutil.pwd.getpwall():
                 users[p[0]] = grp.getgrgid(p[3])[0]
-            return users
+            return {"users": users}
         # elif operating_system is Platform.MAC_OS:
         #     import grp
         #     users = {}
