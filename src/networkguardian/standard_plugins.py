@@ -3,12 +3,15 @@ import platform
 from urllib.error import URLError
 from urllib.request import urlopen
 
+import socket
 import psutil
 from jinja2 import Template
 
 from networkguardian.exceptions import PluginInitializationError
 from networkguardian.framework.plugin import AbstractPlugin, PluginCategory, SystemPlatform, executor
-from networkguardian.framework.registry import register_plugin
+from networkguardian.framework.registry import register_plugin, test_plugin
+
+import nmap
 
 """
     Module is used to store all the standard plugins
@@ -132,106 +135,63 @@ class SystemInformationPlugin(AbstractPlugin):
         return byte_count, power_labels[n]
 
 
-@register_plugin("Network Interface Information", PluginCategory.INFO, "Owen", 0.1)
-class NetworkInterfaceInformation(AbstractPlugin):
+#@register_plugin("NMap test", PluginCategory.INFO, "Owen", 0.1)
+@test_plugin
+class NMapTcpPorts(AbstractPlugin):
     """
-        This plugin will return details about the network interfaces.
-        Such as whether the device is online or not, the IP, broadcast address,
-        netmask and mac address.
+        Blank
     """
 
     template = Template("""
-        <h3> Network Interfaces </h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Adapter Name</th>
-                        <th>Is Up?</th>
-                        <th>Mac</th>
-                        <th>IP</th>
-                        <th>Broadcast</th>
-                        <th>Netmask</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for name, value in result.items() %}
-                        {%- if value.Mac is defined %}
-                            <tr>
-                                <td>{{name}}</td>
-                                <td>{{value.IsUp}}</td>
-                                <td>{{value.Mac}}</td>
-                                <td>{{value.IP}}</td>
-                                <td>{{value.Broadcast}}</td>
-                                <td>{{value.Netmask}}</td> 
-                            </tr>
-                        {%- endif %}
-                    {%- endfor %}
-                </tbody>
-            </table>
-    
-            <h3> Non-Standard Interfaces </h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Adapter Name</th>
-                        <th>IP</th>
-                        <th>Broadcast</th>
-                        <th>Netmask</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {%- for name, value in result.items() -%}
-                        {%- if value.Mac is undefined %}
-                            <tr>
-                                <td>{{name}}</td>
-                                <td>{{value.Address}}</td>
-                                <td>{{value.Broadcast}}</td>
-                                <td>{{value.Netmask}}</td>
-                            </tr>
-                        {%- endif -%}
-                    {%- endfor %}
-                </thead>
+        <table>
+                <tr>
+                    <th>Port</th>
+                    <th>State</th>
+                    <th>Reason</th>
+                    <th>Name</th>
+                    <th>Product</th>
+                </tr>
+                {% for name, value in results.items() %}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{value.State}}</td>
+                    <td>{{value.Reason}}</td>
+                    <td>{{value.Name}}</td>
+                    <td>{{value.Product}}</td>
+                </tr>
+                {% endfor %}
             </table>
         """)
 
     @executor(template)
-    def dajwdj(self):
-        """
-            Get information using psutil and stores into variables
-        """
-        address = psutil.net_if_addrs()
-        online = psutil.net_if_stats()
-        adapter_names = list(address.keys())
-        i = 0
+    def execute(self):
+
         nested_dict = {}
-        """
-            Loop through each adapter
-        """
-        while i < len(adapter_names):
-            length = len(address[adapter_names[i]])
-            name = adapter_names[i]
-            """
-                If adapter has 3 variables then it holds standard information so goes through this,
-                Otherwise goes through the 2nd loop below that will dynamically add the information it stores
-            """
-            if length == 3:
-                nested_dict.update({name: {'IsUp': online[name][0],
-                                           'Mac': address[name][0][1],
-                                           'IP': address[name][1][1],
-                                           'Broadcast': address[name][1][3],
-                                           'Netmask': address[name][1][2]}})
-            elif length != 3:
-                nested_dict.update({name: {'Address': address[name][0][1],
-                                           'Broadcast': address[name][0][3],
-                                           'Netmask': address[name][0][2]}})
+        new_dict = {}
+        i = 0
+
+        hostname = socket.gethostname()
+        ip_addr = socket.gethostbyname(hostname)
+
+        nm = nmap.PortScanner()
+        a = nm.scan(ip_addr)
+        nested_dict.update({'tcp': {'Port': a['scan'][ip_addr]['tcp']}})
+        keys = nested_dict['tcp']['Port'].keys()
+        keys = list(keys)
+
+        while i < len(keys):
+            new_dict.update({keys[i]: {'State': nested_dict['tcp']['Port'][keys[i]]['state'],
+                                       'Reason': nested_dict['tcp']['Port'][keys[i]]['reason'],
+                                       'Name': nested_dict['tcp']['Port'][keys[i]]['name'],
+                                       'Product': nested_dict['tcp']['Port'][keys[i]]['product']
+
+                                       }})
             i += 1
 
-        return {
-            "result": nested_dict
-        }
+        return {'results': new_dict}
 
 
-# @register_plugin("Internet Connectivity", PluginCategory.INFO, "Velislav V", 1.0)
+@register_plugin("Internet Connectivity", PluginCategory.INFO, "Velislav V", 1.0)
 class CheckInternetConnectivityPlugin(AbstractPlugin):
     """
         This plugin determines whether the local machine has access to the internet
@@ -262,3 +222,4 @@ class CheckInternetConnectivityPlugin(AbstractPlugin):
         return {
             "internet": check_internet()
         }
+
