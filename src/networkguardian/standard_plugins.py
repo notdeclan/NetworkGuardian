@@ -215,33 +215,50 @@ class UserEnumerationPlugin(BasePlugin):
 
         if operating_system is Platform.WINDOWS:
             return Template("""
-                <table>
-                    <thead>
-                        <tr>
-                        <th>Node</th>
-                        <th>AccountType</th>
-                        <th>Description</th>
-                        <th>Disabled</th>
-                        <th>Domain</th>
-                        <th>FullName</th>
-                        <th>InstallDate</th>
-                        <th>LocalAccount</th>
-                        <th>Lockout</th>
-                        <th>Name</th>
-                        <th>PasswordChangeable</th>
-                        <th>PasswordExpires</th>
-                        <th>PasswordRequired</th>
-                        <th>SID</th>
-                        <th>SIDType</th>
-                        <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for key, value in reader.items() %}
-                            {{ key }}
-                        {% endfor %}     
-                    </tbody>
-                </table>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Node</th>
+                                        <th>AccountType</th>
+                                        <th>Description</th>
+                                        <th>Disabled</th>
+                                        <th>Domain</th>
+                                        <th>FullName</th>
+                                        <th>InstallDate</th>
+                                        <th>LocalAccount</th>
+                                        <th>Lockout</th>
+                                        <th>Name</th>
+                                        <th>PasswordChangeable</th>
+                                        <th>PasswordExpires</th>
+                                        <th>PasswordRequired</th>
+                                        <th>SID</th>
+                                        <th>SIDType</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                            <tbody>
+                                {% for name, value in reader.items() %}
+                                <tr>
+                                    <td> {{ value.Node }}</td>
+                                    <td> {{ value.AccountType }}</td>
+                                    <td> {{ value.Description }}</td>
+                                    <td> {{ value.Disabled }}</td>
+                                    <td> {{ value.Domain }}</td>
+                                    <td> {{ value.FullName }}</td>
+                                    <td> {{ value.InstallDate }}</td>
+                                    <td> {{ value.LocalAccount }}</td>
+                                    <td> {{ value.Lockout }}</td>
+                                    <td> {{ value.Name }}</td>
+                                    <td> {{ value.PasswordChangeable }}</td>
+                                    <td> {{ value.PasswordExpires }}</td>
+                                    <td> {{ value.PasswordRequired }}</td>
+                                    <td> {{ value.SID }}</td>
+                                    <td> {{ value.SIDType }}</td>
+                                    <td> {{ value.Status }}</td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
             """)
         elif operating_system is Platform.LINUX:
             return Template("""
@@ -271,16 +288,6 @@ class UserEnumerationPlugin(BasePlugin):
             file_stream.readline()
             reader = csv.DictReader(file_stream)
 
-            # print(reader.fieldnames)
-            print(list(reader))
-
-            # reader.fieldnames = Node, AccountType, Description, Disabled, Domain, FullName, InstallDate, LocalAccount,
-            #                 Lockout, Name, PasswordChangeable, PasswordExpires, PasswordRequired, SID, SIDType, Status
-            # print(reader)
-            exit(1)
-            for row in reader:
-                print(row["Name"], row["Domain"])
-            # syntax = print(row["fieldname1"], row["fieldname2"] ... row["fieldnamex"])
             return reader
 
         elif operating_system is Platform.LINUX:
