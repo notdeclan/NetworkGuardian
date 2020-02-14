@@ -1,3 +1,6 @@
+import os
+import webbrowser
+
 from flask import Blueprint, request, redirect
 
 from framework.registry import import_external_plugins, load_plugins
@@ -23,4 +26,5 @@ def refresh_plugins():
 
 @mod.route("/api/plugins/directory")
 def plugin_directory():
-    pass
+    webbrowser.open(os.path.abspath(plugins_directory))
+    return redirect(request.headers.get("Referer"))
