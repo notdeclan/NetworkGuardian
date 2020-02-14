@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+{% set active_page = "plugins" %}
+{% block body %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h2><i class="fa fa-home"></i> Plugins </h2>
+</div>
+
+<section id="plugins">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Plugin Name</th>
+                <th>Status</th>
+                <th>Category</th>
+                <th>Supported Platforms</th>
+                <th>Author</th>
+                <th>Version</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for plugin in plugins  %}
+            <tr>
+                <td>{{ plugin.name }}</td>
+                <td>
+                    {% if plugin.loaded %}
+                        <span scope="row" class="badge badge-pill badge-success">Enabled</span>
+                    {% else %}
+                        <span scope="row" class="badge badge-pill badge-danger">Disabled</span>
+                    {% endif %}
+                </td>
+                <td>{{ plugin.category.value }}</td>
+                <td>
+                    {%  for platform in plugin.supported_platforms %}
+                        {{ platform }}
+                    {% endfor %}
+                </td>
+                <td>{{ plugin.author }}</td>
+                <td>{{ plugin.version }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+{% endblock %}

@@ -1,25 +1,30 @@
+import configparser
 # noinspection PyUnresolvedReferences
 import encodings.idna  # needed to fix random LookupError when starting when frozen
 import logging
+import os
 import sys
-
-# import confuse
 
 application_name = "Network Guardian"
 application_version = 0.1
+application_config_file = "config.ini"
+
 is_frozen = getattr(sys, 'frozen', False)
+
 logging_mode = logging.DEBUG
 
+if is_frozen:
+    application_path = os.path.dirname(sys.executable)  # executable entry point i.e Network Guardian.exe
+else:
+    application_path = os.path.dirname(sys.argv[0])  # entry point path
 
-# if is_frozen:
-#     default = os.path.join(sys._MEIPASS, confuse.DEFAULT_FILENAME)
-#     print(default)
-#
-#     confuse.DEFAULT_FILENAME = default
-#
-# config = confuse.Configuration(application_name, __name__)
-# #  print("MAXXXXXXXXX THREADS = ", config['max_threads'].get(int))
-#
+application_directory = os.path.join(application_path, "Network Guardian")
+config_path = os.path.join(application_directory, application_config_file)
+plugins_directory = os.path.join(application_directory, "plugins")
+reports_directory = os.path.join(application_directory, "reports")
+
+config = configparser.ConfigParser()
+
 
 def initialize_logger():
     """

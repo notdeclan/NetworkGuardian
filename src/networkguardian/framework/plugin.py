@@ -43,9 +43,9 @@ class PluginCategory(Enum):
     Enum is used to differentiate between plugin types
     """
     INFO = 'Informational'
+    ATTACK = 'Attack'
     SCANNER = 'Scanner'
     OTHER = 'Other'
-    ATTACK = 'Attack'
 
 
 def executor(template: Template, *platforms: SystemPlatform):

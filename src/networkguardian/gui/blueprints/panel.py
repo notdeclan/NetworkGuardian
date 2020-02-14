@@ -22,35 +22,38 @@ else:  # if not frozen
 
 @mod.route('/')
 def index():
-    plugin_count = len(registered_plugins)  # total amount of plugin's loaded
-    previous_scans = 10000
-
     test_report = Report("LOL")
-    recent_scans = [test_report]
+    another_report = Report("ANOTHER")
+    most_recent_report = Report("i should be at tjhe top")
+    recent_reports = [test_report, another_report, another_report, another_report, another_report, test_report, most_recent_report]
 
     #  usable_plugins = [p for p in registered_plugins if p.supported]  TODO: easy way to get supported plugins
 
     return render_template('pages/dashboard.html',
-                           plugin_count=plugin_count,
-                           previous_scans=previous_scans,
-                           recent_scans=recent_scans[-3:])
+                           plugins=registered_plugins,
+                           reports=recent_reports)
 
 
-@mod.route('/scans/create')
-def create_scan():
-    return render_template('pages/create-scan.html')
+@mod.route('/reports/create')
+def create_report():
+    return render_template('pages/create-report.html')
 
 
-@mod.route('/scans/view')
-def previous_scans():
-    return render_template('pages/another-page.html')
+@mod.route('/reports/view')
+def view_reports():
+    test_report = Report("LOL")
+    another_report = Report("ANOTHER")
+    most_recent_report = Report("i should be at tjhe top")
+    recent_reports = [test_report, another_report, another_report, another_report, another_report, test_report, most_recent_report]
+    return render_template('pages/view-reports.html', reports=recent_reports)
 
 
 @mod.route('/plugins/view')
 def view_plugins():
-    pass
+    return render_template('pages/plugins.html',
+                           plugins=registered_plugins)
 
 
 @mod.route('/help/view')
 def view_help():
-    pass
+    return render_template('pages/help.html')
