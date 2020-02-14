@@ -1,8 +1,0 @@
-paths:
-  plugins: 'Network\ Guardian/plugins'
-  reports: 'Network\ Guardian/reports'
-
-threading: true
-max_threads: 0
-
-disabled_plugins: ["", "", "", ""]

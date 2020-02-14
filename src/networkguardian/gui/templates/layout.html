@@ -1,3 +1,11 @@
+{% set navigation_bar = [
+    ('/', 'dashboard', 'fa fa-home', 'Dashboard'),
+    ('/reports/view', 'reports', 'fa fa-question', 'Reports'),
+    ('/plugins/view', 'plugins', 'fa fa-question',' Plugins'),
+    ('/help/view', 'help', 'fa fa-question', 'Help'),
+] -%}
+
+{% set active_page = active_page|default('dashboard') -%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +14,8 @@
 
     <title>Network Guardian</title>
 
-    <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/bootstrap.css') }}"/>
+    {#    <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/bootstrap.css') }}"/>#}
+    <link rel="stylesheet" type="text/css" href="https://bootswatch.com/4/yeti/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/dashboard.css') }}"/>
 
     <!-- TODO: replace font awesome cdn with local copy -->
@@ -22,31 +31,14 @@
         <nav class="col-md-2 d-none d-md-block bg-light sidebar">
             <div class="sidebar-sticky">
                 <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a id="index" class="nav-link" href="/">
-                            <i class="fa fa-home"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a id="devices" class="nav-link" href="/reports/create">
-                            <i class="fa fa-desktop"></i> Create Report
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a id="services" class="nav-link" href="/reports/view">
-                            <i class="fa fa-podcast"></i> Reports
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a id="devices" class="nav-link" href="/plugins/view">
-                            <i class="fa fa-exchange"></i> Plugins
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a id="devices" class="nav-link" href="/help/view">
-                            <i class="fa fa-question"></i> Help
-                        </a>
-                    </li>
+                    {% for href, id, icon, caption in navigation_bar %}
+                        <li class="nav-item">
+                            <a id="{{ id | e }}" class="nav-link {% if id == active_page %} active {% endif %}"
+                               href="{{ href|e }}">
+                                <i class="{{ icon|e }}"></i> {{ caption|e }}
+                            </a>
+                        </li>
+                    {% endfor %}
                 </ul>
             </div>
         </nav>

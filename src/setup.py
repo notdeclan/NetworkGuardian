@@ -18,5 +18,6 @@ setup(
         "flask",
         "pywebview",
         "psutil",
+        "PyQt5==5.11.3"
     ],
 )

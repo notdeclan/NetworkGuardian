@@ -1,4 +1,5 @@
 {% extends 'layout.html' %}
+{% set active_page = "plugins" %}
 {% block body %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h2><i class="fa fa-home"></i> Plugins </h2>
@@ -22,9 +23,9 @@
                 <td>{{ plugin.name }}</td>
                 <td>
                     {% if plugin.loaded %}
-                        <span scope="row" class="badge badge-success">Enabled</span>
+                        <span scope="row" class="badge badge-pill badge-success">Enabled</span>
                     {% else %}
-                        <span scope="row" class="badge badge-danger">Disabled</span>
+                        <span scope="row" class="badge badge-pill badge-danger">Disabled</span>
                     {% endif %}
                 </td>
                 <td>{{ plugin.category.value }}</td>
