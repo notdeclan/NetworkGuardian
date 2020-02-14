@@ -212,7 +212,6 @@ class UserEnumerationPlugin(BasePlugin):
     @property
     def template(self) -> Template:
         operating_system = Platform.detect()
-
         if operating_system is Platform.WINDOWS:
             return Template("""
                             <table>
@@ -237,28 +236,15 @@ class UserEnumerationPlugin(BasePlugin):
                                     </tr>
                                 </thead>
                             <tbody>
-                                {% for name, value in reader.items() %}
-                                <tr>
-                                    <td> {{ value.Node }}</td>
-                                    <td> {{ value.AccountType }}</td>
-                                    <td> {{ value.Description }}</td>
-                                    <td> {{ value.Disabled }}</td>
-                                    <td> {{ value.Domain }}</td>
-                                    <td> {{ value.FullName }}</td>
-                                    <td> {{ value.InstallDate }}</td>
-                                    <td> {{ value.LocalAccount }}</td>
-                                    <td> {{ value.Lockout }}</td>
-                                    <td> {{ value.Name }}</td>
-                                    <td> {{ value.PasswordChangeable }}</td>
-                                    <td> {{ value.PasswordExpires }}</td>
-                                    <td> {{ value.PasswordRequired }}</td>
-                                    <td> {{ value.SID }}</td>
-                                    <td> {{ value.SIDType }}</td>
-                                    <td> {{ value.Status }}</td>
-                                </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                                {% for row in reader %}
+                                    <tr>
+                                        {% for cell in row %}
+                                            <td>{{ cell }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}                            
+                            </tbody>
+                        </table>
             """)
         elif operating_system is Platform.LINUX:
             return Template("""
@@ -285,10 +271,12 @@ class UserEnumerationPlugin(BasePlugin):
             process = subprocess.Popen(["wmic", "useraccount", "list", "full", "/format:csv"], stdout=subprocess.PIPE)
             users_output = process.communicate()[0]
             file_stream = StringIO(users_output.decode())
-            file_stream.readline()
-            reader = csv.DictReader(file_stream)
+            for i in range(2):
+                file_stream.readline()
 
-            return reader
+            reader = csv.reader(file_stream)
+
+            return {"reader": reader}
 
         elif operating_system is Platform.LINUX:
             # user + group
