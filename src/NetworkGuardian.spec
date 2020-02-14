@@ -32,7 +32,7 @@ if sys.platform == 'darwin':
             upx=True,
             runtime_tmpdir=None,
             console=True,
-            icon='assets/icon.icns')
+            icon='resources/mac-icon.icns')
 
 # Package the executable file into .app if on OS X
 if sys.platform == 'darwin':
@@ -41,7 +41,7 @@ if sys.platform == 'darwin':
         info_plist = {
         'NSHighResolutionCapable': 'True'
         },
-        icon='assets/icon.icns'
+        icon='resources/mac-icon.icns'
     )
 
 if sys.platform == 'win32' or sys.platform == 'win64' or sys.platform == 'linux':
@@ -59,4 +59,4 @@ if sys.platform == 'win32' or sys.platform == 'win64' or sys.platform == 'linux'
               upx=True,
               upx_exclude=[],
               runtime_tmpdir=None,
-              console=True, icon='resources/icon.ico')
+              console=True, icon='resources/windows-linux-icon.ico')
