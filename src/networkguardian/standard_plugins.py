@@ -166,15 +166,39 @@ class LocalFirewallStatus(BasePlugin):
 
     @property
     def template(self) -> Template:
-        return Template("""
-            {% if firewall %}
-                Firewall Enabled
-            {% elif False %}
-                Firewall Disabled
-            {% elif None %}
-                Unable to Detect
-            {% endif %}
-        """)
+        os = Platform.detect()
+        if os is Platform.MAC_OS:
+            return Template("""
+                {% if firewall %}
+                    Firewall Enabled
+                {% elif False %}
+                    Firewall Disabled
+                {% elif None %}
+                    Unable to Detect
+                {% endif %}
+            """)
+        elif os is Platform.WINDOWS:
+            return Template("""
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Firewall</th>
+                            <th>Enabled</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for firewall, state in results.items() %}
+                            <tr>
+                                <td>{{ firewall }}</td>
+                                <td>{{ state }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+           """)
+        elif os is Platform.LINUX:
+            return False
+
 
     def __init__(self):
         super().__init__("Local Firewall Status Plugin", Category.INFO, "Velislav V", 0.1,
@@ -183,32 +207,37 @@ class LocalFirewallStatus(BasePlugin):
     @property
     def execute(self) -> {}:
         os = Platform.detect()
-        result = None
-
         if os is Platform.MAC_OS:
-            result = self.check_mac_os()
+            return {"firewall": self.check_mac_os()}
         elif os is Platform.WINDOWS:
-            result = self.check_windows()
+            return {"results": self.check_windows()}
         elif os is Platform.LINUX:
             return False
-
-        return {"firewall": result}
 
     @staticmethod
     def check_mac_os():
         """
         Mac OS X Firewall Checker
         """
-        process = subprocess.Popen(["defaults", "read" ,"/Library/Preferences/com.apple.alf" , "globalstate"], stdout=subprocess.PIPE)
+        process = subprocess.Popen(["defaults", "read", "/Library/Preferences/com.apple.alf", "globalstate"],
+                                   stdout=subprocess.PIPE)
         return bool(int(process.communicate()[0].rstrip()))
+
 
     @staticmethod
     def check_windows():
         """
         Windows Firewall Checker
         """
-        process = subprocess.check_call('netsh advfirewall show allprofiles')
-        return bool(int(process.communicate()[0].rstrip()))
+        process = subprocess.Popen(["netsh", "advfirewall", "show", "allprofiles", "state"], stdout=subprocess.PIPE)
+        """ Checks whether or not the Firewall State is ON or OFF and Returns the result in a table. """
+        output = process.communicate()[0].decode()
+        lines = output.split("\n")
+        domain = "ON" in lines[3]
+        private = "ON" in lines[7]
+        public = "ON" in lines[11]
+
+        return {"Domain": domain, "Private": private, "Public": public}
 
 
 if __name__ == '__main__':
