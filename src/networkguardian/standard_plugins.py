@@ -145,7 +145,7 @@ class NetworkInterfaceInformation(AbstractPlugin):
     """
 
     template = Template("""
-                    <h3> Network Interfaces </h3>
+            <h3> Network Interfaces </h3>
             <table>
                 <tr>
                     <th>Adapter Name</th>

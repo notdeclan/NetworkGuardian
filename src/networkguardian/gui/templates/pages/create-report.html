@@ -1,6 +1,5 @@
 {% extends 'layout.html' %}
 {% set active_page = "create-report" %}
-
 {% block body %}
     <nav>
         <ol class="breadcrumb">
@@ -9,29 +8,27 @@
         </ol>
     </nav>
     <section>
-    <form>
-
-    <div class="form-group row">
-            <label for="report_name" class="col-sm-2 col-form-label">Name of Report</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" id="report_name" placeholder="Name of Report">
+        <form>
+            <div class="form-group row">
+                <label for="report_name" class="col-sm-2 col-form-label">Name of Report</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="report_name" placeholder="Name of Report">
+                </div>
             </div>
-        </div>
-         <div class="form-group row">
-             <label for="plugin_select" class="col-sm-2 col-form-label">Plugins <small>(Use Ctrl + left click to select)</small>:</label>
-             <select multiple class="col-sm-10 form-control " id="plugin_select" style="height: 100%">
-                 {% for plugin in plugins  %}
-                     <option>
-                         {{ plugin.name }}
-                     </option>
-                 {% endfor %}
-             </select>
-         </div>
-       <div class="form-group row">
-           <input type="submit" class="btn btn-dark" value="Start Scan">
-       </div>
-    </form>
-
-
+            <div class="form-group row">
+                <label for="plugin_select" class="col-sm-2 col-form-label">Plugins <small>(Use Ctrl + left click to
+                    select)</small>:</label>
+                <select multiple class="col-sm-10 form-control " id="plugin_select" style="height: 100%">
+                    {% for plugin in plugins %}
+                        <option>
+                            {{ plugin.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group row">
+                <input type="submit" class="btn btn-dark" value="Start Scan">
+            </div>
+        </form>
     </section>
 {% endblock %}
