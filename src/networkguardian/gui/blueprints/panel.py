@@ -36,7 +36,8 @@ def index():
 
 @mod.route('/reports/create')
 def create_report():
-    return render_template('pages/create-report.html')
+    return render_template('pages/create-report.html',
+                           plugins=registered_plugins)
 
 
 @mod.route('/reports/view')
