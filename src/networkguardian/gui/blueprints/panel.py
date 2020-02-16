@@ -1,7 +1,7 @@
 import os
 import sys
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, abort
 
 from networkguardian import is_frozen
 from networkguardian.framework.registry import registered_plugins
@@ -9,6 +9,7 @@ from networkguardian.framework.report import Report
 
 """
     TODO: Explain this file ... 
+    TODO: Flask "flashes" for notification'
 """
 
 if is_frozen:  # if frozen
@@ -25,7 +26,8 @@ def index():
     test_report = Report("LOL")
     another_report = Report("ANOTHER")
     most_recent_report = Report("i should be at tjhe top")
-    recent_reports = [test_report, another_report, another_report, another_report, another_report, test_report, most_recent_report]
+    recent_reports = [test_report, another_report, another_report, another_report, another_report, test_report,
+                      most_recent_report]
 
     #  usable_plugins = [p for p in registered_plugins if p.supported]  TODO: easy way to get supported plugins
 
@@ -36,23 +38,32 @@ def index():
 
 @mod.route('/reports/create')
 def create_report():
-    return render_template('pages/create-report.html',
+    return render_template('pages/view-report.html',
                            plugins=registered_plugins)
 
 
-@mod.route('/reports/view')
+@mod.route('/reports/')
 def view_reports():
     test_report = Report("LOL")
     another_report = Report("ANOTHER")
     most_recent_report = Report("i should be at tjhe top")
-    recent_reports = [test_report, another_report, another_report, another_report, another_report, test_report, most_recent_report]
-    return render_template('pages/view-reports.html', reports=recent_reports)
+    recent_reports = [test_report, another_report, another_report, another_report, another_report, test_report,
+                      most_recent_report]
+
+    return render_template('pages/reports.html', reports=recent_reports)
 
 
-@mod.route('/plugins/view')
+@mod.route('/plugins/')
 def view_plugins():
-    return render_template('pages/plugins.html',
-                           plugins=registered_plugins)
+    return render_template('pages/plugins.html', plugins=registered_plugins.values())
+
+
+@mod.route('/plugins/<plugin_name>')
+def view_plugin(plugin_name: str):
+    if plugin_name in registered_plugins:
+        return render_template('pages/view-plugin.html', plugin=registered_plugins[plugin_name])
+
+    return abort(404)
 
 
 @mod.route('/help/view')

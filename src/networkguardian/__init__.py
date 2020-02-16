@@ -5,6 +5,8 @@ import logging
 import os
 import sys
 
+import webview
+
 application_name = "Network Guardian"
 application_version = 0.1
 application_config_file = "config.ini"
@@ -52,3 +54,5 @@ def initialize_logger():
 
 
 logger = initialize_logger()
+host, port = "127.0.0.1", 24982
+window = webview.create_window(application_name, f'http://{host}:{port}', width=1000, confirm_close=True)

@@ -10,7 +10,7 @@ from networkguardian.exceptions import PluginProcessingError
 from networkguardian.framework.plugin import PluginCategory, SystemPlatform
 from networkguardian.framework.report import PluginResult
 
-registered_plugins = []
+registered_plugins = {}
 max_threads = None  # ie if it has been set by the user TODO: add this into config when done
 
 
@@ -27,7 +27,7 @@ def register_plugin(name: str, category: PluginCategory, author: str, version: f
 
     def __init__(cls):
         instance = cls(name, category, author, version)  # create an instance
-        registered_plugins.append(instance)  # add to list
+        registered_plugins[name] = instance  # add to list
 
     return __init__
 
@@ -66,7 +66,7 @@ def load_plugins():
     Function is used to all plugins stored in the registered_plugins list
     """
     running_platform = SystemPlatform.detect()  # store running platform as a variable for efficiency
-    for plugin in registered_plugins:
+    for plugin in registered_plugins.values():
         try:
             plugin.load(running_platform)  # attempt to load
             logger.debug(f'Successfully loaded {plugin}')

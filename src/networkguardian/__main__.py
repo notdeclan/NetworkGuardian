@@ -6,7 +6,7 @@ import psutil
 import webview
 
 from networkguardian import logger, is_frozen, application_directory, plugins_directory, reports_directory, \
-    application_name, config_path, config
+    config_path, config, host, port, window
 from networkguardian.framework.registry import registered_plugins, load_plugins, import_external_plugins
 from networkguardian.gui.server import start, is_alive
 
@@ -114,14 +114,13 @@ def run():
     load_plugins()
 
     total = len(registered_plugins)
-    loaded = len([p for p in registered_plugins if p.loaded])
+    loaded = len([p for p in registered_plugins.values() if p.loaded])
     failed = total - loaded
     logger.debug(f'Loaded {total} plugins ({loaded} successfully, {failed} failed)')
 
     logger.debug('Importing Reports')
 
     logger.debug('Starting Flask Server')
-    host, port = "127.0.0.1", 24982
     start(host, port)
 
     logger.debug('Waiting for Server Availability')
@@ -130,8 +129,7 @@ def run():
 
     logger.debug('Creating Webview Window')
 
-    # PYWEBVIEW WINDOW CODE
-    window = webview.create_window(application_name, f'http://{host}:{port}', width=1000, confirm_close=True)
+    # PYWEBVIEW WINDOW COD
     window.closing += on_closing
     webview.start(debug=False, gui='qt')
 

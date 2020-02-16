@@ -1,7 +1,8 @@
 import os
 import webbrowser
 
-from flask import Blueprint, request, redirect
+import webview
+from flask import Blueprint, request, redirect, flash
 
 from framework.registry import import_external_plugins, load_plugins
 from networkguardian import plugins_directory
@@ -13,7 +14,7 @@ from networkguardian import plugins_directory
 mod = Blueprint('api', __name__)
 
 """
-    Plugins
+    Plugins Page
 """
 
 
@@ -21,6 +22,9 @@ mod = Blueprint('api', __name__)
 def refresh_plugins():
     import_external_plugins(plugins_directory)
     load_plugins()
+    print(dir(webview.windows[0]))
+    flash("Refreshed Plugins")
+    flash("Twice as much fun as u need this good year sir")
     return redirect(request.headers.get("Referer"))
 
 

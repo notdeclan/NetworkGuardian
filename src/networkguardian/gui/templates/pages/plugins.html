@@ -4,24 +4,20 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item active">Plugins</li>
     </ol>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="btn-group btn-group-sm">
-                <a data-toggle="tooltip" data-placement="bottom" data-original-title="Open Plugin Directory"
-                   href="{{ url_for("api.plugin_directory") }}" class="btn btn-default btn-outline-dark">
-                    <i class="fa fa-folder-open-o"></i>
-                </a>
+    <div class="btn-group btn-group-sm mb-3">
+        <a data-toggle="tooltip" data-placement="bottom" data-original-title="Open Plugin Directory"
+           href="{{ url_for("api.plugin_directory") }}" class="btn btn-default btn-outline-dark">
+            <i class="fa fa-folder-open-o"></i>
+        </a>
 
-                <a data-toggle="tooltip" data-placement="bottom" data-original-title="Refresh Loaded Plugins"
-                   href="{{ url_for("api.refresh_plugins") }}" class="btn btn-dark text-white">
-                    <i class="fa fa-refresh"></i>
-                </a>
-            </div>
-        </div>
+        <a data-toggle="tooltip" data-placement="bottom" data-original-title="Refresh Loaded Plugins"
+           href="{{ url_for("api.refresh_plugins") }}" class="btn btn-dark text-white">
+            <i class="fa fa-refresh"></i>
+        </a>
     </div>
     <section id="plugins">
         <table class="table table-hover">
-            <thead>
+            <thead class="thead-dark">
             <tr>
                 <th>Plugin Name</th>
                 <th>Status</th>
@@ -32,8 +28,8 @@
             </tr>
             </thead>
             <tbody>
-            {% for plugin in plugins  %}
-                <tr>
+            {% for plugin in plugins %}
+                <tr class="clickable-row" data-href="/plugins/{{ plugin.name }}">
                     <td>{{ plugin.name }}</td>
                     <td>
                         {% if plugin.loaded %}
@@ -55,5 +51,4 @@
             </tbody>
         </table>
     </section>
-
 {% endblock %}

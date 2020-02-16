@@ -4,8 +4,8 @@
     (url_for("panel.view_plugins"), 'plugins', 'fa fa-list',' Plugins', True),
     (url_for("panel.view_help"), 'help', 'fa fa-question', 'Help', True),
     (url_for("panel.create_report"), 'create-report', 'fa fa-desktop', 'Create Report', False),
-
 ] -%}
+
 {% set active_page = active_page|default('dashboard') -%}
 <!DOCTYPE html>
 <html lang="en">
@@ -15,7 +15,7 @@
 
     <title>Network Guardian</title>
 
-    {#    <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/bootstrap.css') }}"/>#}
+    {#  <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/bootstrap.css') }}"/>#}
     <link rel="stylesheet" type="text/css" href="https://bootswatch.com/4/yeti/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/dashboard.css') }}"/>
 
@@ -54,24 +54,62 @@
         </nav>
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            {% for href, id, icon, title, sidebar in navigation_bar %}
-                {% if id == active_page %}
-                    <h2><i class="{{ icon }}"></i> {{ title }}</h2>
-                {% endif %}
-             {% endfor %}
-             </div>
+                {% for href, id, icon, title, sidebar in navigation_bar %}
+                    {% if id == active_page %}
+                        <h2><i class="{{ icon }}"></i> {{ title }}</h2>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
             {% block body %}
             {% endblock %}
         </main>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div style="position: absolute; bottom: 25px; right: 25px;">
+                    {% for message in messages %}
+                        <!-- Position it -->
+                        <div class="toast bg-dark text-white" role="alert" data-delay="3000">
+                            <div class="toast-header">
+                                <img src="{{ url_for("panel.static", filename="icon.png") }}" style="width: 15px"
+                                     class="rounded mr-2">
+                                <strong class="mr-auto">Network Guardian</strong>
+                                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="toast-body">
+                                {{ message }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
     </div>
 </div>
+
+
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-        crossorigin="anonymous"></script>
+        crossorigin="anonymous">
+</script>
+
 <script type="text/javascript" src="{{ url_for('panel.static', filename='js/bootstrap.bundle.js') }}"></script>
+
 <script>
+    // TODO: move to separate file
     $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
+        $('[data-toggle="tooltip"]').tooltip();
+        $('.toast').each(function () {
+            $(this).toast("show");
+        });
+
+        $(".clickable-row").click(function () {
+            window.location = $(this).data("href");
+        });
     })
 </script>
 </body>

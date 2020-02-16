@@ -22,6 +22,8 @@ app = Flask(__name__, static_folder=None)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1  # disable caching
 app.register_blueprint(panel.mod)
 app.register_blueprint(api.mod)
+app.secret_key = 'super secret key'  # TODO: something secret loL
+app.config['SESSION_TYPE'] = 'filesystem'
 
 
 @app.after_request

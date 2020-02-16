@@ -18,13 +18,21 @@
                     Plugins <small>(Use Ctrl + left click to select)</small>:
                 </label>
                 <select multiple class="col-sm-10 form-control " id="plugin_select" style="height: 100%">
-                    {% for plugin in plugins %}
+                    {% for plugin in plugins.values() %}
                         <option>
                             {{ plugin.name }}
                         </option>
                     {% endfor %}
                 </select>
             </div>
+
+            <div class="form-group">
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="customSwitch1" checked="">
+                    <label class="custom-control-label" for="customSwitch1">Toggle this switch element</label>
+                </div>
+            </div>
+
             <div class="form-group row">
                 <input type="submit" class="btn btn-dark" value="Start Scan">
             </div>

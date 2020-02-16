@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+{% set active_page = "plugins" %}
+{% block body %}
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for("panel.view_plugins") }}">Plugins</a></li>
+        <li class="breadcrumb-item active">{{ plugin.name }}</li>
+    </ol>
+    <section id="view-report">
+        <div class="jumbotron mb-3">
+            <h1>{{ plugin.name }}</h1>
+            <p class="lead">{{ plugin.category.value }}</p>
+        </div>
+        <div class="card card-body">
+            {{ plugin.description }}
+        </div>
+    </section>
+{% endblock %}
