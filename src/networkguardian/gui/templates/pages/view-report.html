@@ -16,6 +16,12 @@
                 </div>
             </div>
             <div class="col-md-4">
+                <div class="list-group mb-3">
+                    <div class="col-md-4 list-group-item">Cras justo odio</div>
+                    <div class="col-md-4 list-group-item">Dapibus ac facilisis in</div>
+                    <div class="col-md-4 list-group-item">Morbi leo risus</div>
+                </div>
+
                 <div class="card">
                     <div class="card-header">
                         Plugins
@@ -29,11 +35,6 @@
                 </div>
             </div>
         </div>
-        <ul class="list-group list-group-horizontal">
-            <li class="list-group-item">Cras justo odio</li>
-            <li class="list-group-item">Dapibus ac facilisis in</li>
-            <li class="list-group-item">Morbi leo risus</li>
-        </ul>
         {% for plugin in plugins.values() %}
             <section id="plugin-section-{{ loop.index }}">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">

@@ -48,11 +48,9 @@
                         {% endif %}
                     {% endfor %}
                 </ul>
-
             </div>
-
         </nav>
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+        <main role="main" class="col-md-10 ml-sm-auto px-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 {% for href, id, icon, title, sidebar in navigation_bar %}
                     {% if id == active_page %}
@@ -67,13 +65,14 @@
 
         {% with messages = get_flashed_messages() %}
             {% if messages %}
-                <div style="position: absolute; bottom: 25px; right: 25px;">
+                <div style="position: absolute; bottom: 0px; right: 0px;" class="mr-3 mb-3">
                     {% for message in messages %}
-                        <!-- Position it -->
                         <div class="toast bg-dark text-white" role="alert" data-delay="3000">
                             <div class="toast-header">
-                                <img src="{{ url_for("panel.static", filename="icon.png") }}" style="width: 15px"
-                                     class="rounded mr-2">
+                                <img src="{{ url_for("panel.static", filename="icon.png") }}"
+                                     style="width: 15px"
+                                     class="rounded mr-2" alt="NG Logo">
+
                                 <strong class="mr-auto">Network Guardian</strong>
                                 <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
@@ -87,7 +86,6 @@
                 </div>
             {% endif %}
         {% endwith %}
-
     </div>
 </div>
 
@@ -102,11 +100,15 @@
 <script>
     // TODO: move to separate file
     $(function () {
+        // Enable Tool Tips
         $('[data-toggle="tooltip"]').tooltip();
+
+        // Enable Toast's
         $('.toast').each(function () {
             $(this).toast("show");
         });
 
+        // Add "clickable-row" functionality
         $(".clickable-row").click(function () {
             window.location = $(this).data("href");
         });
