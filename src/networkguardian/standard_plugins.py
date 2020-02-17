@@ -76,10 +76,10 @@ class SystemInformationPlugin(AbstractPlugin):
     """
 
     template = Template("""
-            <table>
+            <table class="table">
                 {% for name, value in information.items() %}
                 <tr>
-                    <td>{{name}}</td>
+                    <th>{{name}}</th>
                     <td>{{value}}</td>
                 </tr>
                 {% endfor %}
@@ -138,59 +138,61 @@ class SystemInformationPlugin(AbstractPlugin):
 @register_plugin("Network Interface Information", PluginCategory.INFO, "Owen", 0.1)
 class NetworkInterfaceInformation(AbstractPlugin):
     """
-        This plugin will return details about the network interfaces.
-        Such as whether the device is online or not, the IP, broadcast address,
-        netmask and mac address. It will also display information about packets, speed,
-        dropped packets and more.
+        This plugin will return details about the network interfaces. Such as whether the device is online or not, the IP, broadcast address, netmask and mac address.
+
+        It will also display information about packets, speed, dropped packets and more.
     """
 
     template = Template("""
-            <h3> Network Interfaces </h3>
-            <table>
-                <tr>
-                    <th>Adapter Name</th>
-                    <th>Speed</th>
-                    <th>Duplex</th>
-                    <th>MTU</th>
-                    <th>Is-Up?</th>
-                    <th>Bytes In</th>
-                    <th>Packets In</th>
-                    <th>Errors In</th>
-                    <th>Drops In</th>
-                    <th>Bytes Out</th>
-                    <th>Packets Out</th>
-                    <th>Errors Out</th>
-                    <th>Drops Out</th>
-                    <th>Mac</th>
-                    <th>IPv4 Broadcast</th>
-                    <th>IPv4 Netmask</th>
-                    <th>IPv6 Broadcast</th>
-                    <th>IPv6 Netmask</th>
-                </tr>
-                {% for name, value in result.items() %}
-                {%- if value.Mac is defined %}
-                <tr>
-                    <td>{{name}}</td>
-                    <td>{{value.Speed}}MB</td>
-                    <td>{{value.Duplex}}</td>
-                    <td>{{value.MTU}}</td>
-                    <td>{{value.up}}</td>
-                    <td>{{value.bytesin}}</td> 
-                    <td>{{value.packetsin}}</td> 
-                    <td>{{value.errorsin}}</td> 
-                    <td>{{value.dropsin}}</td> 
-                    <td>{{value.bytesout}}</td> 
-                    <td>{{value.packetsout}}</td> 
-                    <td>{{value.errorsout}}</td> 
-                    <td>{{value.dropsout}}</td> 
-                    <td>{{value.Mac}}</td> 
-                    <td>{{value.IPv4Broadcast}}</td> 
-                    <td>{{value.IPv4Netmask}}</td> 
-                    <td>{{value.IPv6Broadcast}}</td> 
-                    <td>{{value.IPv6Netmask}}</td> 
-                </tr>
-                {%- endif %}
-                {%- endfor %}
+            <table class="table table-responsive">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Adapter Name</th>
+                        <th>Speed</th>
+                        <th>Duplex</th>
+                        <th>MTU</th>
+                        <th>Is-Up?</th>
+                        <th>Bytes In</th>
+                        <th>Packets In</th>
+                        <th>Errors In</th>
+                        <th>Drops In</th>
+                        <th>Bytes Out</th>
+                        <th>Packets Out</th>
+                        <th>Errors Out</th>
+                        <th>Drops Out</th>
+                        <th>Mac</th>
+                        <th>IPv4 Broadcast</th>
+                        <th>IPv4 Netmask</th>
+                        <th>IPv6 Broadcast</th>
+                        <th>IPv6 Netmask</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, value in result.items() %}
+                    {%- if value.Mac is defined %}
+                    <tr>
+                        <td>{{name}}</td>
+                        <td>{{value.Speed}}MB</td>
+                        <td>{{value.Duplex}}</td>
+                        <td>{{value.MTU}}</td>
+                        <td>{{value.up}}</td>
+                        <td>{{value.bytesin}}</td> 
+                        <td>{{value.packetsin}}</td> 
+                        <td>{{value.errorsin}}</td> 
+                        <td>{{value.dropsin}}</td> 
+                        <td>{{value.bytesout}}</td> 
+                        <td>{{value.packetsout}}</td> 
+                        <td>{{value.errorsout}}</td> 
+                        <td>{{value.dropsout}}</td> 
+                        <td>{{value.Mac}}</td> 
+                        <td>{{value.IPv4Broadcast}}</td> 
+                        <td>{{value.IPv4Netmask}}</td> 
+                        <td>{{value.IPv6Broadcast}}</td> 
+                        <td>{{value.IPv6Netmask}}</td> 
+                    </tr>
+                    {%- endif %}
+                    {%- endfor %}
+                </tbody>
             </table>
         """)
 
@@ -289,8 +291,8 @@ class NetStatInformation(AbstractPlugin):
     """
 
     template = Template("""
-            <h3> Network Connections </h3>
-            <table>
+        <table class="table table-hover">
+            <thead class="thead-dark">
                 <tr>
                     <th>#</th>
                     <th>Protocol</th>
@@ -300,18 +302,21 @@ class NetStatInformation(AbstractPlugin):
                     <th>PID</th>
                     <th>Program Name</th>
                 </tr>
+            </thead>
+            <tbody>
                 {% for name, value in result.items() %}
-                <tr>
-                    <td>{{name}}</td>
-                    <td>{{value.Protocol}}</td>
-                    <td>{{value.LocalAddress}}</td>
-                    <td>{{value.RemoteAddress}}</td>
-                    <td>{{value.Status}}</td>
-                    <td>{{value.PID}}</td> 
-                    <td>{{value.ProgramName}}</td> 
-                </tr>
+                    <tr>
+                        <td>{{name}}</td>
+                        <td>{{value.Protocol}}</td>
+                        <td>{{value.LocalAddress}}</td>
+                        <td>{{value.RemoteAddress}}</td>
+                        <td>{{value.Status}}</td>
+                        <td>{{value.PID}}</td> 
+                        <td>{{value.ProgramName}}</td> 
+                    </tr>
                 {%- endfor %}
-            </table>
+            </tbody>
+        </table>
         """)
 
     @executor(template)

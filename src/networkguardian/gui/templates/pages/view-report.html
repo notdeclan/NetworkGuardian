@@ -1,51 +1,48 @@
 {% extends 'layout.html' %}
 {% set active_page = "reports" %}
-{% set title = "Quick Scan 20/12/2020 14:42" %}
 {% block body %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        {% for href, id, icon, title, sidebar in navigation_bar %}
+            {% if id == active_page %}
+                <h2><i class="{{ icon }}"></i> {{ report.name }}</h2>
+            {% endif %}
+        {% endfor %}
+    </div>
+
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url_for("panel.view_reports") }}">Reports</a></li>
-        <li class="breadcrumb-item active">{{ title }}</li>
+        <li class="breadcrumb-item active">{{ report.name }}</li>
     </ol>
     <section id="view-report">
         <div class="row">
-            <div class="col-md-8">
-                <div class="jumbotron jumbotron-fluid">
-                    <div class="container">
-                        <h1 class="display-4">{{ title }}</h1>
-                    </div>
-                </div>
-            </div>
             <div class="col-md-4">
-                <div class="list-group mb-3">
-                    <div class="col-md-4 list-group-item">Cras justo odio</div>
-                    <div class="col-md-4 list-group-item">Dapibus ac facilisis in</div>
-                    <div class="col-md-4 list-group-item">Morbi leo risus</div>
-                </div>
-
                 <div class="card">
                     <div class="card-header">
                         Plugins
                     </div>
                     <ul class="list-group list-group-flush">
-                        {% for plugin in plugins.values() %}
-                            <li class="list-group-item"><a href="#plugin-section-{{ loop.index }}">{{ plugin.name }}</a>
+                        {% for result in report.results %}
+                            <li class="list-group-item">
+                                <a href="#plugin-section-{{ loop.index }}">{{ result.plugin.name }}</a>
                             </li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
         </div>
-        {% for plugin in plugins.values() %}
+
+        {% for result in report.results %}
             <section id="plugin-section-{{ loop.index }}">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h4>
-                        {{ plugin.name }}
+                        {{ result.plugin.name }}
                     </h4>
                     <div class="btn-toolbar mb-2 mb-md-0">
                         <div class="btn-group mr-2">
-                            <button type="button" class="btn btn-sm btn-info">{{ plugin.category.value }}</button>
-                            <button type="button" class="btn btn-sm btn-success">{{ plugin.version }}</button>
-                            <button type="button" class="btn btn-sm btn-secondary">{{ plugin.author }}</button>
+                            <button type="button"
+                                    class="btn btn-sm btn-info">{{ result.plugin.category.value }}</button>
+                            <button type="button" class="btn btn-sm btn-success">{{ result.plugin.version }}</button>
+                            <button type="button" class="btn btn-sm btn-secondary">{{ result.plugin.author }}</button>
                             <a data-toggle="tooltip" data-placement="bottom" data-original-title="Learn More">
                                 <button class="btn btn-sm btn-dark" data-toggle="collapse"
                                         data-target="#plugin-description-{{ loop.index }}">
@@ -57,40 +54,14 @@
                 </div>
                 <div class="collapse multi-collapse mb-3" id="plugin-description-{{ loop.index }}">
                     <div class="card card-body">
-                        {{ plugin.description }}
+                        {{ result.plugin.description }}
                     </div>
                 </div>
-
-                <table class="table">
-                    <thead class="thead-dark">
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">First</th>
-                        <th scope="col">Last</th>
-                        <th scope="col">Handle</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">3</th>
-                        <td>Larry</td>
-                        <td>the Bird</td>
-                        <td>@twitter</td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div class="row">
+                    <div class="col-md-12">
+                        {{ result.render() | safe }}
+                    </div>
+                </div>
             </section>
         {% endfor %}
     </section>

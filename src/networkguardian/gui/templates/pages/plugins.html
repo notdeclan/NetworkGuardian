@@ -1,22 +1,30 @@
 {% extends 'layout.html' %}
 {% set active_page = "plugins" %}
 {% block body %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        {% for href, id, icon, title, sidebar in navigation_bar %}
+            {% if id == active_page %}
+                <h2><i class="{{ icon }}"></i> {{ title }}</h2>
+            {% endif %}
+        {% endfor %}
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group btn-group-sm">
+                <a data-toggle="tooltip" data-placement="bottom" data-original-title="Open Plugin Directory"
+                   href="{{ url_for("api.plugin_directory") }}" class="btn btn-default btn-outline-dark">
+                    <i class="fa fa-folder-open-o"></i>
+                </a>
+                <a data-toggle="tooltip" data-placement="bottom" data-original-title="Refresh Loaded Plugins"
+                   href="{{ url_for("api.refresh_plugins") }}" class="btn btn-dark text-white">
+                    <i class="fa fa-refresh"></i>
+                </a>
+            </div>
+        </div>
+    </div>
     <ol class="breadcrumb">
         <li class="breadcrumb-item active">Plugins</li>
     </ol>
-    <div class="btn-group btn-group-sm mb-3">
-        <a data-toggle="tooltip" data-placement="bottom" data-original-title="Open Plugin Directory"
-           href="{{ url_for("api.plugin_directory") }}" class="btn btn-default btn-outline-dark">
-            <i class="fa fa-folder-open-o"></i>
-        </a>
-
-        <a data-toggle="tooltip" data-placement="bottom" data-original-title="Refresh Loaded Plugins"
-           href="{{ url_for("api.refresh_plugins") }}" class="btn btn-dark text-white">
-            <i class="fa fa-refresh"></i>
-        </a>
-    </div>
     <section id="plugins">
-        <table class="table table-hover">
+        <table id="data-table" class="table table-hover">
             <thead class="thead-dark">
             <tr>
                 <th>Plugin Name</th>
@@ -40,9 +48,7 @@
                     </td>
                     <td>{{ plugin.category.value }}</td>
                     <td>
-                        {%  for platform in plugin.supported_platforms %}
-                            {{ platform }}
-                        {% endfor %}
+                        {{ plugin.supported_platforms | join(', ') }}
                     </td>
                     <td>{{ plugin.author }}</td>
                     <td>{{ plugin.version }}</td>

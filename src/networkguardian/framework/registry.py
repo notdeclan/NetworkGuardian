@@ -1,16 +1,18 @@
 import multiprocessing
 import sys
-from concurrent import futures
-from concurrent.futures.thread import ThreadPoolExecutor
 from glob import glob
 from os.path import join, basename
 
 from networkguardian import logger
-from networkguardian.exceptions import PluginProcessingError
 from networkguardian.framework.plugin import PluginCategory, SystemPlatform
-from networkguardian.framework.report import PluginResult
 
 registered_plugins = {}
+
+
+def usable_plugins() -> []:
+    return [plugin for plugin in registered_plugins.values() if plugin.loaded and plugin.supported]
+
+
 max_threads = None  # ie if it has been set by the user TODO: add this into config when done
 
 
@@ -75,43 +77,6 @@ def load_plugins():
             plugin.loading_exception = loading_exception
 
 
-def process_plugins(selected_plugins: []) -> []:
-    """
-    Function will process all plugins that are passed asynchronously using a ThreadPool and return a list
-    of Result objects
-
-    :param selected_plugins: plugins to execute
-    :return: List of Result objects
-    """
-    thread_count = get_thread_count(max_required=len(selected_plugins))
-    logger.debug(f'Processing {len(selected_plugins)} Plugins with {thread_count} Threads')
-    results = []
-
-    with ThreadPoolExecutor(max_workers=thread_count) as tpe:
-        # loop through all plugins, submit future for each one
-        future_to_plugin = {
-            tpe.submit(p.process): p for p in selected_plugins
-        }
-
-        for future in futures.as_completed(future_to_plugin):
-            plugin = future_to_plugin[future]
-            print(plugin.name, "has finished yeet")
-
-            result = PluginResult(plugin)
-            try:
-                data, template = future.result()
-                result.add_data(data, template)
-
-            except PluginProcessingError as ppe:
-                # TODO : add handling for this, whether its adding exception to "Result" object or displaying on
-                #  UI etc
-                result.add_exception(ppe)
-
-            results.append(result)
-
-    return results
-
-
 def get_thread_count(max_required: int = None):
     """
     Function is used to calculate the amount of threads that should be used based on three different factors, the
@@ -134,10 +99,5 @@ def get_thread_count(max_required: int = None):
     if isinstance(max_required, int):
         if max_required < thread_count:  # if the required is smaller than thread count
             thread_count = max_required  # just set it the required amount
-
-    if max_threads is not None:
-        if thread_count > max_threads:  # if the thread count is higher than the max allowed threads set by
-            # the user
-            thread_count = max_threads  # set the thread count
 
     return thread_count

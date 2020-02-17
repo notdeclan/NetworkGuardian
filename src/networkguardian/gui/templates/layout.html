@@ -18,6 +18,8 @@
     {#  <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/bootstrap.css') }}"/>#}
     <link rel="stylesheet" type="text/css" href="https://bootswatch.com/4/yeti/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/dashboard.css') }}"/>
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('panel.static', filename='css/dataTables.bootstrap4.css') }}"/>
 
     <!-- TODO: replace font awesome cdn with local copy -->
     <link rel="stylesheet" type="text/css"
@@ -26,9 +28,13 @@
 <body>
 <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
     <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Network Guardian</a>
-    <ul class="navbar-nav px-3">
-        <li class="nav-item text-nowrap">
-             <a class="nav-link" href="{{ url_for("panel.create_report") }}">Create Report</a>
+
+    <ul class="nav my-2 my-md-0 mr-md-3">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for("panel.create_report") }}">Create Report</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for("panel.create_report") }}"><i class="fa fa-cog"></i></a>
         </li>
     </ul>
 </nav>
@@ -39,7 +45,7 @@
                 <ul class="nav flex-column">
                     {% for href, id, icon, caption, sidebar in navigation_bar %}
                         {% if sidebar %}
-                        <li class="nav-item">
+                            <li class="nav-item">
                             <a id="{{ id | e }}" class="nav-link {% if id == active_page %} active {% endif %}"
                                href="{{ href|e }}">
                                 <i class="{{ icon|e }}"></i> {{ caption|e }}
@@ -50,22 +56,14 @@
                 </ul>
             </div>
         </nav>
-        <main role="main" class="col-md-10 ml-sm-auto px-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                {% for href, id, icon, title, sidebar in navigation_bar %}
-                    {% if id == active_page %}
-                        <h2><i class="{{ icon }}"></i> {{ title }}</h2>
-                    {% endif %}
-                {% endfor %}
-            </div>
-
+        <main role="main" class="col-md-10 ml-sm-auto px-4 mb-3">
             {% block body %}
             {% endblock %}
         </main>
 
         {% with messages = get_flashed_messages() %}
             {% if messages %}
-                <div style="position: absolute; bottom: 0px; right: 0px;" class="mr-3 mb-3">
+                <div style="bottom: 0; right: 0;" class="position-absolute mr-3 mb-3">
                     {% for message in messages %}
                         <div class="toast bg-dark text-white" role="alert" data-delay="3000">
                             <div class="toast-header">
@@ -89,12 +87,8 @@
     </div>
 </div>
 
-
-<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-        crossorigin="anonymous">
-</script>
-
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script type="text/javascript" src="{{ url_for('panel.static', filename='js/datatables.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('panel.static', filename='js/bootstrap.bundle.js') }}"></script>
 
 <script>
@@ -112,6 +106,9 @@
         $(".clickable-row").click(function () {
             window.location = $(this).data("href");
         });
+
+        // Enable DataTables
+        $('#data-table').DataTable();
     })
 </script>
 </body>

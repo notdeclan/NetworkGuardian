@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+{% set active_page = "reports" %}
+{% block body %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        {% for href, id, icon, title, sidebar in navigation_bar %}
+            {% if id == active_page %}
+                <h2><i class="{{ icon }}"></i> Processing Report: {{ report.report_name }}</h2>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item "><a href="{{ url_for("panel.view_reports") }}">Reports</a></li>
+        <li class="breadcrumb-item active">Processing Report</li>
+    </ol>
+    <section>
+        <div class="card">
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                     style="width: {{ report.progress }}%"></div>
+            </div>
+        </div>
+
+        <h3>Selected Plugins</h3>
+        <table class="table table-hover">
+            <thead class="thead-dark">
+            <tr>
+                <th>Plugin Name</th>
+                <th>Category</th>
+                <th>Author</th>
+                <th>Version</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for plugin in report.plugins %}
+                <tr>
+                    <td>{{ plugin.name }}</td>
+                    <td>{{ plugin.category.value }}</td>
+                    <td>{{ plugin.author }}</td>
+                    <td>{{ plugin.version }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+{% endblock %}

@@ -1,6 +1,14 @@
 {% extends 'layout.html' %}
 {% set active_page = "help" %}
 {% block body %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        {% for href, id, icon, title, sidebar in navigation_bar %}
+            {% if id == active_page %}
+                <h2><i class="{{ icon }}"></i> {{ title }}</h2>
+            {% endif %}
+        {% endfor %}
+    </div>
+
     <ol class="breadcrumb">
         <li class="breadcrumb-item active">Help</li>
     </ol>

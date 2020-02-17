@@ -5,10 +5,10 @@ from threading import Thread
 
 from flask import Flask
 
-from networkguardian import is_frozen
+from networkguardian import application_frozen
 from networkguardian.gui.blueprints import api, panel
 
-if is_frozen:
+if application_frozen:
     # DISABLE FLASK MESSAGE
     cli = sys.modules['flask.cli']
     cli.show_server_banner = lambda *x: None

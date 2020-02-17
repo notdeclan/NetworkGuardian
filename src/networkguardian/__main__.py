@@ -5,7 +5,7 @@ from asyncio import sleep
 import psutil
 import webview
 
-from networkguardian import logger, is_frozen, application_directory, plugins_directory, reports_directory, \
+from networkguardian import logger, application_frozen, application_directory, plugins_directory, reports_directory, \
     config_path, config, host, port, window
 from networkguardian.framework.registry import registered_plugins, load_plugins, import_external_plugins
 from networkguardian.gui.server import start, is_alive
@@ -97,7 +97,7 @@ def run():
 
     create_directories()
 
-    if is_frozen:
+    if application_frozen:
         detect_siblings()
 
     logger.debug('Starting Network Guardian')

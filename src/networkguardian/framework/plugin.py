@@ -37,6 +37,9 @@ class SystemPlatform(Enum):
         """
         return self.value
 
+    def __repr__(self):
+        return self.value
+
 
 class PluginCategory(Enum):
     """
@@ -46,6 +49,9 @@ class PluginCategory(Enum):
     ATTACK = 'Attack'
     SCANNER = 'Scanner'
     OTHER = 'Other'
+
+    def __repr__(self):
+        return self.value
 
 
 def executor(template: Template, *platforms: SystemPlatform):
@@ -114,7 +120,8 @@ class AbstractPlugin(metaclass=MetaPlugin):
         self._running_platform = running_platform
 
         if not self.supported:
-            raise PluginUnsupportedPlatformError(f'Plugin is only supported on {self.supported_platforms}')
+            raise PluginUnsupportedPlatformError(
+                f'Plugin is only supported on {", ".join(str(x) for x in self.supported_platforms)}')
 
         self.initialize()  # call plugin's initialization method  MAY :raise: PluginInitializationError
         self._loaded = True  # update loaded variable
