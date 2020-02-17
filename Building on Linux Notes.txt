@@ -1,0 +1,5 @@
+When attemping to get pywebview to work on Linux, several problems arose during testing. This may differ pending on the
+machine and this note is only reffering to the experience on a Fedora 31 system.
+
+PyQT was aids to install, qmake had to be be added to /usr/bin with a symlink
+When building with PyInstaller, libnss3.so had to be added to /lib64/nss with a symlink

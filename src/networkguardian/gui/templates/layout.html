@@ -1,0 +1,117 @@
+{% set navigation_bar = [
+    ('/', 'dashboard', 'fa fa-home', 'Dashboard', True),
+    (url_for("panel.view_reports"), 'reports', 'fa fa-list-alt', 'Reports', True),
+    (url_for("panel.view_plugins"), 'plugins', 'fa fa-list',' Plugins', True),
+    (url_for("panel.view_help"), 'help', 'fa fa-question', 'Help', True),
+    (url_for("panel.create_report"), 'create-report', 'fa fa-desktop', 'Create Report', False),
+] -%}
+
+{% set active_page = active_page|default('dashboard') -%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    <title>Network Guardian</title>
+
+    {#  <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/bootstrap.css') }}"/>#}
+    <link rel="stylesheet" type="text/css" href="https://bootswatch.com/4/yeti/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/dashboard.css') }}"/>
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('panel.static', filename='css/dataTables.bootstrap4.css') }}"/>
+
+    <!-- TODO: replace font awesome cdn with local copy -->
+    <link rel="stylesheet" type="text/css"
+          href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+</head>
+<body>
+<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Network Guardian</a>
+
+    <ul class="nav my-2 my-md-0 mr-md-3">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for("panel.create_report") }}">Create Report</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for("panel.create_report") }}"><i class="fa fa-cog"></i></a>
+        </li>
+    </ul>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+                    {% for href, id, icon, caption, sidebar in navigation_bar %}
+                        {% if sidebar %}
+                            <li class="nav-item">
+                            <a id="{{ id | e }}" class="nav-link {% if id == active_page %} active {% endif %}"
+                               href="{{ href|e }}">
+                                <i class="{{ icon|e }}"></i> {{ caption|e }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </nav>
+        <main role="main" class="col-md-10 ml-sm-auto px-4 mb-3">
+            {% block body %}
+            {% endblock %}
+        </main>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div style="bottom: 0; right: 0;" class="position-absolute mr-3 mb-3">
+                    {% for message in messages %}
+                        <div class="toast bg-dark text-white" role="alert" data-delay="3000">
+                            <div class="toast-header">
+                                <img src="{{ url_for("panel.static", filename="icon.png") }}"
+                                     style="width: 15px"
+                                     class="rounded mr-2" alt="NG Logo">
+
+                                <strong class="mr-auto">Network Guardian</strong>
+                                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="toast-body">
+                                {{ message }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script type="text/javascript" src="{{ url_for('panel.static', filename='js/datatables.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('panel.static', filename='js/bootstrap.bundle.js') }}"></script>
+
+<script>
+    // TODO: move to separate file
+    $(function () {
+        // Enable Tool Tips
+        $('[data-toggle="tooltip"]').tooltip();
+
+        // Enable Toast's
+        $('.toast').each(function () {
+            $(this).toast("show");
+        });
+
+        // Add "clickable-row" functionality
+        $(".clickable-row").click(function () {
+            window.location = $(this).data("href");
+        });
+
+        // Enable DataTables
+        $('#data-table').DataTable();
+    })
+</script>
+{% block scripts %}
+{% endblock %}
+</body>
+</html>
