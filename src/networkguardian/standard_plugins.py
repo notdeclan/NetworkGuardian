@@ -326,7 +326,7 @@ class UserEnumerationPlugin(BasePlugin):
             users = {}
             for p in psutil.pwd.getpwall():
                 users[p[0]] = grp.getgrgid(p[3])[0]
-        # return {}
+            return {"users": users}
 
 
 if __name__ == '__main__':
