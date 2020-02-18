@@ -7,7 +7,7 @@
 from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 
-from networkguardian.plugin import Platform
+from networkguardian.framework.plugin import SystemPlatform
 from networkguardian.standard_plugins import TestPlugin
 from prototyping.thread_count_util import get_thread_count
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     # load plugins
     for plugin in plugins:
-        plugin.load(Platform.detect())
+        plugin.load(SystemPlatform.detect())
 
     # create thread pool with the amount of cpu cores in the system, in real software offer user the ability to set
     # max threads as an option
@@ -54,6 +54,6 @@ if __name__ == '__main__':
             plugin = future_to_plugin[future]
             try:
                 print(plugin.name)
-                print(plugin.template.render(future.result()))
+                print(plugin.template.template(future.result()))
             except Exception as exc:
                 print(exc)

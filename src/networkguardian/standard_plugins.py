@@ -1,26 +1,27 @@
 import csv
 import os
 import platform
-import time
-import subprocess
-import urllib
-import uuid
-from io import StringIO
+import socket
+from socket import AF_INET, SOCK_STREAM, SOCK_DGRAM
 from urllib.error import URLError
 from urllib.request import urlopen
+from io import StringIO
 
 import psutil
 from jinja2 import Template
+from psutil._common import bytes2human
 
 from networkguardian.exceptions import PluginInitializationError
-from networkguardian.plugin import BasePlugin, Category, Platform
+from networkguardian.framework.plugin import AbstractPlugin, PluginCategory, SystemPlatform, executor
+from networkguardian.framework.registry import register_plugin
 
 """
     Module is used to store all the standard plugins
 """
 
 
-class ExamplePlugin(BasePlugin):
+# @register_plugin("Example", Category.ATTACK, "Declan W", 0.1)
+class ExamplePlugin(AbstractPlugin):
     """
         An example plugin to demonstrate the functionality and api to developers of custom plugins.
 
@@ -30,48 +31,65 @@ class ExamplePlugin(BasePlugin):
         <b>HTML elements are supported, but major changes to formatting is discouraged.</b>
     """
 
-    def __init__(self):
-        super().__init__("Example", Category.ATTACK, "Declan W", 0.1,
-                         [Platform.MAC_OS, Platform.WINDOWS, Platform.LINUX])
+    def initialize(self):
+        # Should a plugin require a dependency or further checks when loading, this should be done here.
+        if "test" not in "test":
+            # if a plugin for whatever reason cannot be loaded, PluginInitializationError should be raised
+            raise PluginInitializationError("Test was not in test, so the plugin could not be initialized properly")
 
+    # The plugins Jinja template should be returned here
+    # Data that is returned from execute should be rendered here
+    # For more information on how Jinja templating works, see https://jinja.palletsprojects.com/en/2.11.x/templates/
+    template = Template("""
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for id, result in results.items() %}
+                    <tr>
+                        <td>{{ id }}</td>
+                        <td>{{ result }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    """)
+
+    @executor(template, SystemPlatform.WINDOWS, SystemPlatform.LINUX, SystemPlatform.MAC_OS)
     def execute(self) -> {}:
         # Do plugin execution here, IE scan or produce results from some data source
         # Then data should be formatted into a dictionary used for storage, and for rendering in the plugin template
         return {
-
             "results": {
-                1: "yessir",
+                1: "Example Result",
+                2: "Another Result"
             },
-            "name": "dad",
         }
 
-    def initialize(self):
-        if "test" not in "test":
-            raise PluginInitializationError("Test was not in test, so the plugin could not be initialized properly")
 
-    @property
-    def template(self) -> Template:
-        return Template("""
-            ID -  NAME
-            {% for id, name in results.items() %}
-            {{ id }} - {{ name }} 
-            {% endfor %} 
-            NAME: {{ name }}           
-        """)
-
-        # return Template(open("example.template").read())
-
-
-class SystemInformationPlugin(BasePlugin):
+@register_plugin("System Information", PluginCategory.INFO, "Declan W", 0.1)
+class SystemInformationPlugin(AbstractPlugin):
     """
     Plugin returns
     """
 
-    def __init__(self):
-        super().__init__("System Information", Category.INFO, "Declan W", 0.1,
-                         [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
+    template = Template("""
+            <table class="table">
+                {% for name, value in information.items() %}
+                <tr>
+                    <th class="bg-dark text-light">{{name}}</th>
+                    <td>{{value}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        """)
 
-    def execute(self) -> {}:
+    @executor(template)
+    def execute(self):
         # get information required
         system_name = platform.node()
         username = os.getlogin()
@@ -90,19 +108,6 @@ class SystemInformationPlugin(BasePlugin):
                 "Memory": memory
             }
         }
-
-    @property
-    def template(self) -> Template:
-        return Template("""
-            <table>
-                {% for name, value in information.items() %}
-                <tr>
-                    <td>{{name}}</td>
-                    <td>{{value}}</td>
-                </tr>
-                {% endfor %}
-            </table>
-        """)
 
     def get_memory(self):
         """
@@ -132,203 +137,303 @@ class SystemInformationPlugin(BasePlugin):
         return byte_count, power_labels[n]
 
 
-class TestPlugin(BasePlugin):
+@register_plugin("Network Interface Information", PluginCategory.INFO, "Owen", 0.1)
+class NetworkInterfaceInformation(AbstractPlugin):
     """
-    Plugin returns
+        This plugin will return details about the network interfaces. Such as whether the device is online or not, the IP, broadcast address, netmask and mac address.
+
+        It will also display information about packets, speed, dropped packets and more.
     """
 
-    def __init__(self, sleep_time):
-        super().__init__("Test Plugin", Category.INFO, "Declan W", 0.1,
-                         [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
-        self.sleep_time = sleep_time
+    template = Template("""
+            <table class="table table-responsive table-sm">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Adapter Name</th>
+                        <th>Speed</th>
+                        <th>Duplex</th>
+                        <th>MTU</th>
+                        <th>Is-Up?</th>
+                        <th>Bytes In</th>
+                        <th>Packets In</th>
+                        <th>Errors In</th>
+                        <th>Drops In</th>
+                        <th>Bytes Out</th>
+                        <th>Packets Out</th>
+                        <th>Errors Out</th>
+                        <th>Drops Out</th>
+                        <th>Mac</th>
+                        <th>IPv4 Broadcast</th>
+                        <th>IPv4 Netmask</th>
+                        <th>IPv6 Broadcast</th>
+                        <th>IPv6 Netmask</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, value in result.items() %}
+                    {%- if value.Mac is defined %}
+                    <tr>
+                        <td>{{name}}</td>
+                        <td>{{value.Speed}}MB</td>
+                        <td>{{value.Duplex}}</td>
+                        <td>{{value.MTU}}</td>
+                        <td>{{value.up}}</td>
+                        <td>{{value.bytesin}}</td> 
+                        <td>{{value.packetsin}}</td> 
+                        <td>{{value.errorsin}}</td> 
+                        <td>{{value.dropsin}}</td> 
+                        <td>{{value.bytesout}}</td> 
+                        <td>{{value.packetsout}}</td> 
+                        <td>{{value.errorsout}}</td> 
+                        <td>{{value.dropsout}}</td> 
+                        <td>{{value.Mac}}</td> 
+                        <td>{{value.IPv4Broadcast}}</td> 
+                        <td>{{value.IPv4Netmask}}</td> 
+                        <td>{{value.IPv6Broadcast}}</td> 
+                        <td>{{value.IPv6Netmask}}</td> 
+                    </tr>
+                    {%- endif %}
+                    {%- endfor %}
+                </tbody>
+            </table>
+        """)
 
-    def execute(self) -> {}:
-        print("Starting Sleep")
-        time.sleep(self.sleep_time)
-        return {
-            "uuid": uuid.uuid4(),
-            "sleep": self.sleep_time
+    @executor(template)
+    def execute(self):
+        """
+        Using psutil it gathers all the information required and puts it all into a list so it
+        can be used in the template to be displayed into a table.
+        """
+        af_map = {
+            socket.AF_INET: 'IPv4',
+            socket.AF_INET6: 'IPv6',
+            psutil.AF_LINK: 'MAC',
         }
 
-    @property
-    def template(self) -> Template:
-        return Template("""Test Plugin Completed {{uuid}} {{sleep}}""")
+        duplex_map = {
+            psutil.NIC_DUPLEX_FULL: "Full",
+            psutil.NIC_DUPLEX_HALF: "Half",
+            psutil.NIC_DUPLEX_UNKNOWN: "?",
+        }
+
+        main_list = {}
+
+        stats = psutil.net_if_stats()
+        io_counters = psutil.net_io_counters(pernic=True)
+        for nic, addrs in psutil.net_if_addrs().items():
+            st = stats[nic]
+            io = io_counters[nic]
+
+            main_list.update({nic: {
+                "Speed": st.speed or "-",
+                "Duplex": duplex_map[st.duplex] or "-",
+                "MTU": st.mtu or "-",
+                "up": st.isup or "False",
+                "bytesin": bytes2human(io.bytes_recv) or "0",
+                "packetsin": io.packets_recv or "0",
+                "errorsin": io.errin or "0",
+                "dropsin": io.dropin or "0",
+                "bytesout": bytes2human(io.bytes_sent) or "0",
+                "packetsout": io.packets_sent or "0",
+                "errorsout": io.errout or "0",
+                "dropsout": io.dropout or "0",
+            }})
+
+            for addr in addrs:
+                key = af_map.get(addr.family, addr.family)
+                if key == "MAC":
+                    main_list[nic]["Mac"] = addr.address or "-"
+                else:
+                    key_broadcast = key + "Broadcast"
+                    key_netmask = key + "Netmask"
+                    main_list[nic][key_broadcast] = addr.address or "-"
+                    main_list[nic][key_netmask] = addr.netmask or "-"
+
+        return {"result": main_list}
 
 
-class CheckInternetConnectivityPlugin(BasePlugin):
+@register_plugin("Internet Connectivity", PluginCategory.INFO, "Velislav V", 1.0)
+class CheckInternetConnectivityPlugin(AbstractPlugin):
     """
         This plugin determines whether the local machine has access to the internet
     """
 
-    def __init__(self):
-        super().__init__("Internet Connectivity Plugin", Category.INFO, "Velislav V", 1.0,
-                         [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
+    @executor(Template("System is {{ 'Connected' if internet else 'not Connected' }} to the Internet"))
+    def execute(self):
+        def check_internet():
+            """
+            Function is used to return whether the local machine has internet access
 
-    @property
-    def template(self) -> Template:
-        return Template("""
-            {% if internet %}
-            <b>You are connected to the Internet !</b>
-            {% else %}
-            <b>No Internet Connection Present !</b>
-            {% endif %}
+            Works by looping through multiple URL's and connecting to them, if one successfully connects
+            it will return True, otherwise False
+
+            :return: True/False
+            """
+            urls = ["https://google.co.uk", "https://youtube.com", "https://bbc.co.uk"]
+            for url in urls:  # loop through all URL's
+                try:
+                    urlopen(url, timeout=5)
+                    return True  # if connect, internet is working, return True
+                except URLError:
+                    print("timeout on", url)
+                    continue  # if fail, go to next URL in loop
+
+            return False  # if all URL's fail, return False
+
+        return {"internet": check_internet()}
+
+
+@register_plugin("NetStat Information", PluginCategory.INFO, "Owen", 1.0)
+class NetStatInformation(AbstractPlugin):
+    """
+        The plugin returns netstat information
+
+        This tells you about the different connections and information about them such as
+        the protocol, local address, remote address, status, PID and the program name
+    """
+
+    template = Template("""
+        <table class="table table-hover table-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Protocol</th>
+                    <th>Local Address</th>
+                    <th>Remote Address</th>
+                    <th>Status</th>
+                    <th>PID</th>
+                    <th>Program Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for name, value in result.items() %}
+                    <tr>
+                        <td>{{name}}</td>
+                        <td>{{value.Protocol}}</td>
+                        <td>{{value.LocalAddress}}</td>
+                        <td>{{value.RemoteAddress}}</td>
+                        <td>{{value.Status}}</td>
+                        <td>{{value.PID}}</td> 
+                        <td>{{value.ProgramName}}</td> 
+                    </tr>
+                {%- endfor %}
+            </tbody>
+        </table>
         """)
 
-    @property
-    def execute(self) -> {}:
-        return self.check_internet()
-
-    @staticmethod
-    def check_internet():
+    @executor(template)
+    def execute(self):
         """
-        Function is used to return whether the local machine has internet access
-
-        Works by looping through multiple URL's and connecting to them, if one successfully connects
-        it will return True, otherwise False
-
-        :return: True/False
+            Get information using psutil and stores into variables
         """
-        urls = ["https://google.co.uk", "https://youtube.com", "https://bbc.co.uk"]
-        for url in urls:
-            try:
-                urlopen(url, timeout=5)
-                return {"internet": True}
-            except URLError as Error:
-                continue
+        AD = "-"
+        AF_INET6 = getattr(socket, 'AF_INET6', object())
+        proto_map = {
+            (AF_INET, SOCK_STREAM): 'tcp',
+            (AF_INET6, SOCK_STREAM): 'tcp6',
+            (AF_INET, SOCK_DGRAM): 'udp',
+            (AF_INET6, SOCK_DGRAM): 'udp6',
+        }
 
-        return {"internet": False}
+        main_list = {}
+        i = 1
+        proc_names = {}
 
+        for p in psutil.process_iter(attrs=['pid', 'name']):
+            proc_names[p.info['pid']] = p.info['name']
+        for c in psutil.net_connections(kind='inet'):
+            laddr = "%s:%s" % (c.laddr)
+            raddr = ""
+            if c.raddr:
+                raddr = "%s:%s" % (c.raddr)
 
-class UserEnumerationPlugin(BasePlugin):
+                main_list.update({i: {
+                    "Protocol": proto_map[(c.family, c.type)],
+                    "LocalAddress": laddr,
+                    "RemoteAddress": raddr or "-",
+                    "Status": c.status,
+                    "PID": c.pid or "-",
+                    "ProgramName": proc_names.get(c.pid, '?')[:15],
+                }})
+                i += 1
 
-    """
-    Plugin to enumerate users - as of 11/02/2020 does not work on Mac
-    """
-
-    def __init__(self):
-        super().__init__("Example", Category.ATTACK, "Declan W", 0.1,
-                         [Platform.MAC_OS, Platform.WINDOWS, Platform.LINUX])
-
-    @property
-    def template(self) -> Template:
-        operating_system = Platform.detect()
-        if operating_system is Platform.WINDOWS:
-            return Template("""
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Node</th>
-                                        <th>AccountType</th>
-                                        <th>Description</th>
-                                        <th>Disabled</th>
-                                        <th>Domain</th>
-                                        <th>FullName</th>
-                                        <th>InstallDate</th>
-                                        <th>LocalAccount</th>
-                                        <th>Lockout</th>
-                                        <th>Name</th>
-                                        <th>PasswordChangeable</th>
-                                        <th>PasswordExpires</th>
-                                        <th>PasswordRequired</th>
-                                        <th>SID</th>
-                                        <th>SIDType</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                            <tbody>
-                                {% for row in reader %}
-                                    <tr>
-                                        {% for cell in row %}
-                                            <td>{{ cell }}</td>
-                                        {% endfor %}
-                                    </tr>
-                                {% endfor %}                            
-                            </tbody>
-                        </table>
-            """)
-        elif operating_system is Platform.LINUX:
-            return Template("""
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Users</th>
-                                    <th>User Group</th>
-                                </tr>
-                                </thdead>
-                                <tbody>
-                                
-                                    {% for user, user_group in users.items() %}
-                                       <tr>
-                                            <td> {{user}} </td>
-                                            <td> {{user_group}} </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-            """)
-        elif operating_system is Platform.MAC_OS:
-            return Template("""
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Users</th>
-                                    <th>User Group</th>
-                                </tr>
-                                </thdead>
-                                <tbody>
-
-                                    {% for user, user_group in users.items() %}
-                                       <tr>
-                                            <td> {{user}} </td>
-                                            <td> {{user_group}} </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-            """)
-
-    # noinspection PyUnresolvedReferences
-    @property
-    def execute(self) -> {}:
-        return self.user_enumeration()
-
-    @staticmethod
-    def user_enumeration():
-        operating_system = Platform.detect()
-
-        if operating_system is Platform.WINDOWS:
-
-            # currently dumping all info for all users
-            #    $options =
-            #       AccountType, Description, Disabled, Domain, InstallDate, LocalAccount, Lockout,
-            #       PasswordChangeable, PasswordExpires, PasswordRequired, SID, SIDType, and Status
-            # adds line of whitespace to start of file
-
-            process = subprocess.Popen(["wmic", "useraccount", "list", "full", "/format:csv"], stdout=subprocess.PIPE)
-            users_output = process.communicate()[0]
-            file_stream = StringIO(users_output.decode())
-            for i in range(2):
-                file_stream.readline()
-
-            reader = csv.reader(file_stream)
-
-            return {"reader": reader}
-
-        elif operating_system is Platform.LINUX:
-            # user + group
-            import grp
-            users = {}
-            for p in psutil.pwd.getpwall():
-                users[p[0]] = grp.getgrgid(p[3])[0]
-            return {"users": users}
-        elif operating_system is Platform.MAC_OS:
-            import grp
-            users = {}
-            for p in psutil.pwd.getpwall():
-                users[p[0]] = grp.getgrgid(p[3])[0]
-            return {"users": users}
+        return {"result": main_list}
 
 
-if __name__ == '__main__':
-    p = UserEnumerationPlugin()
-    print(p.template.render(p.execute))
+@register_plugin("User Enumeration", PluginCategory.INFO, "Alexandra", 1.0)
+class UserEnumerationPlugin(AbstractPlugin):
+
+    windows_template = Template("""
+            <table>
+                <thead>
+                    <tr>
+                        <th>Node</th>
+                        <th>AccountType</th>
+                        <th>Description</th>
+                        <th>Disabled</th>
+                        <th>Domain</th>
+                        <th>FullName</th>
+                        <th>InstallDate</th>
+                        <th>LocalAccount</th>
+                        <th>Lockout</th>
+                        <th>Name</th>
+                        <th>PasswordChangeable</th>
+                        <th>PasswordExpires</th>
+                        <th>PasswordRequired</th>
+                        <th>SID</th>
+                        <th>SIDType</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+            <tbody>
+                {% for row in reader %}
+                    <tr>
+                        {% for cell in row %}
+                            <td>{{ cell }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}                            
+            </tbody>
+        </table>
+    """)
+
+    @executor(windows_template, SystemPlatform.WINDOWS)
+    def windows(self):
+        process = os.subprocess.Popen(["wmic", "useraccount", "list", "full", "/format:csv"], stdout=os.subprocess.PIPE)
+        users_output = process.communicate()[0]
+        file_stream = StringIO(users_output.decode())
+        for i in range(2):
+            file_stream.readline()
+
+        reader = csv.reader(file_stream)
+
+        return {"reader": reader}
+
+    unix_template = Template("""
+        <table>
+            <thead>
+                <tr>
+                    <th>Users</th>
+                    <th>User Group</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user, user_group in users.items() %}
+                   <tr>
+                        <td> {{user}} </td>
+                        <td> {{user_group}} </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    """)
+
+    @executor(unix_template, SystemPlatform.MAC_OS, SystemPlatform.LINUX)
+    def unix(self):
+        import grp
+        users = {}
+        for p in psutil.pwd.getpwall():
+            users[p[0]] = grp.getgrgid(p[3])[0]
+        return {"users": users}
+
+

@@ -1,0 +1,61 @@
+{% extends 'layout.html' %}
+{% set active_page = "plugins" %}
+{% block body %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        {% for href, id, icon, title, sidebar in navigation_bar %}
+            {% if id == active_page %}
+                <h2><i class="{{ icon }}"></i> {{ plugin.name }}</h2>
+            {% endif %}
+        {% endfor %}
+        <div class="btn-toolbar mb-2 mb-md-0">
+            {% if not plugin.supported %}
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" disabled="">
+                    <label class="custom-control-label">Unsupported Platform</label>
+                </div>
+            {% elif plugin.loading_exception %}
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" disabled="">
+                    <label class="custom-control-label">Loading Error Occurred</label>
+                </div>
+            {% else %}
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="customSwitch1" checked="">
+                    <label class="custom-control-label" for="customSwitch1"></label>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for("panel.view_plugins") }}">Plugins</a></li>
+        <li class="breadcrumb-item active">{{ plugin.name }}</li>
+    </ol>
+
+    {% if plugin.loading_exception %}
+        <div class="alert alert-danger">
+            <strong>Loading Error:</strong> {{ plugin.loading_exception }}
+        </div>
+    {% endif %}
+
+    <section id="view-report">
+        <div class="row">
+            <div class="col-md-4 col-xl-2">
+                <ul class="list-group">
+                    <li class="list-group-item">{{ plugin.category.value }}</li>
+                    <li class="list-group-item">{{ plugin.author }}</li>
+                    <li class="list-group-item">{{ plugin.version }}</li>
+                    <li class="list-group-item">{{ plugin.supported_platforms | join(', ') }}</li>
+                </ul>
+            </div>
+            <div class="col-md-8 col-xl-10">
+                <div class="card card-body">
+                    {% for paragraph in plugin.description.split("\n") %}
+                        <p>{{ paragraph }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </section>
+{% endblock %}

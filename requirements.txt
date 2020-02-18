@@ -1,3 +1,6 @@
+wtforms
+flask-wtf
+jinja2
 flask
 pywebview
 psutil
