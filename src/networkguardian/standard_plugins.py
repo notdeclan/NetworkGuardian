@@ -144,7 +144,7 @@ class NetworkInterfaceInformation(AbstractPlugin):
     """
 
     template = Template("""
-            <table class="table table-responsive">
+            <table class="table table-responsive table-sm">
                 <thead class="thead-dark">
                     <tr>
                         <th>Adapter Name</th>
@@ -291,7 +291,7 @@ class NetStatInformation(AbstractPlugin):
     """
 
     template = Template("""
-        <table class="table table-hover">
+        <table class="table table-hover table-sm">
             <thead class="thead-dark">
                 <tr>
                     <th>#</th>

@@ -66,7 +66,8 @@ def run():
         STARTUP CONFIGURATIONS:
             - run () - Starts everything
             - quick_scan(config) - Just launches scan
-            
+            - browser mode
+                 
         psuedo code for startup
         if find config
             if reports and plugins dir exists
