@@ -1,9 +1,11 @@
+import csv
 import os
 import platform
 import socket
 from socket import AF_INET, SOCK_STREAM, SOCK_DGRAM
 from urllib.error import URLError
 from urllib.request import urlopen
+from io import StringIO
 
 import psutil
 from jinja2 import Template
@@ -356,3 +358,82 @@ class NetStatInformation(AbstractPlugin):
                 i += 1
 
         return {"result": main_list}
+
+
+@register_plugin("User Enumeration", PluginCategory.INFO, "Alexandra", 1.0)
+class UserEnumerationPlugin(AbstractPlugin):
+
+    windows_template = Template("""
+            <table>
+                <thead>
+                    <tr>
+                        <th>Node</th>
+                        <th>AccountType</th>
+                        <th>Description</th>
+                        <th>Disabled</th>
+                        <th>Domain</th>
+                        <th>FullName</th>
+                        <th>InstallDate</th>
+                        <th>LocalAccount</th>
+                        <th>Lockout</th>
+                        <th>Name</th>
+                        <th>PasswordChangeable</th>
+                        <th>PasswordExpires</th>
+                        <th>PasswordRequired</th>
+                        <th>SID</th>
+                        <th>SIDType</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+            <tbody>
+                {% for row in reader %}
+                    <tr>
+                        {% for cell in row %}
+                            <td>{{ cell }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}                            
+            </tbody>
+        </table>
+    """)
+
+    @executor(windows_template, SystemPlatform.WINDOWS)
+    def windows(self):
+        process = os.subprocess.Popen(["wmic", "useraccount", "list", "full", "/format:csv"], stdout=os.subprocess.PIPE)
+        users_output = process.communicate()[0]
+        file_stream = StringIO(users_output.decode())
+        for i in range(2):
+            file_stream.readline()
+
+        reader = csv.reader(file_stream)
+
+        return {"reader": reader}
+
+    unix_template = Template("""
+        <table>
+            <thead>
+                <tr>
+                    <th>Users</th>
+                    <th>User Group</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user, user_group in users.items() %}
+                   <tr>
+                        <td> {{user}} </td>
+                        <td> {{user_group}} </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    """)
+
+    @executor(unix_template, SystemPlatform.MAC_OS, SystemPlatform.LINUX)
+    def unix(self):
+        import grp
+        users = {}
+        for p in psutil.pwd.getpwall():
+            users[p[0]] = grp.getgrgid(p[3])[0]
+        return {"users": users}
+
+
