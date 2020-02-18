@@ -69,6 +69,7 @@ class ExamplePlugin(AbstractPlugin):
         }
 
 
+
 @register_plugin("System Information", PluginCategory.INFO, "Declan W", 0.1)
 class SystemInformationPlugin(AbstractPlugin):
     """
@@ -135,8 +136,8 @@ class SystemInformationPlugin(AbstractPlugin):
         return byte_count, power_labels[n]
 
 
-#@register_plugin("NMap test", PluginCategory.INFO, "Owen", 0.1)
-@test_plugin
+@register_plugin("NMap TCP Ports", PluginCategory.INFO, "Owen", 0.1)
+#@test_plugin
 class NMapTcpPorts(AbstractPlugin):
     """
         Blank
@@ -188,6 +189,109 @@ class NMapTcpPorts(AbstractPlugin):
                                        }})
             i += 1
 
+        return {'results': new_dict}
+
+#@register_plugin("NMapNetworkScan", PluginCategory.INFO, "Owen", 0.1)
+@test_plugin
+class NMapNetworkScan(AbstractPlugin):
+    """
+        Blank
+    """
+
+    template = Template("""
+        <table>
+                <tr>
+                    <th>IP</th>
+                    <th>MAC</th>
+                    <th>Vendor</th>
+                    <th>OS - Estimation</th>
+                    <th>Closed Ports</th>
+                    <th>Filtered Ports</th>
+                    <th>Open Ports</th>
+                </tr>
+                {% for name, value in results.items() %}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{value.mac}}</td>
+                    <td>{{value.vendor}}</td>
+                    <td>{{value.os}}</td>
+                    <td>{{value.closed}}</td>
+                    <td>{{value.filtered}}</td>
+                    <td>{{value.open}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        """)
+
+    @executor(template)
+    def execute(self):
+
+        temp_dict = {}
+        new_dict = {}
+        i = 0
+        open_list = []
+        filtered_list = []
+        closed_list = []
+
+        hostname = socket.gethostname()
+        ip_addr = socket.gethostbyname(hostname)
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+
+        split = ip.split('.')
+        new_ip = split[0] + '.' + split[1] + '.' + split[2] + '.*'
+
+        print(new_ip)
+
+        nm = nmap.PortScanner()
+        temp_dict = nm.scan(hosts='172.16.16.1-20', arguments='-O --top-ports 20')
+
+        keys = temp_dict['scan'].keys()
+        keys = list(keys)
+
+        while i < len(keys):
+            if keys[i] == ip:
+                pass
+            else:
+                mac = temp_dict['scan'][keys[i]]['addresses']['mac']
+                try:
+                    vendor = temp_dict['scan'][keys[i]]['vendor'][mac]
+                except KeyError:
+                    vendor = "-"
+
+                try:
+                    oss = temp_dict['scan'][keys[i]]['osmatch'][0]['name']
+                except IndexError:
+                    oss = "Unknown"
+
+                keys2 = temp_dict['scan'][keys[i]]['tcp'].keys()
+                keys2 = list(keys2)
+
+                x = 0
+                while x < len(keys2):
+                    if temp_dict['scan'][keys[i]]['tcp'][keys2[x]]['state'] == "open":
+                        open_list.append(keys2[x])
+                    elif temp_dict['scan'][keys[i]]['tcp'][keys2[x]]['state'] == "filtered":
+                        temp = temp_dict['scan'][keys[i]]['tcp'][keys2[x]]
+                        print(keys2[x])
+                        filtered_list.append(keys2[x])
+                    else:
+                        closed_list.append(keys2[x])
+
+                    x += 1
+
+                new_dict.update({keys[i]: {"mac": mac or '-',
+                                           "vendor": vendor,
+                                           "os": oss,
+                                           "closed": closed_list,
+                                           "filtered": filtered_list,
+                                           "open": open_list
+                                           }})
+            i += 1
+        print(new_dict)
         return {'results': new_dict}
 
 
