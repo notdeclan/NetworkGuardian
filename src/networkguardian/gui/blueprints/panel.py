@@ -23,6 +23,12 @@ else:  # if not frozen
     mod = Blueprint('panel', __name__, static_folder='../static', template_folder='templates')
 
 
+@mod.errorhandler(404)
+def page_not_found():
+    # TODO: Fix, maybe add to server mod instead of panel.mod
+    return render_template('pages/404.html')
+
+
 @mod.route('/')
 def index():
     #  usable_plugins = [p for p in registered_plugins if p.supported]  TODO: easy way to get supported plugins

@@ -79,7 +79,7 @@ class SystemInformationPlugin(AbstractPlugin):
             <table class="table">
                 {% for name, value in information.items() %}
                 <tr>
-                    <th>{{name}}</th>
+                    <th class="bg-dark text-light">{{name}}</th>
                     <td>{{value}}</td>
                 </tr>
                 {% endfor %}

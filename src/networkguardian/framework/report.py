@@ -13,7 +13,7 @@ from networkguardian.framework.registry import get_thread_count
 # KEY == file path,  VALUE == Report obj
 reports = {}
 
-# Report name, Report obj
+# Thread ID, Report obj
 processing_reports = {}
 
 
