@@ -6,10 +6,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from datetime import datetime
 from threading import Thread
 
-from jinja2 import Template
-
 from networkguardian import application_version
-from networkguardian.exceptions import PluginProcessingError
 from networkguardian.framework.plugin import SystemPlatform
 from networkguardian.framework.registry import get_thread_count
 
@@ -29,9 +26,6 @@ class Result:
         self.template = template
 
     def render(self):
-        if self.exception:
-            return Template("EXCEPTION OCCURED MAJOR RIPZ {{exception}}").render(exception=self.exception)
-
         return self.template.render(self.data)
 
 
@@ -120,7 +114,7 @@ class ReportProcessor(Thread):
                 try:
                     data, template = future.result()
                     report.add_result(plugin, data, template)
-                except PluginProcessingError as ppe:
+                except Exception as ppe:
                     report.add_exception(plugin, ppe)
 
                 self.progress += plugin_progress_worth

@@ -59,7 +59,13 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        {{ result.render() | safe }}
+                        {% if result.exception %}
+                            <div class="alert alert-danger">
+                                <strong>Execution Error:</strong> {{ result.exception }}
+                            </div>
+                        {% else %}
+                            {{ result.render() | safe }}
+                        {% endif %}
                     </div>
                 </div>
             </section>

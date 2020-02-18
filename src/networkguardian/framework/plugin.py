@@ -141,8 +141,11 @@ class AbstractPlugin(metaclass=MetaPlugin):
 
     def process(self):  # TODO, MAKE THIS MUCH NICER
         if self.loaded:  # further check to ensure somehow the plugin isn't executed if
-            pe = self._executors[self._running_platform]  # pe == platform executor
-            return pe(self), pe._template
+            try:
+                pe = self._executors[self._running_platform]  # pe == platform executor
+                return pe(self), pe._template
+            except:
+                raise
         else:  # TODO: change this to a plugin exception error, then again its kinda WTF because it shouldn't happen
             raise PluginProcessingError("Plugin must be loaded before processing.")
 
