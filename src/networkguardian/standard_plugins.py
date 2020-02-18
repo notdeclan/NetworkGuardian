@@ -69,7 +69,6 @@ class ExamplePlugin(AbstractPlugin):
         }
 
 
-
 @register_plugin("System Information", PluginCategory.INFO, "Declan W", 0.1)
 class SystemInformationPlugin(AbstractPlugin):
     """
@@ -137,7 +136,7 @@ class SystemInformationPlugin(AbstractPlugin):
 
 
 @register_plugin("NMap TCP Ports", PluginCategory.INFO, "Owen", 0.1)
-#@test_plugin
+# @test_plugin
 class NMapTcpPorts(AbstractPlugin):
     """
         Blank
@@ -166,7 +165,6 @@ class NMapTcpPorts(AbstractPlugin):
 
     @executor(template)
     def execute(self):
-
         nested_dict = {}
         new_dict = {}
         i = 0
@@ -191,7 +189,8 @@ class NMapTcpPorts(AbstractPlugin):
 
         return {'results': new_dict}
 
-#@register_plugin("NMapNetworkScan", PluginCategory.INFO, "Owen", 0.1)
+
+# @register_plugin("NMapNetworkScan", PluginCategory.INFO, "Owen", 0.1)
 @test_plugin
 class NMapNetworkScan(AbstractPlugin):
     """
@@ -244,10 +243,10 @@ class NMapNetworkScan(AbstractPlugin):
         split = ip.split('.')
         new_ip = split[0] + '.' + split[1] + '.' + split[2] + '.*'
 
-        print(new_ip)
-
         nm = nmap.PortScanner()
-        temp_dict = nm.scan(hosts='172.16.16.1-20', arguments='-O --top-ports 20')
+
+        # change hosts to new_ip when using properly
+        temp_dict = nm.scan(hosts='172.16.16.1-50', arguments='-O --top-ports 20')
 
         keys = temp_dict['scan'].keys()
         keys = list(keys)
@@ -290,6 +289,9 @@ class NMapNetworkScan(AbstractPlugin):
                                            "filtered": filtered_list,
                                            "open": open_list
                                            }})
+                closed_list = []
+                filtered_list = []
+                open_list = []
             i += 1
         print(new_dict)
         return {'results': new_dict}
@@ -326,4 +328,3 @@ class CheckInternetConnectivityPlugin(AbstractPlugin):
         return {
             "internet": check_internet()
         }
-
