@@ -2,7 +2,7 @@ import os
 import sys
 from random import randint
 
-from flask import Blueprint, render_template, abort, redirect, url_for, jsonify
+from flask import Blueprint, render_template, abort, redirect, url_for, jsonify, flash
 
 from networkguardian import application_frozen
 from networkguardian.framework.registry import registered_plugins, usable_plugins
@@ -56,11 +56,24 @@ def create_report():
     return render_template('pages/create-report.html', form=form)
 
 
+@mod.route('/reports/create/quick')
+def quick_report():
+    processor = ReportProcessor("Quick Report", usable_plugins())
+    processor.daemon = True
+    processor.start()
+
+    rand_thread_id = randint(0, 10000)
+    processing_reports[rand_thread_id] = processor
+
+    return redirect(url_for("panel.process_report", thread_id=rand_thread_id))
+
+
 @mod.route('/reports/processing/<int:thread_id>')
 def process_report(thread_id):
     if thread_id in processing_reports:
         report = processing_reports[thread_id]
         if report.progress >= 100:
+            flash("Report completed")
             return redirect(url_for("panel.view_report", report_name=report.report_name))
 
         return render_template('pages/processing-report.html', report=report)
@@ -74,6 +87,7 @@ def report_progress(thread_id):
         return jsonify({"progress": processing_reports[thread_id].progress})
 
     # TODO: Use this rather than refreshing whole page
+    # TODO: add to api probs
 
     return abort(404)
 

@@ -92,9 +92,13 @@ class ReportProcessor(Thread):
 
     def __init__(self, report_name, plugins):
         self.report_name = report_name
-        self.plugins = plugins
+        self.plugins = {}
+
+        for plugin in plugins:
+            self.plugins[plugin] = False
 
         self.progress = 0
+
         super().__init__()
 
     def run(self):
@@ -107,11 +111,12 @@ class ReportProcessor(Thread):
         with ThreadPoolExecutor(max_workers=thread_count) as tpe:
             # loop through all plugins, submit future for each one
             future_to_plugin = {
-                tpe.submit(p.process): p for p in self.plugins
+                tpe.submit(p.process): p for p in self.plugins.keys()
             }
 
             for future in futures.as_completed(future_to_plugin):
                 plugin = future_to_plugin[future]
+                self.plugins[plugin] = True
                 try:
                     data, template = future.result()
                     report.add_result(plugin, data, template)
