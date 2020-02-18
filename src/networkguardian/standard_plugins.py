@@ -201,7 +201,7 @@ class LocalFirewallStatus(BasePlugin):
 
 
     def __init__(self):
-        super().__init__("Local Firewall Status Plugin", Category.INFO, "Velislav V", 0.4,
+        super().__init__("Local Firewall Status Plugin", Category.INFO, "Velislav V", 0.5,
                          [Platform.WINDOWS, Platform.LINUX, Platform.MAC_OS])
 
     @property
