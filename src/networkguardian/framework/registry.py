@@ -1,7 +1,9 @@
+import glob
+import importlib.util
 import multiprocessing
+import os
 import sys
-from glob import glob
-from os.path import join, basename
+from os.path import basename
 
 from networkguardian import logger
 from networkguardian.framework.plugin import PluginCategory, SystemPlatform
@@ -56,11 +58,22 @@ def import_external_plugins(directory: str):
 
     :param directory: directory to look for modules
     """
-    # Import all classes in this directory so that classes with @register_plugin are registered.
-    sys.path.append(directory)  # append directory to path so can be imported
-    for x in glob(join(directory, '*.py')):  # for each file in working directory that have file
-        if not x.startswith('__'):  # if not private
-            __import__(basename(x)[:-3], globals(), locals())
+    for file_path in glob.iglob(os.path.join(directory, '**/*.py'), recursive=True):
+        if os.path.isfile(file_path):  # filter dirs
+            module_name = basename(file_path)[:-3]
+            try:
+                spec = importlib.util.spec_from_file_location(module_name, file_path)
+                module = importlib.util.module_from_spec(spec)
+                sys.modules[module_name] = module
+                spec.loader.exec_module(module)
+            except Exception as e:
+                """
+                Using a broader expression is difficult here because there are so many which the user plugin may raise.
+                Therefore it is easier, and safer for program execution, to just ignore loading the plugin if any
+                exception is raised.
+                """
+                logger.error(f'Failed to load module {module_name}', e)
+                continue
 
 
 def load_plugins():

@@ -1,4 +1,5 @@
 import inspect
+import os
 import platform
 from enum import Enum
 
@@ -54,14 +55,16 @@ class PluginCategory(Enum):
         return self.value
 
 
-def executor(template: Template, *platforms: SystemPlatform):
+def executor(template_path, *platforms: SystemPlatform):
     """
         Decorators are called BEFORE class is built i.e __new__, so with a decorator we can tag the function with the
         supported platform e.t.c, and then post process it later with the base class
     """
 
     def decorator(fn):
-        fn._template = template  # add template attribute to function
+        # add template attribute to function
+        plugin_path = os.path.dirname(inspect.getfile(fn))
+        fn._template = Template(open(os.path.join(plugin_path, template_path)).read())
 
         if len(platforms) == 0:  # if no platform specified, automatically support all Platforms...
             fn._platforms = [p for p in SystemPlatform]

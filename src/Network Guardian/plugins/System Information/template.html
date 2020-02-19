@@ -1,0 +1,8 @@
+<table class="table">
+    {% for name, value in information.items() %}
+        <tr>
+            <th class="bg-dark text-light">{{ name }}</th>
+            <td>{{ value }}</td>
+        </tr>
+    {% endfor %}
+</table>

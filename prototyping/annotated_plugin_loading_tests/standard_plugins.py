@@ -1,5 +1,6 @@
-from plugin import AbstractPlugin
-from registry import register_plugin
+from networkguardian.plugin import AbstractPlugin
+
+from prototyping.annotated_plugin_loading_tests.registry import register_plugin
 
 
 @register_plugin

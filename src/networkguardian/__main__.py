@@ -104,9 +104,9 @@ def run():
     logger.debug('Starting Network Guardian')
 
     logger.debug('Importing Standard Plugins')
-
-    # noinspection PyUnresolvedReferences
-    import networkguardian.standard_plugins
+    #
+    # # noinspection PyUnresolvedReferences
+    # import networkguardian.standard_plugins
 
     logger.debug('Importing External Plugins')
     import_external_plugins(plugins_directory)
