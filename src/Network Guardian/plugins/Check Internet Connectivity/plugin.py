@@ -5,7 +5,7 @@ from networkguardian.framework.plugin import AbstractPlugin, PluginCategory, exe
 from networkguardian.framework.registry import register_plugin
 
 
-@register_plugin("Internet Connectivity", PluginCategory.INFO, "Velislav V", 1.0)
+@register_plugin("Internet Connectivity", PluginCategory.NETWORK, "Velislav V", 1.0)
 class CheckInternetConnectivityPlugin(AbstractPlugin):
     """
         This plugin determines whether the local machine has access to the internet

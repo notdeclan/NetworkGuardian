@@ -7,7 +7,7 @@ from networkguardian.framework.plugin import AbstractPlugin, PluginCategory, exe
 from networkguardian.framework.registry import register_plugin
 
 
-@register_plugin("System Information", PluginCategory.INFO, "Declan W", 0.1)
+@register_plugin("System Information", PluginCategory.SYSTEM, "Declan W", 0.1)
 class SystemInformationPlugin(AbstractPlugin):
     """
     Plugin returns

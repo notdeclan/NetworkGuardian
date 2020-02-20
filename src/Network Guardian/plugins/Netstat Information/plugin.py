@@ -6,7 +6,7 @@ from networkguardian.framework.plugin import PluginCategory, AbstractPlugin, exe
 from networkguardian.framework.registry import register_plugin
 
 
-@register_plugin("NetStat Information", PluginCategory.INFO, "Owen", 1.0)
+@register_plugin("NetStat Information", PluginCategory.NETWORK, "Owen", 1.0)
 class NetStatInformation(AbstractPlugin):
     """
         The plugin returns netstat information

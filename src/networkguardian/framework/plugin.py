@@ -47,8 +47,10 @@ class PluginCategory(Enum):
     Enum is used to differentiate between plugin types
     """
     INFO = 'Informational'
+    NETWORK = 'Networking'
     ATTACK = 'Attack'
-    SCANNER = 'Scanner'
+    ENUMERATION = 'Enumeration'
+    SYSTEM = 'System'
     OTHER = 'Other'
 
     def __repr__(self):
@@ -111,6 +113,9 @@ class AbstractPlugin(metaclass=MetaPlugin):
     def __repr__(self):
         return 'Plugin(name=%r, description=%r, author=%r, version=%r)' \
                % (self.name, self.description, self.author, self.version)
+
+    def get_resource(self):
+        print(__file__)
 
     def load(self, running_platform):
         """

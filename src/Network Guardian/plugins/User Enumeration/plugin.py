@@ -8,7 +8,7 @@ from networkguardian.framework.plugin import PluginCategory, AbstractPlugin, exe
 from networkguardian.framework.registry import register_plugin
 
 
-@register_plugin("User Enumeration", PluginCategory.INFO, "Alexandra", 1.0)
+@register_plugin("User Enumeration", PluginCategory.ENUMERATION, "Alexandra", 1.0)
 class UserEnumerationPlugin(AbstractPlugin):
 
     @executor("windows.template.html", SystemPlatform.WINDOWS)

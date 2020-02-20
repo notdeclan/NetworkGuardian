@@ -7,7 +7,7 @@ from networkguardian.framework.plugin import PluginCategory, AbstractPlugin, exe
 from networkguardian.framework.registry import register_plugin
 
 
-@register_plugin("Initialization Error", PluginCategory.INFO, "Declan W", 1.0)
+@register_plugin("Initialization Error", PluginCategory.OTHER, "Declan W", 1.0)
 class InitializationErrorPlugin(AbstractPlugin):
     """
     Plugin is used to test the GUI, and Plugin class functionality
@@ -25,7 +25,7 @@ class InitializationErrorPlugin(AbstractPlugin):
         return {}
 
 
-@register_plugin("Unsupported Platform", PluginCategory.INFO, "Declan W", 1.0)
+@register_plugin("Unsupported Platform", PluginCategory.OTHER, "Declan W", 1.0)
 class UnsupportedPlatformPlugin(AbstractPlugin):
     """
     Plugin is used to test the GUI, and Plugin class functionality
@@ -43,7 +43,7 @@ class UnsupportedPlatformPlugin(AbstractPlugin):
         return {}
 
 
-@register_plugin("Execution Exception", PluginCategory.INFO, "Declan W", 1.0)
+@register_plugin("Execution Exception", PluginCategory.OTHER, "Declan W", 1.0)
 class ExecutionExceptionPlugin(AbstractPlugin):
     """
     Plugin is used to test the GUI, and Plugin class functionality
@@ -58,12 +58,17 @@ class ExecutionExceptionPlugin(AbstractPlugin):
         raise Exception("uh oh")
 
 
-@register_plugin("No Executor Exception", PluginCategory.INFO, "Declan W", 1.0)
-class NoExecutorExeptionPlugin(AbstractPlugin):
-    pass
+@register_plugin("No Executor Exception", PluginCategory.OTHER, "Declan W", 1.0)
+class NoExecutorExceptionPlugin(AbstractPlugin):
+    """
+    Plugin is used to test the GUI, and Plugin class functionality
+
+    If working correctly, the GUI should display "No executor found" message when viewing the plugin, and the plugin should be disabled.
+    """
+    ...
 
 
-@register_plugin("Sleep Plugin", PluginCategory.INFO, "Declan W", 1.0)
+@register_plugin("Sleep Plugin", PluginCategory.OTHER, "Declan W", 1.0)
 class SleepPlugin(AbstractPlugin):
     """
     Plugin returns a random UUID and sleeps the thread for a random duration from 1 second to 4.

@@ -7,7 +7,7 @@ from networkguardian.framework.plugin import AbstractPlugin, PluginCategory, exe
 from networkguardian.framework.registry import register_plugin
 
 
-@register_plugin("Network Interface Information", PluginCategory.INFO, "Owen", 0.1)
+@register_plugin("Network Interface Information", PluginCategory.NETWORK, "Owen", 0.1)
 class NetworkInterfaceInformation(AbstractPlugin):
     """
         This plugin will return details about the network interfaces. Such as whether the device is online or not, the IP, broadcast address, netmask and mac address.
