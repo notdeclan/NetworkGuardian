@@ -18,6 +18,5 @@ class NetworkVisualization(AbstractPlugin):
         # GET DEFAULT GATEWAYS AND ROUTES
         # ADD HOSTNAME TO IP
         # GATHER SCANEND IP's
-        # COMPOSE DATA
-
+        # COMPOSE DATA#
         pass

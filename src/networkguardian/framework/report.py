@@ -7,6 +7,7 @@ from datetime import datetime
 from threading import Thread
 
 from networkguardian import application_version
+from networkguardian.exceptions import PluginProcessingError
 from networkguardian.framework.plugin import SystemPlatform
 from networkguardian.framework.registry import get_thread_count
 
@@ -24,6 +25,12 @@ class Result:
         self.data = data
         self.exception = exception
         self.template = template
+
+        if exception is None:
+            if template is None:
+                self.exception = PluginProcessingError("No plugin template was found")
+            if data is None:
+                self.exception = PluginProcessingError("Plugin returned no data to render")
 
     def render(self):
         return self.template.render(self.data)
