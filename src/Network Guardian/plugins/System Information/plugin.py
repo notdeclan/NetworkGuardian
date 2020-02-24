@@ -10,7 +10,8 @@ from networkguardian.framework.registry import register_plugin
 @register_plugin("System Information", PluginCategory.SYSTEM, "Declan W", 0.1)
 class SystemInformationPlugin(AbstractPlugin):
     """
-    Plugin returns
+    System Information Plugin v1.0
+    This plugin returns information about the device it has been run on such as the system name, username, the platform of the device, operating system, processor and memory size and it formats it in a user friendly format that is passed on to a table.
     """
 
     @executor("template.html")

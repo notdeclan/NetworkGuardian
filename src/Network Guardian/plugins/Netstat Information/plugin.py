@@ -9,10 +9,9 @@ from networkguardian.framework.registry import register_plugin
 @register_plugin("NetStat Information", PluginCategory.NETWORK, "Owen", 1.0)
 class NetStatInformation(AbstractPlugin):
     """
-        The plugin returns netstat information
-
-        This tells you about the different connections and information about them such as
-        the protocol, local address, remote address, status, PID and the program name
+        Netstat Information v1.0
+        This plugin is based on and uses the psutil (process and system utilities)  cross-platform library to retrieve information and store it into variables.
+        The plugin tells you about the different connections and information about them such as the protocol, local address, remote address, status, PID and the program name.
     """
 
     @executor("template.html")

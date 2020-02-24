@@ -10,9 +10,9 @@ from networkguardian.framework.registry import register_plugin
 @register_plugin("Network Interface Information", PluginCategory.NETWORK, "Owen", 0.1)
 class NetworkInterfaceInformation(AbstractPlugin):
     """
-        This plugin will return details about the network interfaces. Such as whether the device is online or not, the IP, broadcast address, netmask and mac address.
-
-        It will also display information about packets, speed, dropped packets and more.
+        Network Interface Information v1.0
+        This plugin is again based on and using the psutil (process and system utilities) cross-platform library.
+        It works by gathering information about all the network interfaces and then it puts it to a list which is then passed on to the table which shows things such as whether the device is online or not, the IP, Broadcast Address, netmask, mac address, packets information, speed, dropped packets and more.
     """
 
     @executor("template.html")

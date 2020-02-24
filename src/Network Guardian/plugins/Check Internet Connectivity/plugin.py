@@ -8,7 +8,9 @@ from networkguardian.framework.registry import register_plugin
 @register_plugin("Internet Connectivity", PluginCategory.NETWORK, "Velislav V", 1.0)
 class CheckInternetConnectivityPlugin(AbstractPlugin):
     """
-        This plugin determines whether the local machine has access to the internet
+        Internet Connectivity Plugin v1.0
+        This plugin determines whether the local machine has access to the internet.
+        It works by using the urllib module which loops through three different URL’s, tries to connect to them and then returns the results back to the user.
     """
 
     @executor("template.html")

@@ -18,7 +18,7 @@ class SubnetInformation(AbstractPlugin):
 
                 # Validate
                 try:
-                    if ipaddress.ip_address(interface.address).is_loopback:  # if loopback
+                    if ipaddress.IPv4Address(interface.address).is_loopback:  # if loopback
                         continue  # goto next one
                 except ValueError:  # not valid ip address
                     continue  # goto next one
