@@ -1,12 +1,15 @@
 import ipaddress
+import json
 import random
 import socket
+import xml
 from contextlib import closing
 
+import networkx
 import psutil
-from icmplib import traceroute
+from libnmap.parser import NmapParser
+from libnmap.process import NmapProcess
 from netaddr import IPNetwork
-from nmap import nmap
 
 
 class Tracer(object):
@@ -126,6 +129,7 @@ def get_networks():
                 continue  # goto next one
 
             ipn = IPNetwork(f"{interface.address}/{interface.netmask}")
+
             print(f"Interface: {interface_name}")
             print("\tNetwork:", ipn[0])
             print("\tBroadcast:", ipn.broadcast)
@@ -133,6 +137,7 @@ def get_networks():
             print("\tCIDR:", ipn.cidr)
             print("\tNetbit", ipn._prefixlen)
             print("\tTotal IP's:", ipn.cidr.size)
+
             networks.append(ipn)
 
     return networks
@@ -159,22 +164,56 @@ def pretty(d, indent=0):
 
 
 if __name__ == '__main__':
-    all_networks = get_networks()
-    nm = nmap.PortScanner()
+    nm1 = NmapProcess("192.168.43.0/24", options="-sP")
+    nm1.run()
+    parsed = NmapParser.parse(nm1.stdout)
 
-    all_devices = []
-    for network in all_networks:
-        print("Scanning", network)
-        nm.scan(str(network.cidr), arguments="-A -n")
-        for host in nm.all_hosts():
-            all_devices.append(nm[host])
+    graph = networkx.Graph()
 
-        print("Finished Scanning", network)
+    nm2 = NmapProcess("google.com", options="--traceroute")
+    nm2.run()
 
-    for device in all_devices:
-        print("Gunna try traceroute ", device)
-        for type, address in device['addresses'].items():
-            if 'mac' in type:
-                continue
+    collection = xml.etree.ElementTree.fromstring(nm2.stdout)
+    nodes = collection.getiterator("hop")
 
-            traceroute(address, count=3, interval=0.05, timeout=2, max_hops=30, fast_mode=False)
+    trace_list = []
+    pre_node = ''
+
+    for node in nodes:
+        print(node)
+        trace_list.append(node.attrib["ipaddr"])
+        graph.add_node(node.attrib["ipaddr"])
+        if pre_node != '':
+            graph.add_edge(node.attrib["ipaddr"], pre_node)
+        pre_node = node.attrib["ipaddr"]
+
+    for host in parsed.hosts:
+        if host.is_up():
+            graph.add_node(host.address)
+            graph.add_edge(host.address, trace_list[0])
+
+    print(json.dumps(graph.adj))
+
+    # nm = nmap.PortScanner()
+    #
+    # all_devices = []
+    # for network in all_networks:
+    #     # nm.scan(str(network.cidr), arguments="-A -n")  # correct args
+    #     nm.scan(str(network.cidr), arguments="-sP")  # quick scan args
+    #     for host in nm.all_hosts():
+    #         all_devices.append(nm[host])
+    #
+    #     break  # just scan first network during testing
+    #
+    # print(all_devices)
+    #
+    # for device in all_devices:
+    #     for type, address in device['addresses'].items():
+    #         if 'mac' in type:
+    #             continue
+    #
+    #         print("Gunna try traceroute ", address)
+    #         hops = traceroute(address, count=3, interval=0.05, timeout=2, max_hops=30, fast_mode=True)
+    #
+    #         print(hops)
+    #         print(dir(hops))
