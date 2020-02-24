@@ -3,3 +3,5 @@ flask
 pywebview
 psutil
 python-nmap
+netaddr #remove
+netifaces
