@@ -10,6 +10,12 @@ from networkguardian.framework.registry import register_plugin
 
 @register_plugin("User Enumeration", PluginCategory.ENUMERATION, "Alexandra", 1.0)
 class UserEnumerationPlugin(AbstractPlugin):
+    """
+    User Enumeration v1.0
+    This plugin uses the grp module that provides access to the Unix group Database. It is a Unix specific service, so all the methods of this module are available on Unix versions only.
+
+    """
+
 
     @executor("windows.template.html", SystemPlatform.WINDOWS)
     def windows(self):
