@@ -9,7 +9,7 @@ from threading import Thread
 
 from jinja2 import Template
 
-from networkguardian import application_version, reports_directory
+from networkguardian import application_version, reports_directory, logger
 from networkguardian.exceptions import PluginProcessingError
 from networkguardian.framework.plugin import SystemPlatform, PluginStructure, AbstractPlugin
 from networkguardian.framework.registry import get_thread_count
@@ -59,7 +59,7 @@ class Report:
         self.results = []
 
     def __repr__(self):
-        return f"Report(name={self.name}, system_name={self.system_name})"
+        return f"Report(name='{self.name}', system_name='{self.system_name}', system_platform='{self.system_platform}', date='{self.date}')"
 
     def add_result(self, plugin, data, template):
         self.results.append(Result(plugin, data=data, template=template))
@@ -71,18 +71,15 @@ class Report:
 def load_reports():
     for root, dirs, files in os.walk(reports_directory):
         for file in files:
-            print(f"Found file {file}")
             if file.endswith(report_extension):
-                print(f"Found potential report file {file}")
-                import_report(file)
+                import_report(os.path.join(reports_directory, file))
 
 
 def import_report(report_path: str):
-    report_pickle = pickle.load(open(os.path.join(reports_directory, report_path), "rb"))
-    print(f"Opened potential report file {report_path}")
+    report_pickle = pickle.load(open(report_path, "rb"))
     if isinstance(report_pickle, Report):
         reports.append(report_pickle)
-        print(f"Loaded report {report_pickle.name}")
+        logger.debug(f'Successfully imported {report_pickle}')
 
 
 def store_report(report: Report):
@@ -137,8 +134,8 @@ class ReportProcessor(Thread):
     def run(self):
         plugin_count = len(self.plugins)
         thread_count = get_thread_count(max_required=plugin_count)
-        plugin_progress_worth = 100 / plugin_count
 
+        # starting threads within another thread :^) wizardry
         with ThreadPoolExecutor(max_workers=thread_count) as tpe:
             # loop through all plugins, submit future for each one
             future_to_plugin = {
@@ -155,7 +152,6 @@ class ReportProcessor(Thread):
                     self.report.add_exception(plugin, ppe)
 
         self.report_id = store_report(self.report)
-        return
 
     @property
     def progress(self):

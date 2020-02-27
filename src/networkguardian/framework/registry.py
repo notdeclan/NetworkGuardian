@@ -36,22 +36,6 @@ def register_plugin(name: str, category: PluginCategory, author: str, version: f
     return __init__
 
 
-def test_plugin(cls):
-    """
-    Temporary way of testing whether a plugin works as expected ...
-    TODO: remove this / look for better alternative
-    to use comment out the @register annotation above an AbstractPlugin abstraction, and place above...
-    """
-    print("Testing: ", cls)
-    instance = cls("Test", PluginCategory.INFO, "Author", 1)
-    instance.load(SystemPlatform.detect())
-    data, template = instance.process()
-    print("\tSupports:", instance.supported_platforms)
-    print("\tData:", data)
-    print("\tRender:", template.render(data))
-    return instance
-
-
 def import_external_plugins(directory: str):
     """
     Import's python modules from directory paths
