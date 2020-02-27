@@ -12,6 +12,7 @@ class LocalFirewallStatus(AbstractPlugin):
         process = subprocess.Popen(["defaults", "read", "/Library/Preferences/com.apple.alf", "globalstate"],
                                    stdout=subprocess.PIPE)
         """ Checks the state of the firewall in a command line and returns the result back to the user. """
+
         return {"firewall": bool(int(process.communicate()[0].rstrip()))}
 
     @executor("windows.template.html", SystemPlatform.WINDOWS)

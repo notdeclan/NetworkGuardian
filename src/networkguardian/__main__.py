@@ -8,6 +8,7 @@ import webview
 from networkguardian import logger, application_frozen, application_directory, plugins_directory, reports_directory, \
     config_path, config, host, port, window
 from networkguardian.framework.registry import registered_plugins, load_plugins, import_external_plugins
+from networkguardian.framework.report import reports, store_report, load_reports
 from networkguardian.gui.server import start, is_alive
 
 
@@ -57,6 +58,8 @@ def on_closing():
     logger.debug('Close initiated by user')
     logger.debug('Saving Config')
     save_config()
+    for report in reports.values():
+        store_report(reports_directory, report)
 
 
 def run():
@@ -120,6 +123,7 @@ def run():
     logger.debug(f'Loaded {total} plugins ({loaded} successfully, {failed} failed)')
 
     logger.debug('Importing Reports')
+    load_reports()
 
     logger.debug('Starting Flask Server')
     start(host, port)

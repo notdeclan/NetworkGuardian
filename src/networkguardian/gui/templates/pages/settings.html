@@ -1,0 +1,69 @@
+{% extends 'layout.html' %}
+{% set active_page = "settings" %}
+{% block body %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        {% for href, id, icon, title, sidebar in navigation_bar %}
+            {% if id == active_page %}
+                <h2><i class="{{ icon }}"></i> {{ title }}</h2>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active">Settings</li>
+    </ol>
+
+    <section>
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ form.report_directory.label }}
+                        {{ form.report_directory(class="form-control") }}
+                        {% for error in form.report_directory.errors %}
+                            <small class="form-text text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.plugin_directory.label }}
+                        {{ form.plugin_directory(class="form-control") }}
+                        {% for error in form.plugin_directory.errors %}
+                            <small class="form-text text-danger">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.report_filename_template.label }}
+                        <div class="input-group">
+                            {{ form.report_filename_template(class="form-control") }}
+                            {% for error in form.report_filename_template.errors %}
+                                <small class="form-text text-danger">{{ error }}</small>
+                            {% endfor %}
+                            <div class="input-group-append">
+                                <span class="input-group-text">.rng</span>
+                            </div>
+                        </div>
+
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <small>
+                                    <li>&#123;&#123; name &#125;&#125; - Report Name</li>
+                                    <li>&#123;&#123; system_name &#125;&#125; - System Name</li>
+                                    <li>&#123;&#123; platform &#125;&#125; - Platform</li>
+                                    <li>&#123;&#123; date &#125;&#125; - Date</li>
+                                    <li>&#123;&#123; time &#125;&#125; - Time</li>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group float-right">
+                        {{ form.submit(class="btn btn-dark") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+{% endblock %}

@@ -4,10 +4,10 @@ from random import randint
 
 from flask import Blueprint, render_template, abort, redirect, url_for, jsonify, flash
 
-from networkguardian import application_frozen
+from networkguardian import application_frozen, plugins_directory, reports_directory
 from networkguardian.framework.registry import registered_plugins, usable_plugins
-from networkguardian.framework.report import reports, processing_reports, ReportProcessor
-from networkguardian.gui.forms import CreateReportForm
+from networkguardian.framework.report import reports, processing_reports, ReportProcessor, report_filename_template
+from networkguardian.gui.forms import CreateReportForm, SettingsForm
 
 """
     TODO: Explain this file ... 
@@ -35,6 +35,24 @@ def index():
     return render_template('pages/dashboard.html',
                            plugins=registered_plugins,
                            reports=list(reports.values()))
+
+
+@mod.route('/settings/', methods=['GET', 'POST'])
+def settings():
+    form = SettingsForm()
+
+    if form.validate_on_submit():
+        plugin_directory = form.plugin_directory
+        report_directory = form.report_directory
+        n_report_filename_template = form.report_filename_template
+        threading = form.threading
+    else:
+        form.plugin_directory.data = plugins_directory
+        form.report_directory.data = reports_directory
+        form.report_filename_template.data = report_filename_template
+        form.threading.data = True
+
+    return render_template("pages/settings.html", form=form)
 
 
 @mod.route('/reports/create', methods=['GET', 'POST'])

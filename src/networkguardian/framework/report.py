@@ -1,27 +1,34 @@
-import base64
-import json
+import os
+import pickle
 import platform
 from concurrent import futures
 from concurrent.futures.thread import ThreadPoolExecutor
 from datetime import datetime
 from threading import Thread
 
-from networkguardian import application_version
+from jinja2 import Template
+
+from networkguardian import application_version, reports_directory
 from networkguardian.exceptions import PluginProcessingError
-from networkguardian.framework.plugin import SystemPlatform
+from networkguardian.framework.plugin import SystemPlatform, PluginStructure
 from networkguardian.framework.registry import get_thread_count
 
 # KEY == file path,  VALUE == Report obj
+
 reports = {}
 
 # Thread ID, Report obj
 processing_reports = {}
 
+report_filename_template = "{{ name }} ({{ system_name }}/{{ platform }}) {{date}} {{time}}"
 
-class Result:
+
+class Result(PluginStructure):
 
     def __init__(self, plugin, data=None, exception=None, template=None):
-        self.plugin = plugin
+        super().__init__(plugin.name, plugin.category, plugin.author, plugin.version)
+        self.description = plugin.description
+
         self.data = data
         self.exception = exception
         self.template = template
@@ -33,7 +40,7 @@ class Result:
                 self.exception = PluginProcessingError("Plugin returned no data to render")
 
     def render(self):
-        return self.template.render(self.data)
+        return Template(self.template).render(self.data)
 
 
 class Report:
@@ -45,8 +52,7 @@ class Report:
     """
 
     def __init__(self, name):
-        self.path = ""
-        self.date = str(datetime.now())
+        self.date = datetime.now()
         self.name = name
         self.system_name = platform.node()
         self.system_platform = SystemPlatform.detect()
@@ -63,30 +69,40 @@ class Report:
     def add_exception(self, plugin, exception):
         self.results.append(Result(plugin, exception=exception))
 
-    def store(self):
-        print("starting store")
-        data = {
-            'date': self.date,
-            'system_name': self.system_name,
-            'system_platform': self.system_platform.name,
-            'software_version': self.software_version,
-            'plugins': {}
-        }
 
-        for result in self.results:
-            print("attempting as result")
-            print(result.template)
-            rendered_template = result.template.render(result.data).encode()
-            encoded_pickle = base64.b64encode(rendered_template)
-            data['plugins'][result.plugin.name] = {
-                'version': result.plugin.name,
-                'author': result.plugin.author,
-                'template': str(encoded_pickle)
-            }
+def store_report(report: Report):
+    report_filename = Template(report_filename_template).render({
+        "name": report.name,
+        "system_name": report.system_name,
+        "platform": report.system_platform,
+        "date": report.date
+    })
 
-        with open(self.path, 'w') as f:
-            print("writing oit")
-            json.dump({self.name: data}, f)
+    report_path = os.path.join(reports_directory, '.'.join((report_filename, '.rng')))
+
+    with open(report_path, "wb") as fw:
+        data = pickle.dumps(report)
+        fw.write(data)
+
+
+def name_settings(template: str):
+    template = Template(template)
+    name = template.render()
+
+
+def load_reports():
+    for root, dirs, files in os.walk(reports_directory):
+        for file in files:
+            print(f"Found file {file}")
+            if file.endswith('.rng'):
+                print(f"Found potential report file {file}")
+                report_pickle = pickle.load(open(os.path.join(reports_directory, file), "rb"))
+                print(f"Opened potential report file {file}")
+                if isinstance(report_pickle, Report):
+                    reports[report_pickle.name] = report_pickle
+                    print(f"Loaded report {report_pickle.name}")
+                else:
+                    print(f"Dodgy shit {file}")
 
 
 class ReportProcessor(Thread):

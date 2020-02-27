@@ -3,8 +3,6 @@ import os
 import platform
 from enum import Enum
 
-from jinja2 import Template
-
 from networkguardian.exceptions import PluginUnsupportedPlatformError, PluginProcessingError
 
 
@@ -66,7 +64,7 @@ def executor(template_path, *platforms: SystemPlatform):
     def decorator(fn):
         # add template attribute to function
         plugin_path = os.path.dirname(inspect.getfile(fn))
-        fn._template = Template(open(os.path.join(plugin_path, template_path)).read())
+        fn._template = open(os.path.join(plugin_path, template_path)).read()
 
         if len(platforms) == 0:  # if no platform specified, automatically support all Platforms...
             fn._platforms = [p for p in SystemPlatform]
@@ -79,6 +77,9 @@ def executor(template_path, *platforms: SystemPlatform):
 
 
 class MetaPlugin(type):
+    """
+        Metaclass modifies the class-creation behavior
+    """
 
     def __new__(mcs, name, bases, attrs):
         executors = {}
@@ -94,8 +95,7 @@ class MetaPlugin(type):
         return type.__new__(mcs, name, bases, attrs)
 
 
-class AbstractPlugin(metaclass=MetaPlugin):
-    _executors = {}  # suppress IDE errors but is replaced with __new__ in metaclass
+class PluginStructure:
 
     def __init__(self, name: str, category: PluginCategory, author: str, version: float):
         # Required Plugin Information
@@ -104,6 +104,13 @@ class AbstractPlugin(metaclass=MetaPlugin):
         self.description = inspect.cleandoc(self.__doc__) if self.__doc__ else "No description available."
         self.author = author
         self.version = version
+
+
+class AbstractPlugin(PluginStructure, metaclass=MetaPlugin):
+    _executors = {}  # suppress IDE errors but is replaced with __new__ in metaclass
+
+    def __init__(self, name: str, category: PluginCategory, author: str, version: float):
+        super().__init__(name, category, author, version)
 
         # Variables populated during runtime
         self._loaded = False  # used to signify whether a plugin has been successfully loaded

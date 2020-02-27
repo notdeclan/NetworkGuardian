@@ -1,0 +1,50 @@
+<html lang="">
+<head>
+    <script src="https://d3js.org/d3.v3.js"></script>
+    <script src="jsnetworkx.js"></script>
+    <title></title>
+</head>
+<body>
+<h1>Network Visualization</h1>
+<div id="canvas" style="height:500px"></div>
+</body>
+
+<script>
+    const gra_json = "{'nodes': [{'id': '192.168.43.1'}, {'id': '172.16.255.254'}, {'id': '193.60.160.253'}, {'id': '193.60.168.92'}, {'id': '146.97.128.85'}, {'id': '146.97.64.97'}, {'id': '146.97.37.181'}, {'id': '146.97.33.50'}, {'id': '146.97.33.30'}, {'id': '146.97.33.61'}, {'id': '72.14.205.74'}, {'id': '108.170.246.129'}, {'id': '172.253.65.209'}, {'id': '216.58.213.14'}, {'id': '192.168.43.2'}, {'id': '192.168.43.253'}], 'adjacency': [[{'id': '172.16.255.254'}, {'id': '192.168.43.1'}, {'id': '192.168.43.2'}, {'id': '192.168.43.253'}], [{'id': '192.168.43.1'}, {'id': '193.60.160.253'}], [{'id': '172.16.255.254'}, {'id': '193.60.168.92'}], [{'id': '193.60.160.253'}, {'id': '146.97.128.85'}], [{'id': '193.60.168.92'}, {'id': '146.97.64.97'}], [{'id': '146.97.128.85'}, {'id': '146.97.37.181'}], [{'id': '146.97.64.97'}, {'id': '146.97.33.50'}], [{'id': '146.97.37.181'}, {'id': '146.97.33.30'}], [{'id': '146.97.33.50'}, {'id': '146.97.33.61'}], [{'id': '146.97.33.30'}, {'id': '72.14.205.74'}], [{'id': '146.97.33.61'}, {'id': '108.170.246.129'}], [{'id': '72.14.205.74'}, {'id': '172.253.65.209'}], [{'id': '108.170.246.129'}, {'id': '216.58.213.14'}], [{'id': '172.253.65.209'}], [{'id': '192.168.43.1'}], [{'id': '192.168.43.1'}]]}\n";
+    const False = false;
+    const G = new jsnx.Graph(gra_json);
+    const color = d3.scale.category20();
+    jsnx.draw(G, {
+        element: '#canvas',
+        width: 1100,
+        height: 500,
+        layoutAttr: {
+            charge: -120,
+            linkDistance: 40
+        },
+        weighted: true,
+        withLabels: true,
+        labelStyle: {
+            fill: 'white'
+        },
+        edgeStyle: {
+            'stroke-width': 6
+        },
+        nodeAttr: {
+            r: 5,
+            name: function (d) {
+                return d.id;
+            }
+        },
+        nodeStyle: {
+            fill: function (d) {
+                return color(d.data);
+            }
+        },
+        stickyDrag: true,
+        panZoom: {
+            enabled: true
+        }
+    });
+</script>
+</html>

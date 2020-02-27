@@ -4,6 +4,7 @@
     (url_for("panel.view_plugins"), 'plugins', 'fa fa-list',' Plugins', True),
     (url_for("panel.view_help"), 'help', 'fa fa-question', 'Help', True),
     (url_for("panel.create_report"), 'create-report', 'fa fa-desktop', 'Create Report', False),
+    (url_for("panel.settings"), 'settings', 'fa fa-cog', 'Settings', False),
 ] -%}
 
 {% set active_page = active_page|default('dashboard') -%}
@@ -34,7 +35,7 @@
             <a class="nav-link" href="{{ url_for("panel.create_report") }}">Create Report</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{ url_for("panel.create_report") }}"><i class="fa fa-cog"></i></a>
+            <a class="nav-link" href="{{ url_for("panel.settings") }}"><i class="fa fa-cog"></i></a>
         </li>
     </ul>
 </nav>
