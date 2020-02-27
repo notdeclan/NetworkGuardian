@@ -39,7 +39,7 @@
             </thead>
             <tbody>
             {% for report in reports | reverse %}
-                <tr class="clickable-row" data-href="{{ url_for("panel.view_report", report_name=report.name) }}">
+                <tr class="clickable-row" data-href="{{ url_for("panel.view_report", report_id=loop.revindex - 1) }}">
                     <td>{{ report.name }}</td>
                     <td>{{ report.system_name }}</td>
                     <td>{{ report.date }}</td>

@@ -4,23 +4,21 @@ import platform
 from concurrent import futures
 from concurrent.futures.thread import ThreadPoolExecutor
 from datetime import datetime
+from random import randint
 from threading import Thread
 
 from jinja2 import Template
 
 from networkguardian import application_version, reports_directory
 from networkguardian.exceptions import PluginProcessingError
-from networkguardian.framework.plugin import SystemPlatform, PluginStructure
+from networkguardian.framework.plugin import SystemPlatform, PluginStructure, AbstractPlugin
 from networkguardian.framework.registry import get_thread_count
 
-# KEY == file path,  VALUE == Report obj
+reports = []  # Used to store all Report obj's
+processing_reports = {}  # Thread ID, Report obj
 
-reports = {}
-
-# Thread ID, Report obj
-processing_reports = {}
-
-report_filename_template = "{{ name }} ({{ system_name }}/{{ platform }}) {{date}} {{time}}"
+report_filename_template = "{{ name }} ({{ system_name }} | {{ platform }}) {{ date }}"
+report_extension = 'rng'
 
 
 class Result(PluginStructure):
@@ -70,7 +68,32 @@ class Report:
         self.results.append(Result(plugin, exception=exception))
 
 
+def load_reports():
+    for root, dirs, files in os.walk(reports_directory):
+        for file in files:
+            print(f"Found file {file}")
+            if file.endswith(report_extension):
+                print(f"Found potential report file {file}")
+                import_report(file)
+
+
+def import_report(report_path: str):
+    report_pickle = pickle.load(open(os.path.join(reports_directory, report_path), "rb"))
+    print(f"Opened potential report file {report_path}")
+    if isinstance(report_pickle, Report):
+        reports.append(report_pickle)
+        print(f"Loaded report {report_pickle.name}")
+
+
 def store_report(report: Report):
+    reports.append(report)
+    report_id = len(reports) - 1
+    export_report(report)
+    print("STORED REPORT", report_id)
+    return report_id
+
+
+def export_report(report: Report):
     report_filename = Template(report_filename_template).render({
         "name": report.name,
         "system_name": report.system_name,
@@ -78,51 +101,42 @@ def store_report(report: Report):
         "date": report.date
     })
 
-    report_path = os.path.join(reports_directory, '.'.join((report_filename, '.rng')))
+    report_path = os.path.join(reports_directory, '.'.join((report_filename, report_extension)))
 
     with open(report_path, "wb") as fw:
         data = pickle.dumps(report)
         fw.write(data)
 
-
-def name_settings(template: str):
-    template = Template(template)
-    name = template.render()
+    return report_path
 
 
-def load_reports():
-    for root, dirs, files in os.walk(reports_directory):
-        for file in files:
-            print(f"Found file {file}")
-            if file.endswith('.rng'):
-                print(f"Found potential report file {file}")
-                report_pickle = pickle.load(open(os.path.join(reports_directory, file), "rb"))
-                print(f"Opened potential report file {file}")
-                if isinstance(report_pickle, Report):
-                    reports[report_pickle.name] = report_pickle
-                    print(f"Loaded report {report_pickle.name}")
-                else:
-                    print(f"Dodgy shit {file}")
+def start_report(report_name: str, plugins: [AbstractPlugin]) -> str:
+    processor = ReportProcessor(report_name, plugins)
+    processor.daemon = True
+    processor.start()
+
+    thread_id = randint(0, 10000)
+    processing_reports[thread_id] = processor
+
+    return thread_id
 
 
 class ReportProcessor(Thread):
 
     def __init__(self, report_name, plugins):
-        self.report_name = report_name
+        self.report = Report(report_name)
         self.plugins = {}
 
         for plugin in plugins:
             self.plugins[plugin] = False
 
-        self.progress = 0
+        self.report_id = None
 
         super().__init__()
 
     def run(self):
         plugin_count = len(self.plugins)
         thread_count = get_thread_count(max_required=plugin_count)
-        report = Report(self.report_name)
-
         plugin_progress_worth = 100 / plugin_count
 
         with ThreadPoolExecutor(max_workers=thread_count) as tpe:
@@ -136,14 +150,13 @@ class ReportProcessor(Thread):
                 self.plugins[plugin] = True
                 try:
                     data, template = future.result()
-                    report.add_result(plugin, data, template)
+                    self.report.add_result(plugin, data, template)
                 except Exception as ppe:
-                    report.add_exception(plugin, ppe)
+                    self.report.add_exception(plugin, ppe)
 
-                self.progress += plugin_progress_worth
+        self.report_id = store_report(self.report)
+        return
 
-                print(f"FINISHED {plugin.name} PROGRESS {self.progress}")
-
-        # TODO: STORE
-        # report.store()  # save to file
-        reports[self.report_name] = report
+    @property
+    def progress(self):
+        return len([status for status in self.plugins.values() if status]) * (100 / len(self.plugins))
