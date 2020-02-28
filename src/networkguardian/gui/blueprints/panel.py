@@ -7,7 +7,7 @@ from flask import Blueprint, render_template, abort, redirect, url_for, jsonify,
 from networkguardian import application_frozen, plugins_directory, reports_directory, window
 from networkguardian.framework.registry import registered_plugins, usable_plugins
 from networkguardian.framework.report import reports, processing_reports, report_filename_template, \
-    report_extension, start_report
+    report_extension, start_report, export_report_as_html
 from networkguardian.gui.forms import CreateReportForm, SettingsForm
 
 """
@@ -126,15 +126,31 @@ def export_report(report_id: int):
     try:
         report = reports[report_id]
         save_path = window.create_file_dialog(webview.SAVE_DIALOG, directory='/', save_filename=f'{report.name}.html')
-        export_template = render_template("layouts/export.html", report=report)
         if save_path is not None:
-            with open(save_path[0], "w") as f:
-                f.write(export_template)
-
+            export_report_as_html(report, save_path[0])
+            flash(f"Exported {report.name} to {save_path}")
     except IndexError:
         return abort(404)
+    except IOError:
+        flash("Exporting report failed")
 
     return render_template('pages/view-report.html', report=reports[report_id], report_id=report_id)
+
+
+@mod.route("/reports/delete/<int:report_id>")
+def delete_report(report_id: int):
+    try:
+        report = reports[report_id]
+        os.remove(report.path)  # remove file
+        reports.remove(report)  # remove from list
+        flash(f"Removed report {report.name}")
+
+        return redirect(url_for("panel.view_reports"))
+    except IndexError:
+        return abort(404)
+    except IOError:
+        flash("Error occurred while attempting to delete report file")
+        return render_template('pages/view-report.html', report=reports[report_id], report_id=report_id)
 
 
 @mod.route('/plugins/<plugin_name>')

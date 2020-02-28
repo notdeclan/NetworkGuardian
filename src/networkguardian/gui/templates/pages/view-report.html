@@ -10,8 +10,13 @@
 
         <div class="btn-toolbar mb-2 mb-md-0">
             <div class="btn-group btn-group-sm">
-                <a href="{{ url_for("panel.export_report", report_id=report_id) }}" class="btn btn-dark text-white">
-                    <i class="fa fa-plus"></i> Export to HTML
+                <a data-toggle="tooltip" data-placement="bottom" data-original-title="Export Report as HTML"
+                   href="{{ url_for("panel.export_report", report_id=report_id) }}" class="btn btn-success">
+                    <i class="fa fa-floppy-o"></i>
+                </a>
+                <a data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Report"
+                   href="{{ url_for("panel.delete_report", report_id=report_id) }}" class="btn btn-danger text-white">
+                    <i class="fa fa-trash-o"></i>
                 </a>
             </div>
         </div>

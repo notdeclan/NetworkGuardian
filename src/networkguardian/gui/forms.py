@@ -12,7 +12,7 @@ class CreateReportForm(FlaskForm):
 class SettingsForm(FlaskForm):
     report_directory = StringField("Report Directory", validators=[DataRequired()])
     plugin_directory = StringField("Plugin Directory", validators=[DataRequired()])
-    report_filename_template = StringField("Report Name", validators=[DataRequired()])
+    report_filename_template = StringField("Report Filename", validators=[DataRequired()])
     threading = BooleanField(label="Multi Threading")
 
     submit = SubmitField("Save")

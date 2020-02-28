@@ -5,7 +5,7 @@ from threading import Thread
 
 from flask import Flask
 
-from networkguardian import application_frozen
+from networkguardian import application_frozen, application_name, application_version
 from networkguardian.gui.blueprints import api, panel
 
 if application_frozen:
@@ -34,6 +34,14 @@ def add_header(response):
     """
     response.headers['Cache-Control'] = 'no-store'  # disable caching
     return response
+
+
+@app.context_processor
+def template_injector():
+    return {
+        "application_name": application_name,
+        "application_version": application_version
+    }
 
 
 def start(host, port):

@@ -7,6 +7,7 @@ from datetime import datetime
 from random import randint
 from threading import Thread
 
+from flask import render_template
 from jinja2 import Template
 
 from networkguardian import application_version, reports_directory, logger
@@ -57,6 +58,7 @@ class Report:
         self.software_version = application_version
 
         self.results = []
+        self.path = None
 
     def __repr__(self):
         return f"Report(name='{self.name}', system_name='{self.system_name}', system_platform='{self.system_platform}', date='{self.date}')"
@@ -78,16 +80,17 @@ def load_reports():
 def import_report(report_path: str):
     report_pickle = pickle.load(open(report_path, "rb"))
     if isinstance(report_pickle, Report):
+        report_pickle.path = report_path
         reports.append(report_pickle)
         logger.debug(f'Successfully imported {report_pickle}')
 
 
 def store_report(report: Report):
-    reports.append(report)
-    report_id = len(reports) - 1
-    export_report(report)
-    print("STORED REPORT", report_id)
-    return report_id
+    export_path = export_report(report)  # export report to file and get path
+    reports.append(report)  # add report to list
+    report.path = export_path  # update path
+
+    return len(reports) - 1  # return index of report in list
 
 
 def export_report(report: Report):
@@ -105,6 +108,13 @@ def export_report(report: Report):
         fw.write(data)
 
     return report_path
+
+
+def export_report_as_html(report: Report, path: str):
+    export_template = render_template("layouts/export.html", report=report)
+    # TODO add exception handling for permission errors, file exists, e.t.c...
+    with open(path, "w") as f:
+        f.write(export_template)
 
 
 def start_report(report_name: str, plugins: [AbstractPlugin]) -> str:

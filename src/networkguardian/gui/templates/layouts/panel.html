@@ -28,9 +28,11 @@
 </head>
 <body>
 <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Network Guardian</a>
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">
+        {{ application_name }}
+    </a>
 
-    <ul class="nav my-2 my-md-0 mr-md-3">
+    <ul class="nav">
         <li class="nav-item">
             <a class="nav-link" href="{{ url_for("panel.create_report") }}">Create Report</a>
         </li>
