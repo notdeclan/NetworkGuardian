@@ -112,17 +112,17 @@ class AbstractPlugin(PluginStructure, metaclass=MetaPlugin):
     def __init__(self, name: str, category: PluginCategory, author: str, version: float):
         super().__init__(name, category, author, version)
 
-        # Variables populated during runtime
-        self._loaded = False  # used to signify whether a plugin has been successfully loaded
         self.loading_exception = None  # used to store any exception raised when load() is called to be displayed in GUI
+
+        self._loaded = False  # used to signify whether a plugin has been successfully loaded
         self._running_platform = None  # used to store the system platform that is running
+
+        self.execute = None  # used to store platform specific execute function
+        self.template = None  # used to store platform specific template data
 
     def __repr__(self):
         return 'Plugin(name=%r, description=%r, author=%r, version=%r)' \
                % (self.name, self.description, self.author, self.version)
-
-    def get_resource(self):
-        print(__file__)
 
     def load(self, running_platform):
         """
@@ -141,6 +141,9 @@ class AbstractPlugin(PluginStructure, metaclass=MetaPlugin):
         self.initialize()  # call plugin's initialization method  MAY :raise: PluginInitializationError
         self._loaded = True  # update loaded variable
 
+        self.execute = self._executors[running_platform]  # monkey patch the function
+        self.template = self.execute._template
+
     @property
     def loaded(self) -> bool:
         return self._loaded
@@ -154,15 +157,11 @@ class AbstractPlugin(PluginStructure, metaclass=MetaPlugin):
         """
         pass
 
-    def process(self):  # TODO, MAKE THIS MUCH NICER
-        if self.loaded:  # further check to ensure somehow the plugin isn't executed if
-            try:
-                pe = self._executors[self._running_platform]  # pe == platform executor
-                return pe(self), pe._template
-            except:
-                raise
-        else:  # TODO: change this to a plugin exception error, then again its kinda WTF because it shouldn't happen
+    def process(self):
+        if not self.loaded:  # further check to ensure somehow the plugin isn't executed if not loaded
             raise PluginProcessingError("Plugin must be loaded before processing.")
+
+        return self.execute(self), self.template
 
     @property
     def supported(self) -> bool:

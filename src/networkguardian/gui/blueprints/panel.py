@@ -12,16 +12,15 @@ from networkguardian.gui.forms import CreateReportForm, SettingsForm
 
 """
     TODO: Explain this file ... 
-    TODO: Flask "flashes" for notification'
 """
 
 if application_frozen:  # if frozen
     template_folder = os.path.join(sys._MEIPASS, 'templates')
     static_folder = os.path.join(sys._MEIPASS, 'static')
 
-    mod = Blueprint('panel', __name__, static_folder=static_folder, template_folder=template_folder)
+    mod = Blueprint('panel', __name__, url_prefix="/", static_folder=static_folder, template_folder=template_folder)
 else:  # if not frozen
-    mod = Blueprint('panel', __name__, static_folder='../static', template_folder='templates')
+    mod = Blueprint('panel', __name__, url_prefix="/", static_folder='../static', template_folder='templates')
 
 
 @mod.errorhandler(404)

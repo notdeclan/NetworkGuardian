@@ -15,4 +15,4 @@ class SettingsForm(FlaskForm):
     report_filename_template = StringField("Report Filename", validators=[DataRequired()])
     threading = BooleanField(label="Multi Threading")
 
-    submit = SubmitField("Save")
+    submit = SubmitField("Update Settings")
