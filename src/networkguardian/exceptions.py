@@ -33,3 +33,11 @@ class PluginUnsupportedPlatformError(PluginException):
     Exception is raised when the plugin's load function is called on a platform which is not supported.
     """
     ...
+
+
+class PluginRequiresElevationError(PluginException):
+    """
+    Exception is raised when the plugin's load function is called and the executor within the plugin requires
+    elevated system permissions while the software is not running with them.
+    """
+    ...

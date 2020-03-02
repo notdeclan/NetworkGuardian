@@ -1,4 +1,5 @@
 import ipaddress
+import json
 import random
 import socket
 import xml
@@ -9,6 +10,7 @@ import psutil
 from libnmap.parser import NmapParser
 from libnmap.process import NmapProcess
 from netaddr import IPNetwork
+from networkx.readwrite import json_graph
 
 
 class Tracer(object):
@@ -117,7 +119,7 @@ class Tracer(object):
 
 
 def get_networks():
-    valid_networks = []
+    networks = {}
     for interface_name, interfaces in psutil.net_if_addrs().items():
         for interface in interfaces:
             try:
@@ -138,9 +140,9 @@ def get_networks():
             print("\tNetbit", ipn._prefixlen)
             print("\tTotal IP's:", ipn.cidr.size)
 
-            valid_networks.append(ipn)
+            networks[interface_name] = ipn
 
-    return valid_networks
+    return networks
 
 
 def get_ip():
@@ -165,40 +167,47 @@ def pretty(d, indent=0):
 
 if __name__ == '__main__':
     networks = get_networks()
+    graph = networkx.Graph()
+
     print(networks)
 
-    for network in networks:
-        print(str(network))
-        nm1 = NmapProcess(str(network), options="-O -F -T5")
-        nm1.run()
-        parsed = NmapParser.parse(nm1.stdout)
+    for interface_name, network in networks.items():
+        print(f"Scanning {network} on interface {interface_name}")
 
-        graph = networkx.Graph()
-        nm2 = NmapProcess("google.com", options="--traceroute")
-        nm2.run()
+        network_scan = NmapProcess(str(network), options="-A -n")
+        network_scan.run()
+        parsed = NmapParser.parse(network_scan.stdout)
 
-        collection = xml.etree.ElementTree.fromstring(nm2.stdout)
+        traceroute_scan = NmapProcess("google.com", options="--traceroute")
+        traceroute_scan.run()
+
+        collection = xml.etree.ElementTree.fromstring(traceroute_scan.stdout)
         nodes = collection.getiterator("hop")
-
         trace_list = []
         pre_node = ''
 
         for node in nodes:
-            print(node)
             trace_list.append(node.attrib["ipaddr"])
             graph.add_node(node.attrib["ipaddr"])
+
             if pre_node != '':
+                print("pre node")
                 graph.add_edge(node.attrib["ipaddr"], pre_node)
+
             pre_node = node.attrib["ipaddr"]
 
         for host in parsed.hosts:
             if host.is_up():
                 graph.add_node(host.address)
                 if len(trace_list) > 0:
+                    print("edge")
                     graph.add_edge(host.address, trace_list[0])
 
-        data = networkx.json_graph.adjacency_data(graph)
-        print(data)
+    data = json_graph.node_link_data(graph)
+    print(json.dumps(data, indent=4))
+
+    # data = json.dumps(networkx.json_graph.adjacency_data(graph))
+    # print(data)
 
     # nm = nmap.PortScanner()
     #

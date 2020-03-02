@@ -59,49 +59,13 @@ def on_closing():
     logger.debug('Saving Config')
     save_config()
 
+
 def run():
-    """
-    """
-    """
-        STARTUP CONFIGURATIONS:
-            - run () - Starts everything
-            - quick_scan(config) - Just launches scan
-            - browser mode
-                 
-        psuedo code for startup
-        if find config
-            if reports and plugins dir exists
-                load plugins
-                # get disabled plugins from config
-                for plugin in plugins:
-                    if plugin.name in config[disabled_plugins]:
-                        plugin.disabled = True
-                        
-                load reports
-            else
-                create them
-        else if cli saying just scan(report_dir=, external_plugin_dir=, config)
-            launch scan
-        else
-            launch setup
-    """
-    """
-        USB Scan Config:
-            report_dir
-                            
-    """
-
-    # if not config_exists():  # if config doesnt exist
-    #     initialize_config()
-    # else:
-    #     load_config()
-
+    logger.debug('Starting Network Guardian')
     create_directories()
 
     if application_frozen:
         detect_siblings()
-
-    logger.debug('Starting Network Guardian')
 
     logger.debug('Importing Standard Plugins')
     #
@@ -131,12 +95,7 @@ def run():
 
     logger.debug('Creating Webview Window')
 
-    # PYWEBVIEW WINDOW COD
+    # PYWEBVIEW WINDOW CODE
     window.closing += on_closing
     webview.start(debug=False, gui='qt')
 
-    # TEST REPORT AND PROCESS PLUGIN
-    # results = process_plugins([p for p in registered_plugins if p.loaded])
-    # report = Report("test_report")
-    # report.add_results(results)
-    # report.store('test.report')

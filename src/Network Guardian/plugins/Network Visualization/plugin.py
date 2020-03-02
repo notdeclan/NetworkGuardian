@@ -5,7 +5,7 @@ from networkguardian.framework.registry import register_plugin
 @register_plugin("Network Visualization", PluginCategory.NETWORK, "Declan", 1.0)
 class NetworkVisualization(AbstractPlugin):
 
-    @executor("template.html")
+    @executor("template.html", requires_elevation=True)
     def execute(self):
         # GET HOST IPS, INTERFACES, SUBNETS
         # GET DEFAULT GATEWAY

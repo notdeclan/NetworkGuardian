@@ -1,3 +1,4 @@
+import ctypes
 import glob
 import importlib.util
 import multiprocessing
@@ -21,6 +22,8 @@ max_threads = None  # ie if it has been set by the user TODO: add this into conf
 def register_plugin(name: str, category: PluginCategory, author: str, version: float):
     """
     Function annotation used to dynamically load/register plugins into the module
+
+    Will fill out all of the variables required in PluginInformation.__init__
 
     :param name: Name of plugin
     :param category: Category of the plugin
@@ -65,13 +68,21 @@ def load_plugins():
     Function is used to all plugins stored in the registered_plugins list
     """
     running_platform = SystemPlatform.detect()  # store running platform as a variable for efficiency
+    running_elevated = is_elevated()
     for plugin in registered_plugins.values():
         try:
-            plugin.load(running_platform)  # attempt to load
+            plugin.load(running_platform, running_elevated)  # attempt to load
             logger.debug(f'Successfully loaded {plugin}')
         except Exception as loading_exception:  # if exception add to the plugin so it can be displayed later in GUI
             logger.error(f'Failed to load {plugin} due to {loading_exception}, disabling.')
             plugin.loading_exception = loading_exception
+
+
+def is_elevated():
+    try:
+        return os.getuid() == 0
+    except AttributeError:
+        return ctypes.windll.shell32.IsUserAnAdmin() != 0
 
 
 def get_thread_count(max_required: int = None):

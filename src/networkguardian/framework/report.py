@@ -12,7 +12,7 @@ from jinja2 import Template
 
 from networkguardian import application_version, reports_directory, logger
 from networkguardian.exceptions import PluginProcessingError
-from networkguardian.framework.plugin import SystemPlatform, PluginStructure, AbstractPlugin
+from networkguardian.framework.plugin import SystemPlatform, PluginInformation, AbstractPlugin
 from networkguardian.framework.registry import get_thread_count
 
 reports = []  # Used to store all Report obj's
@@ -22,7 +22,7 @@ report_filename_template = "{{ name }} ({{ system_name }} | {{ platform }}) {{ d
 report_extension = 'rng'
 
 
-class Result(PluginStructure):
+class PluginResult(PluginInformation):
 
     def __init__(self, plugin, data=None, exception=None, template=None):
         super().__init__(plugin.name, plugin.category, plugin.author, plugin.version)
@@ -64,10 +64,10 @@ class Report:
         return f"Report(name='{self.name}', system_name='{self.system_name}', system_platform='{self.system_platform}', date='{self.date}')"
 
     def add_result(self, plugin, data, template):
-        self.results.append(Result(plugin, data=data, template=template))
+        self.results.append(PluginResult(plugin, data=data, template=template))
 
     def add_exception(self, plugin, exception):
-        self.results.append(Result(plugin, exception=exception))
+        self.results.append(PluginResult(plugin, exception=exception))
 
 
 def load_reports():
@@ -78,11 +78,14 @@ def load_reports():
 
 
 def import_report(report_path: str):
-    report_pickle = pickle.load(open(report_path, "rb"))
-    if isinstance(report_pickle, Report):
-        report_pickle.path = report_path
-        reports.append(report_pickle)
-        logger.debug(f'Successfully imported {report_pickle}')
+    try:
+        report_pickle = pickle.load(open(report_path, "rb"))
+        if isinstance(report_pickle, Report):
+            report_pickle.path = report_path
+            reports.append(report_pickle)
+            logger.debug(f'Successfully imported {report_pickle}')
+    except AttributeError:
+        logger.debug(f'Failed to import {report_path} due to missing dependency')
 
 
 def store_report(report: Report):

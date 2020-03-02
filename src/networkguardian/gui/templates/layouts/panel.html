@@ -7,17 +7,18 @@
     (url_for("panel.settings"), 'settings', 'fa fa-cog', 'Settings', False),
 ] -%}
 
-{% set active_page = active_page|default('dashboard') -%}
+{% set active_page = active_page|default('dashboard') %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
 
-    <title>Network Guardian</title>
+    <title>{{ application_name }}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('panel.static', filename='images/icon.png') }}">
 
-    {#  <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/bootstrap.css') }}"/>#}
-    <link rel="stylesheet" type="text/css" href="https://bootswatch.com/4/yeti/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/bootstrap-reboot.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/dashboard.css') }}"/>
     <link rel="stylesheet" type="text/css"
           href="{{ url_for('panel.static', filename='css/dataTables.bootstrap4.css') }}"/>
@@ -63,6 +64,11 @@
             {% block body %}
             {% endblock %}
         </main>
+
+        <a id="back-to-top" href="#" class="btn btn-dark btn-sm back-to-top" role="button" title="Back to top"
+           data-toggle="tooltip" data-placement="left">
+            <i class="fa fa-chevron-up"></i>
+        </a>
 
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -112,7 +118,27 @@
 
         // Enable DataTables
         $('#data-table').DataTable();
-    })
+
+        // Scroll to top button
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 50) {
+                $('#back-to-top').fadeIn();
+            } else {
+                $('#back-to-top').fadeOut();
+            }
+        });
+
+        // scroll body to 0px on click
+        $('#back-to-top').each(function () {
+            $(this).click(function () {
+                $('#back-to-top').tooltip('hide');
+                $('body,html').animate({
+                    scrollTop: 0
+                }, 800);
+                return false;
+            });
+        });
+    });
 </script>
 {% block scripts %}
 {% endblock %}
