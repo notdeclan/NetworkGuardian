@@ -20,28 +20,23 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/bootstrap-reboot.css') }}"/>
     <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/dashboard.css') }}"/>
-    <link rel="stylesheet" type="text/css"
-          href="{{ url_for('panel.static', filename='css/dataTables.bootstrap4.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/dataTables.css') }}"/>
 
     <!-- TODO: replace font awesome cdn with local copy -->
     <link rel="stylesheet" type="text/css"
           href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
 </head>
 <body>
-<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">
+<nav class="p-0 navbar navbar-dark bg-dark fixed-top justify-content-between">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0">
         {{ application_name }}
     </a>
-
-    <ul class="nav">
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url_for("panel.create_report") }}">Create Report</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url_for("panel.settings") }}"><i class="fa fa-cog"></i></a>
-        </li>
-    </ul>
+    <div class="form-inline mr-2 btn-group">
+        <a class="btn btn-primary my-2 my-sm-0" href="{{ url_for("panel.create_report") }}">Create Report</a>
+        <a class="btn btn-dark my-2 my-sm-0" href="{{ url_for("panel.settings") }}"><i class="fa fa-cog"></i></a>
+    </div>
 </nav>
+
 <div class="container-fluid">
     <div class="row">
         <nav class="col-md-2 d-none d-md-block bg-light sidebar">
@@ -76,7 +71,7 @@
                     {% for message in messages %}
                         <div class="toast bg-dark text-white" role="alert" data-delay="3000">
                             <div class="toast-header">
-                                <img src="{{ url_for("panel.static", filename="icon.png") }}"
+                                <img src="{{ url_for("panel.static", filename="images/icon.png") }}"
                                      style="width: 15px"
                                      class="rounded mr-2" alt="NG Logo">
 
@@ -96,7 +91,7 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script type="text/css" src="{{ url_for('panel.static', filename='js/jquery-3.4.1.slim.mins.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('panel.static', filename='js/datatables.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('panel.static', filename='js/bootstrap.bundle.js') }}"></script>
 
