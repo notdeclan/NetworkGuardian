@@ -23,12 +23,6 @@ else:  # if not frozen
     mod = Blueprint('panel', __name__, url_prefix="/", static_folder='../static', template_folder='templates')
 
 
-@mod.errorhandler(404)
-def page_not_found():
-    # TODO: Fix, maybe add to server mod instead of panel.mod
-    return render_template('pages/404.html'), 404
-
-
 @mod.route('/')
 def index():
     return render_template('pages/dashboard.html',
