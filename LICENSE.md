@@ -1,6 +1,7 @@
 # License
-Copyright (C) 2020 - Team Pentagon - Abertay University
-TODO: Include OUR license here
+    Copyright (C) 2020 - Team Pentagon - Abertay University
+
+License: TODO: Include OUR license here
 ## Third Party Software
 
 ### Pywebview
