@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 from networkguardian import application_version
 
 readme = open('../README.md').read()
-license = open('../LICENSE').read()
+license = open('../LICENSE.md').read()
 
 setup(
     name='Network Guardian',
