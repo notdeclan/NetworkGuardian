@@ -31,12 +31,12 @@ if not application_frozen:  # cache when in production to improve loading speed 
 
 
 @app.errorhandler(404)
-def page_not_found():
+def page_not_found(e):
     return render_template('pages/404.html'), 404
 
 
 @app.errorhandler(500)
-def internal_server_error():
+def internal_server_error(e):
     flash("An unexpected error occurred, see the Log for more information.")
     return render_template('pages/dashboard.html'), 500
 
