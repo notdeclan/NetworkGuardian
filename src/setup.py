@@ -1,19 +1,20 @@
 from setuptools import setup, find_packages
 
-with open('../README.md') as f:  # TODO: move readme into here and basically restructure the whole thing ... fml
-    readme = f.read()
+from networkguardian import application_version
 
-# TODO: maybe import a license file here too prehaps... ask ethan about what license we should use if so
+readme = open('../README.md').read()
+license = open('../LICENSE').read()
 
 setup(
     name='Network Guardian',
-    version='',  # TODO: get version from __init__.py
+    version=application_version,  # TODO: get version from __init__.py
     description='Network scanning automation platform',
     long_description=readme,
     author='Pentagon',
+    license=license,
     url='http://github.com/notdeclan/Network-Guardian',
     packages=find_packages(),
-    install_requires=[
+    install_requires=[  # TODO: get this from the requirements file / remove the license file and just use dis
         "jinja2",
         "flask",
         "pywebview",

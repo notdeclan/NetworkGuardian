@@ -5,9 +5,9 @@
     (url_for("panel.view_help"), 'help', 'fa fa-question', 'Help', True),
     (url_for("panel.create_report"), 'create-report', 'fa fa-desktop', 'Create Report', False),
     (url_for("panel.settings"), 'settings', 'fa fa-cog', 'Settings', False),
-] -%}
+] %}
 
-{% set active_page = active_page|default('dashboard') %}
+{% set active_page = active_page | default('dashboard') %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,9 +22,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/dashboard.css') }}"/>
     <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/dataTables.css') }}"/>
 
-    <!-- TODO: replace font awesome cdn with local copy -->
-    <link rel="stylesheet" type="text/css"
-          href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('panel.static', filename='css/font-awesome.min.css') }}"/>
 </head>
 <body>
 <nav class="p-0 navbar navbar-dark bg-dark fixed-top justify-content-between">

@@ -4,10 +4,10 @@ import sys
 import webview
 from flask import Blueprint, render_template, abort, redirect, url_for, jsonify, flash
 
-from networkguardian import application_frozen, plugins_directory, reports_directory, window
+from networkguardian import application_frozen, plugins_directory, reports_directory, window, logger
 from networkguardian.framework.registry import registered_plugins, usable_plugins
 from networkguardian.framework.report import reports, processing_reports, report_filename_template, \
-    report_extension, start_report, export_report_as_html
+    report_extension, start_report, export_report_as_html, generate_report_filename
 from networkguardian.gui.forms import CreateReportForm, SettingsForm
 
 """
@@ -26,7 +26,7 @@ else:  # if not frozen
 @mod.errorhandler(404)
 def page_not_found():
     # TODO: Fix, maybe add to server mod instead of panel.mod
-    return render_template('pages/404.html')
+    return render_template('pages/404.html'), 404
 
 
 @mod.route('/')
@@ -54,6 +54,19 @@ def settings():
     return render_template("pages/settings.html", form=form, report_extension=report_extension)
 
 
+@mod.route('/plugins/')
+def view_plugins():
+    return render_template('pages/plugins.html', plugins=registered_plugins.values())
+
+
+@mod.route('/plugins/<plugin_name>')
+def view_plugin(plugin_name: str):
+    if plugin_name in registered_plugins:
+        return render_template('pages/view-plugin.html', plugin=registered_plugins[plugin_name])
+
+    return abort(404)
+
+
 @mod.route('/reports/create', methods=['GET', 'POST'])
 def create_report():
     form = CreateReportForm()
@@ -61,11 +74,9 @@ def create_report():
 
     if form.validate_on_submit():
         report_name = form.report_name.data
-        selected_plugins = []
-        for plugin in form.plugins.data:
-            selected_plugins.append(registered_plugins[plugin])
+        selected_plugins = [registered_plugins[plugin] for plugin in form.plugins.data]
+        logger.info(f"Creating report {report_name}, with {selected_plugins}")
 
-        print(f"Creating report {report_name}, with {selected_plugins}")
         thread_id = start_report(report_name, selected_plugins)
 
         return redirect(url_for("panel.process_report", thread_id=thread_id))
@@ -107,11 +118,6 @@ def view_reports():
     return render_template('pages/reports.html', reports=reports)
 
 
-@mod.route('/plugins/')
-def view_plugins():
-    return render_template('pages/plugins.html', plugins=registered_plugins.values())
-
-
 @mod.route('/reports/<int:report_id>')
 def view_report(report_id: int):
     try:
@@ -124,10 +130,14 @@ def view_report(report_id: int):
 def export_report(report_id: int):
     try:
         report = reports[report_id]
-        save_path = window.create_file_dialog(webview.SAVE_DIALOG, directory='/', save_filename=f'{report.name}.html')
+        report_filename = generate_report_filename(report, "html")
+
+        save_path = window.create_file_dialog(webview.SAVE_DIALOG, directory='/', save_filename=report_filename)
+
         if save_path is not None:
             export_report_as_html(report, save_path[0])
             flash(f"Exported {report.name} to {save_path}")
+
     except IndexError:
         return abort(404)
     except IOError:
@@ -150,14 +160,6 @@ def delete_report(report_id: int):
     except IOError:
         flash("Error occurred while attempting to delete report file")
         return render_template('pages/view-report.html', report=reports[report_id], report_id=report_id)
-
-
-@mod.route('/plugins/<plugin_name>')
-def view_plugin(plugin_name: str):
-    if plugin_name in registered_plugins:
-        return render_template('pages/view-plugin.html', plugin=registered_plugins[plugin_name])
-
-    return abort(404)
 
 
 @mod.route('/help/view')

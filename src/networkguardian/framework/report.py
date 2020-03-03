@@ -10,7 +10,7 @@ from threading import Thread
 from flask import render_template
 from jinja2 import Template
 
-from networkguardian import application_version, reports_directory, logger
+from networkguardian import application_version, reports_directory, logger, threading_enabled
 from networkguardian.exceptions import PluginProcessingError
 from networkguardian.framework.plugin import SystemPlatform, PluginInformation, AbstractPlugin
 from networkguardian.framework.registry import get_thread_count
@@ -96,33 +96,52 @@ def store_report(report: Report):
     return len(reports) - 1  # return index of report in list
 
 
-def export_report(report: Report):
+def generate_report_filename(report: Report, append_extension: str = report_extension):
+    # get user set config filename template and replace needed variables
     report_filename = Template(report_filename_template).render({
         "name": report.name,
         "system_name": report.system_name,
         "platform": report.system_platform,
         "date": report.date
+
     })
 
-    report_path = os.path.join(reports_directory, '.'.join((report_filename, report_extension)))
+    if append_extension:
+        report_filename = '.'.join((report_filename, append_extension))
 
+    return report_filename
+
+
+def export_report(report: Report):
+    report_filename = generate_report_filename(report)
+
+    # combine filename with path and extension
+    report_path = os.path.join(reports_directory, report_filename)
+
+    # save it
     with open(report_path, "wb") as fw:
-        data = pickle.dumps(report)
-        fw.write(data)
+        fw.write(pickle.dumps(report))  # dump to pickle then write the bytes
 
-    return report_path
+    return report_path  # return the final saved abs path
 
 
 def export_report_as_html(report: Report, path: str):
     export_template = render_template("layouts/export.html", report=report)
+
     # TODO add exception handling for permission errors, file exists, e.t.c...
     with open(path, "w") as f:
         f.write(export_template)
 
 
-def start_report(report_name: str, plugins: [AbstractPlugin]) -> str:
-    processor = ReportProcessor(report_name, plugins)
-    processor.daemon = True
+def start_report(report_name: str, plugins: [AbstractPlugin]) -> int:
+    if threading_enabled:
+        logger.debug("Starting threaded report processor")
+        processor = ThreadedReportProcessor(report_name, plugins)
+        processor.daemon = True
+    else:
+        logger.debug("Starting non-threaded report processor")
+        processor = ReportProcessor(report_name, plugins)
+
     processor.start()
 
     thread_id = randint(0, 10000)
@@ -131,20 +150,40 @@ def start_report(report_name: str, plugins: [AbstractPlugin]) -> str:
     return thread_id
 
 
-class ReportProcessor(Thread):
+class ReportProcessor:
 
     def __init__(self, report_name, plugins):
         self.report = Report(report_name)
-        self.plugins = {}
-
-        for plugin in plugins:
-            self.plugins[plugin] = False
+        self.plugins = {plugin: False for plugin in plugins}  # create dict with all plugins as key and value as false
 
         self.report_id = None
 
-        super().__init__()
+    def start(self):
+        for plugin, complete in self.plugins.items():
+            try:
+                template = plugin.template()
+                data = plugin.process()
+
+                self.plugins[plugin] = True
+
+                self.report.add_result(plugin, data, template)
+            except Exception as ppe:
+                self.report.add_exception(plugin, ppe)
+
+    @property
+    def progress(self):
+        return len([status for status in self.plugins.values() if status]) * (100 / len(self.plugins))
+
+
+class ThreadedReportProcessor(Thread, ReportProcessor):
+
+    def __init__(self, report_name, plugins):
+        Thread.__init__(self)
+        ReportProcessor.__init__(self, report_name, plugins)
 
     def run(self):
+        print("THREADED")
+
         plugin_count = len(self.plugins)
         thread_count = get_thread_count(max_required=plugin_count)
 
@@ -159,13 +198,10 @@ class ReportProcessor(Thread):
                 plugin = future_to_plugin[future]
                 self.plugins[plugin] = True
                 try:
-                    data, template = future.result()
+                    template = plugin.template
+                    data = future.result()
                     self.report.add_result(plugin, data, template)
                 except Exception as ppe:
                     self.report.add_exception(plugin, ppe)
 
         self.report_id = store_report(self.report)
-
-    @property
-    def progress(self):
-        return len([status for status in self.plugins.values() if status]) * (100 / len(self.plugins))

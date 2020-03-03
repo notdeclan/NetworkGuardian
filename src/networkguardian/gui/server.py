@@ -5,16 +5,8 @@ from threading import Thread
 
 from flask import Flask
 
-from networkguardian import application_frozen, application_name, application_version
+from networkguardian import application_frozen, application_name, application_version, logger
 from networkguardian.gui.blueprints import api, panel
-
-if application_frozen:
-    # DISABLE FLASK MESSAGE
-    cli = sys.modules['flask.cli']
-    cli.show_server_banner = lambda *x: None
-
-    # LOWER FLASK LOGGING LEVEL
-    logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 # FLASK CONFIGURATION
 app = Flask(__name__, static_folder=None)
@@ -44,7 +36,19 @@ def template_injector():
     }
 
 
+def disable_flask_logging():
+    # DISABLE FLASK MESSAGE
+    cli = sys.modules['flask.cli']
+    cli.show_server_banner = lambda *x: None
+
+    # LOWER FLASK LOGGING LEVEL
+    logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
+
 def start(host, port):
+    if application_frozen or logger.level is logging.INFO:
+        disable_flask_logging()
+
     """
     Start's the flask web server in its own thread
     """

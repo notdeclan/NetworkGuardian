@@ -1,0 +1,6 @@
+wtforms
+flask-wtf
+jinja2
+flask
+pywebview[PyQt5==5.11.3]
+psutil

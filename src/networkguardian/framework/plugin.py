@@ -167,7 +167,7 @@ class AbstractPlugin(PluginInformation, metaclass=MetaPlugin):
         if not self.loaded:  # further check to ensure somehow the plugin isn't executed if not loaded
             raise PluginProcessingError("Plugin must be loaded before processing.")
 
-        return self.execute(self), self.template
+        return self.execute(self)
 
     @property
     def supported(self) -> bool:

@@ -1,32 +1,70 @@
+import logging
 import os
 import sys
 from asyncio import sleep
 
+import click
 import psutil
 import webview
 
 from networkguardian import logger, application_frozen, application_directory, plugins_directory, reports_directory, \
-    config_path, config, host, port, window
-from networkguardian.framework.registry import registered_plugins, load_plugins, import_external_plugins
-from networkguardian.framework.report import load_reports
+    host, port, window
+from networkguardian.framework.registry import registered_plugins, load_plugins, import_external_plugins, usable_plugins
+from networkguardian.framework.report import load_reports, start_report, processing_reports
 from networkguardian.gui.server import start, is_alive
 
 
-def save_config():
-    with open(config_path, 'w') as config_file:
-        config.write(config_file)
+@click.group(invoke_without_command=True)
+@click.option('--debug/--no-debug', default=False)
+@click.pass_context
+def cli(ctx, debug):
+    if debug:
+        logger.setLevel(logging.DEBUG)
+        for handler in logger.handlers:
+            handler.setLevel(logging.DEBUG)
+
+    logger.debug('Starting Network Guardian')
+    create_directories()
+
+    if application_frozen:
+        detect_siblings()
+
+    logger.debug('Importing External Plugins')
+    import_external_plugins(plugins_directory)
+
+    logger.debug("Loading Plugins")
+    load_plugins()
+
+    total_plugins = len(registered_plugins)
+    total_loaded = len([p for p in registered_plugins.values() if p.loaded])
+    total_failed = total_plugins - total_loaded
+
+    logger.debug(f'Loaded {total_plugins} plugins ({total_loaded} successfully, {total_failed} failed)')
+
+    if ctx.invoked_subcommand is None:
+        gui()
 
 
-def initialize_config():
-    save_config()
+@cli.command()
+def quick_report():
+    print("Starting Report")
+    thread_id = start_report("Quick Scan", usable_plugins())
+    thread = processing_reports[thread_id]
+
+    progress = 0
+    with click.progressbar(length=100, label='Creating report', show_eta=False) as bar:
+        while thread.progress < 100:
+            if thread.progress > progress:
+                bar.update(thread.progress - progress)
+                progress = thread.progress
+
+    print("Finished Report")
 
 
-def load_config():
-    config.read(config_path)
-
-
-def config_exists():
-    return os.path.isfile(config_path)
+@cli.command()
+@click.option('--debug/--no-debug', default=False)
+def gui(debug):
+    run_gui()
 
 
 def create_directories():
@@ -56,33 +94,9 @@ def on_closing():
     """
     # TODO: save config and do closing down procedures here...
     logger.debug('Close initiated by user')
-    logger.debug('Saving Config')
-    save_config()
 
 
-def run():
-    logger.debug('Starting Network Guardian')
-    create_directories()
-
-    if application_frozen:
-        detect_siblings()
-
-    logger.debug('Importing Standard Plugins')
-    #
-    # # noinspection PyUnresolvedReferences
-    # import networkguardian.standard_plugins
-
-    logger.debug('Importing External Plugins')
-    import_external_plugins(plugins_directory)
-
-    logger.debug("Loading Plugins")
-    load_plugins()
-
-    total = len(registered_plugins)
-    loaded = len([p for p in registered_plugins.values() if p.loaded])
-    failed = total - loaded
-    logger.debug(f'Loaded {total} plugins ({loaded} successfully, {failed} failed)')
-
+def run_gui():
     logger.debug('Importing Reports')
     load_reports()
 
@@ -98,4 +112,3 @@ def run():
     # PYWEBVIEW WINDOW CODE
     window.closing += on_closing
     webview.start(debug=False, gui='qt')
-
