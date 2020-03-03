@@ -2,27 +2,51 @@
     Copyright (C) 2020 - Team Pentagon - Abertay University
 
 License: TODO: Include OUR license here
+
 ## Third Party Software
 
 ### Pywebview
 	Copyright (c) 2014-2017, Roman Sirokov All rights reserved.
-License: BSD 3-Clause License
+License : BSD 3-Clause License
+
 ### Flask
 	Copyright (c) 2015 by Armin Ronacher and contributors
-License: BSD 3-Clause License
+License : BSD 3-Clause License
+
 ### Flask WTF
 	Copyright (c) 2010 by Dan Jacob.
 	Copyright (c) 2013 by Hsiaoming Yang.
-License BSD 3-Clause License
+License : BSD 3-Clause License
+
 ### Jinja2 
 	Copyright (c) 2009 by the Jinja Team
-License BSD 3-Clause License
+License : BSD 3-Clause License
+
 ### PyInstaller
 	Copyright (c) 2010-2020, PyInstaller Development Team
 	Copyright (c) 2005-2009, Giovanni Bajo
 	Based on previous work under copyright (c) 2002 McMillan Enterprises, Inc.
-License: GNU General Public License
+License : GNU General Public License
+
+### PSUtil
+    Copyright (c) 2009, Jay Loden, Dave Daeschler, Giampaolo Rodola'
+    All rights reserved.
+License : BSD 3-Clause Licence
+
+### netaddr
+    Copyright (c) 2008 by David P. D. Moss. All rights reserved.
+License : BSD 3-Clause Licence
+
+### python-nmap
+    Copyright (c) 2016 by Steve ‘Ashcrow’ Milner, Brian Bustin, old.schepperhand, Johan Lundberg, Thomas D. maaaaz, Robert Bost, David Peltier.
+License : GNU General Public License
+
+### wtforms
+    Copyright © 2008 by the WTForms team.
+    All rights reserved.
+License : BSD 3-Clause License
 ## Third Party Licenses
+
 ### BSD 3-Clause License
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
@@ -31,6 +55,7 @@ Redistribution and use in source and binary forms, with or without modification,
 -   Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
     
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+
 ### GNU General Public License
  TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
  
@@ -95,3 +120,4 @@ Each version is given a distinguishing version number. If the Program specifies 
 **11.** BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
 
 **12.** IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+    
