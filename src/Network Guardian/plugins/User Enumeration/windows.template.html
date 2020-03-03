@@ -1,0 +1,31 @@
+<table class="table table-responsive table-sm">
+    <thead class="thead-dark">
+    <tr>
+        <th>Node</th>
+        <th>AccountType</th>
+        <th>Description</th>
+        <th>Disabled</th>
+        <th>Domain</th>
+        <th>FullName</th>
+        <th>InstallDate</th>
+        <th>LocalAccount</th>
+        <th>Lockout</th>
+        <th>Name</th>
+        <th>PasswordChangeable</th>
+        <th>PasswordExpires</th>
+        <th>PasswordRequired</th>
+        <th>SID</th>
+        <th>SIDType</th>
+        <th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in reader %}
+        <tr>
+            {% for cell in row %}
+                <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

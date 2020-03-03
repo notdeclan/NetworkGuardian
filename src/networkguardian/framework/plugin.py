@@ -1,10 +1,10 @@
 import inspect
+import os
 import platform
 from enum import Enum
 
-from jinja2 import Template
-
-from networkguardian.exceptions import PluginUnsupportedPlatformError, PluginProcessingError
+from networkguardian.exceptions import PluginUnsupportedPlatformError, PluginProcessingError, \
+    PluginRequiresElevationError
 
 
 class SystemPlatform(Enum):
@@ -46,22 +46,27 @@ class PluginCategory(Enum):
     Enum is used to differentiate between plugin types
     """
     INFO = 'Informational'
+    NETWORK = 'Networking'
     ATTACK = 'Attack'
-    SCANNER = 'Scanner'
+    ENUMERATION = 'Enumeration'
+    SYSTEM = 'System'
     OTHER = 'Other'
 
     def __repr__(self):
         return self.value
 
 
-def executor(template: Template, *platforms: SystemPlatform):
+def executor(template_path, *platforms: SystemPlatform, requires_elevation=False):
     """
         Decorators are called BEFORE class is built i.e __new__, so with a decorator we can tag the function with the
         supported platform e.t.c, and then post process it later with the base class
     """
 
     def decorator(fn):
-        fn._template = template  # add template attribute to function
+        # add template attribute to function
+        plugin_path = os.path.dirname(inspect.getfile(fn))
+        fn._template = open(os.path.join(plugin_path, template_path)).read()
+        fn._requires_elevation = requires_elevation
 
         if len(platforms) == 0:  # if no platform specified, automatically support all Platforms...
             fn._platforms = [p for p in SystemPlatform]
@@ -74,6 +79,9 @@ def executor(template: Template, *platforms: SystemPlatform):
 
 
 class MetaPlugin(type):
+    """
+        Metaclass modifies the class-creation behavior
+    """
 
     def __new__(mcs, name, bases, attrs):
         executors = {}
@@ -89,8 +97,7 @@ class MetaPlugin(type):
         return type.__new__(mcs, name, bases, attrs)
 
 
-class AbstractPlugin(metaclass=MetaPlugin):
-    _executors = {}  # suppress IDE errors but is replaced with __new__ in metaclass
+class PluginInformation:
 
     def __init__(self, name: str, category: PluginCategory, author: str, version: float):
         # Required Plugin Information
@@ -100,16 +107,26 @@ class AbstractPlugin(metaclass=MetaPlugin):
         self.author = author
         self.version = version
 
-        # Variables populated during runtime
-        self._loaded = False  # used to signify whether a plugin has been successfully loaded
+
+class AbstractPlugin(PluginInformation, metaclass=MetaPlugin):
+    _executors = {}  # suppress IDE errors but is patched with __new__ in metaclass
+
+    def __init__(self, name: str, category: PluginCategory, author: str, version: float):
+        super().__init__(name, category, author, version)
+
         self.loading_exception = None  # used to store any exception raised when load() is called to be displayed in GUI
+
+        self._loaded = False  # used to signify whether a plugin has been successfully loaded
         self._running_platform = None  # used to store the system platform that is running
+
+        self.execute = None  # used to store platform specific execute function
+        self.template = None  # used to store platform specific template data
 
     def __repr__(self):
         return 'Plugin(name=%r, description=%r, author=%r, version=%r)' \
                % (self.name, self.description, self.author, self.version)
 
-    def load(self, running_platform):
+    def load(self, running_platform, running_elevated):
         """
         Function is used to load running environment variables, and call initialization functions in derived plugins
         when loaded into the Plugin Manager.
@@ -124,6 +141,13 @@ class AbstractPlugin(metaclass=MetaPlugin):
                 f'Plugin is only supported on {", ".join(str(x) for x in self.supported_platforms)}')
 
         self.initialize()  # call plugin's initialization method  MAY :raise: PluginInitializationError
+
+        self.execute = self._executors[running_platform]  # monkey patch the function
+        self.template = self.execute._template
+
+        if self.execute._requires_elevation and not running_elevated:
+            raise PluginRequiresElevationError("Plugin requires elevated system permissions to run")
+
         self._loaded = True  # update loaded variable
 
     @property
@@ -139,12 +163,11 @@ class AbstractPlugin(metaclass=MetaPlugin):
         """
         pass
 
-    def process(self):  # TODO, MAKE THIS MUCH NICER
-        if self.loaded:  # further check to ensure somehow the plugin isn't executed if
-            pe = self._executors[self._running_platform]  # pe == platform executor
-            return pe(self), pe._template
-        else:  # TODO: change this to a plugin exception error, then again its kinda WTF because it shouldn't happen
+    def process(self):
+        if not self.loaded:  # further check to ensure somehow the plugin isn't executed if not loaded
             raise PluginProcessingError("Plugin must be loaded before processing.")
+
+        return self.execute(self)
 
     @property
     def supported(self) -> bool:

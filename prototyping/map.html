@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="Nmap Scan">
+    <title>Nmap scan</title>
+    <script src="https://gojs.net/latest/release/go-debug.js"></script>
+
+    <script id="code">
+        function goCode(pre, w, h, diagramclass, parentid) {
+            if (diagramclass === undefined) {
+                diagramclass = go.Diagram;
+            }
+
+            if (typeof pre === "string") {
+                pre = document.getElementById(pre);
+            }
+
+            const div = document.createElement("div");
+            div.style.width = w + "%";
+            div.style.height = h + "px";
+            div.className = "diagramStyling";
+
+            let parent;
+            if (parentid === undefined) {
+                parent = pre.parentNode;
+            } else {
+                parent = document.getElementById(parentid);
+            }
+
+            parent.appendChild(div);
+
+            const f = eval("(function (diagram, $) {" + pre.textContent + "})");
+            f(new diagramclass(div), go.GraphObject.make);
+        }
+    </script>
+</head>
+
+<body>
+<div id="content">
+    <h2 id="ChangingCategoryOfPart">Network map</h2>
+
+    <script data-language="javascript" id="changingCategory">
+        function changeCategory(obj, category) {
+            const node = obj.part;
+            if (node) {
+                const diagram = node.diagram;
+                diagram.startTransaction("changeCategory");
+                diagram.model.setCategoryForNodeData(node.data, category);
+                diagram.commitTransaction("changeCategory");
+            }
+        }
+
+        const name =
+            $(go.Node, "Spot",
+                $(go.Panel, "Auto",
+                    $(go.Shape, "Rectangle", new go.Binding("fill", "color")),
+                    $(go.Panel, "Table", {
+                            defaultAlignment: go.Spot.Center,
+                            margin: 10
+                        },
+                        $(go.TextBlock, {
+                            row: 0,
+                            column: 0,
+                            textAlign: "center",
+                            columnSpan: 3,
+                            font: "bold 10pt sans-serif"
+                        }, new go.Binding("text", "key")),
+
+                        $("Button", {
+                                row: 1,
+                                column: 1,
+                                columnSpan: 1
+                            },
+                            $(go.Shape, "PlusLine", {
+                                width: 5,
+                                height: 5
+                            }), {
+                                click: function (e, obj) {
+                                    changeCategory(obj, 'basics');
+                                }
+                            }
+                        ),
+                        $("Button", {
+                                row: 1,
+                                column: 2,
+                                columnSpan: 1
+                            },
+                            $(go.Shape, "PlusLine", {
+                                width: 5,
+                                height: 5
+                            }), {
+                                click: function (e, obj) {
+                                    changeCategory(obj, 'ports');
+                                }
+                            }
+                        ),
+                        $("Button", {
+                                row: 1,
+                                column: 3,
+                                columnSpan: 1
+                            },
+                            $(go.Shape, "PlusLine", {
+                                width: 5,
+                                height: 5
+                            }), {
+                                click: function (e, obj) {
+                                    changeCategory(obj, 'details');
+                                }
+                            }
+                        ),
+                    ),
+                ),
+            );
+
+        const basics =
+            $(go.Node, "Spot",
+                $(go.Panel, "Auto",
+                    $(go.Shape, "RoundedRectangle", new go.Binding("fill", "color")),
+                    $(go.Panel, "Table", {
+                            defaultAlignment: go.Spot.Center,
+                            margin: 10
+                        },
+                        $(go.TextBlock, {
+                                row: 0,
+                                column: 0,
+                                textAlign: "center",
+                                columnSpan: 3,
+                                margin: 10,
+                                font: "bold 10pt sans-serif"
+                            },
+                            new go.Binding("text", "key")),
+                        $(go.TextBlock, {
+                            row: 1,
+                            textAlign: "center",
+                            column: 0
+                        }, new go.Binding("text", "basics"))
+                    )
+                ),
+                $("Button", {
+                        alignment: go.Spot.TopRight
+                    },
+                    $(go.Shape, "XLine", {
+                        width: 4,
+                        height: 4
+                    }), {
+                        click: function (e, obj) {
+                            changeCategory(obj, 'name');
+                        }
+                    }),
+                $("Button", {
+                        alignment: go.Spot.TopLeft
+                    },
+                    $(go.Shape, "XLine", {
+                        width: 4,
+                        height: 4
+                    }), {
+                        click: function (e, obj) {
+                            changeCategory(obj, 'ports');
+                        }
+                    }),
+                $("Button", {
+                        alignment: go.Spot.BottomRight
+                    },
+                    $(go.Shape, "XLine", {
+                        width: 4,
+                        height: 4
+                    }), {
+                        click: function (e, obj) {
+                            changeCategory(obj, 'details');
+                        }
+                    })
+            );
+
+        const ports =
+            $(go.Node, "Spot",
+                $(go.Panel, "Auto",
+                    $(go.Shape, "RoundedRectangle",
+                        new go.Binding("fill", "color")),
+                    $(go.Panel, "Table", {
+                            defaultAlignment: go.Spot.Left
+                        },
+                        $(go.TextBlock, {
+                                row: 0,
+                                column: 0,
+                                columnSpan: 2,
+                                font: "bold 10pt sans-serif"
+                            },
+                            new go.Binding("text", "key")),
+                        $(go.TextBlock, {
+                            row: 1,
+                            column: 0,
+                            font: "bold 10pt sans-serif"
+                        }, "ports"),
+                        $(go.TextBlock, {
+                            row: 1,
+                            column: 1,
+                            font: "10pt monospace"
+                        }, new go.Binding("text", "ports"))
+                    )
+                ),
+                $("Button", {
+                        alignment: go.Spot.TopRight
+                    },
+                    $(go.Shape, "XLine", {
+                        width: 4,
+                        height: 4
+                    }), {
+                        click: function (e, obj) {
+                            changeCategory(obj, 'name');
+                        }
+                    }),
+                $("Button", {
+                        alignment: go.Spot.TopLeft
+                    },
+                    $(go.Shape, "XLine", {
+                        width: 4,
+                        height: 4
+                    }), {
+                        click: function (e, obj) {
+                            changeCategory(obj, 'name');
+                        }
+                    }),
+                $("Button", {
+                        alignment: go.Spot.BottomRight
+                    },
+                    $(go.Shape, "XLine", {
+                        width: 4,
+                        height: 4
+                    }), {
+                        click: function (e, obj) {
+                            changeCategory(obj, 'details');
+                        }
+                    })
+            );
+
+        const details =
+            $(go.Node, "Spot",
+                $(go.Panel, "Auto",
+                    $(go.Shape, "RoundedRectangle",
+                        new go.Binding("fill", "color")),
+                    $(go.Panel, "Table", {
+                            defaultAlignment: go.Spot.Left
+                        },
+                        $(go.TextBlock, {
+                                row: 0,
+                                column: 0,
+                                columnSpan: 2,
+                                font: "bold 10pt sans-serif"
+                            },
+                            new go.Binding("text", "key")),
+                        $(go.TextBlock, {
+                            row: 1,
+                            column: 0,
+                            font: "bold 10pt sans-serif"
+                        }, "Details"),
+                        $(go.TextBlock, {
+                            row: 1,
+                            column: 1
+                        }, new go.Binding("text", "details"))
+                    )
+                ),
+                $("Button", {
+                        alignment: go.Spot.TopRight
+                    },
+                    $(go.Shape, "XLine", {
+                        width: 4,
+                        height: 4
+                    }), {
+                        click: function (e, obj) {
+                            changeCategory(obj, 'basics');
+                        }
+                    }),
+                $("Button", {
+                        alignment: go.Spot.TopLeft
+                    },
+                    $(go.Shape, "XLine", {
+                        width: 4,
+                        height: 4
+                    }), {
+                        click: function (e, obj) {
+                            changeCategory(obj, 'ports');
+                        }
+                    }),
+                $("Button", {
+                        alignment: go.Spot.BottomRight
+                    },
+                    $(go.Shape, "XLine", {
+                        width: 4,
+                        height: 4
+                    }), {
+                        click: function (e, obj) {
+                            changeCategory(obj, 'name');
+                        }
+                    })
+            );
+
+        const templateMap = new go.Map("string", go.Node);
+
+        templateMap.add("name", name);
+        templateMap.add("basics", basics);
+        templateMap.add("ports", ports);
+        templateMap.add("details", details);
+
+        diagram.nodeTemplateMap = templateMap;
+
+        diagram.layout = $(go.ForceDirectedLayout, {
+            maxIterations: 200,
+            defaultSpringLength: 20,
+            defaultElectricalCharge: 80
+        });
+
+        diagram.model.nodeDataArray = [{
+            key: "NOWTVHUB.HOME\n192.168.0.1",
+            basics: "Subnet: 192.168.0.2/24\nGateway: 192.168.0.1\nDevice type: router\nMAC: 3C:89:94:2D:5C:51\nMAC Vendor: BSkyB\nOS type: Linux",
+            details: "First Scanned: 2020-02-20 00:28:34\nLast Scanned: 2020-02-20 00:52:40\nTimes Scanned: 2/2\nStatus: up\nLatency: 0.0023s latency\nHops: 1\nOC CPE: /h:cisco:e4200 \nWarnings: No exact OS matches for host (If you know what OS is running\non it, see https://nmap.org/submit/ )..",
+            ports: "996 closed ports\n53/tcp    open     tcpwrapped.\n80/tcp    open     http           BSkyB router.\n5431/tcp  open     upnp           Sky Home Hub SR102 upnpd.\n49163/tcp open     upnp           Cisco-Linksys E4200 WAP upnpd (UPnP 1.0).",
+            color: "chocolate",
+            category: "name"
+        }, {
+            key: "BIGBRAIN\n192.168.0.2",
+            basics: "Subnet: 192.168.0.2/24\nGateway: 192.168.0.1\nDevice type: unknown\nMAC: 74:e5:f9:1d:78:bf\nOS type: unknown",
+            details: "First Scanned: 2020-02-20 00:28:34\nLast Scanned: 2020-02-20 00:52:40\nTimes Scanned: 2/2\nStatus: up\nLatency: 0.000034s latency\nWarnings: Too many fingerprints match this host to give specific OS\ndetails.",
+            ports: "All 1000 scanned ports are closed",
+            color: "gold",
+            category: "name"
+        }, {
+            key: "BATMOBILE\n192.168.0.26",
+            basics: "Subnet: 192.168.0.2/24\nGateway: 192.168.0.1\nDevice type: media device|phone\nRunning: Apple Mac OS X 10.4.X\nMAC: 80:B0:3D:AD:81:D8\nMAC Vendor: Apple\nOS type: IOS",
+            details: "First Scanned: 2020-02-20 00:52:40\nLast Scanned: 2020-02-20 00:52:40\nTimes Scanned: first time\nStatus: up\nLatency: 0.14s latency\nHops: 1\nOC CPE: /o:apple:mac_os_x:10.4\nOS Details: Apple Mac OS X 10.4.8 - 10.4.11 (Tiger) (Darwin 8.8.0 -\n8.11.0).",
+            ports: "999 closed ports\n62078/tcp open     tcpwrapped.",
+            color: "lime",
+            category: "name"
+        }, {
+            key: "LAPTOP-MFCDETPI\n192.168.0.6",
+            basics: "Subnet: 192.168.0.2/24\nGateway: 192.168.0.1\nDevice type: specialized|WAP|phone\nRunning: iPXE 1.X, Linux 2.4.X|2.6.X, Sony Ericsson embedded\nMAC: D2:07:C5:92:6B:F4\nMAC Vendor: Unknown\nOS type: Linux",
+            details: "First Scanned: 2020-02-20 00:52:40\nLast Scanned: 2020-02-20 00:52:40\nTimes Scanned: first time\nStatus: up\nLatency: 0.074s latency\nHops: 1\nOC CPE: /o:ipxe/e:1.0.0%2b /o:linux:linux_kernel:2.4.20 /o:linux:linux_kernel:2.6.22\n/h:sonyericsson:u8i_vivaz\nOS Details: iPXE 1.0.0+, Tomato 1.28 (Linux 2.4.20), Tomato firmware (Linux\n2.6.22), Sony Ericsson U8i Vivaz mobile phone.\nWarnings: OSScan results may be unreliable because we could not find at\nleast 1 open and 1 closed port.",
+            ports: "999 filtered ports\n6646/tcp  open     tcpwrapped.",
+            color: "lightsalmon",
+            category: "name"
+        }, {
+            key: "192.168.122.1",
+            basics: "Subnet: 192.168.122.1/24\nGateway: 192.168.0.2\nDevice type: general purpose\nRunning: Linux 2.6.X\nMAC: 52:54:00:dd:70:57\nOS type: Linux",
+            details: "First Scanned: 2020-02-20 00:28:34\nLast Scanned: 2020-02-20 00:52:40\nTimes Scanned: 2/2\nStatus: up\nLatency: 0.000029s latency\nOC CPE: /o:linux/x_kernel:2.6.32\nOS Details: Linux 2.6.32.",
+            ports: "999 closed ports\n53/tcp    open     domain         dnsmasq 2.80.",
+            color: "lightsalmon",
+            category: "name"
+        }, {
+            key: "Internet Gateway",
+            basics: "Hops:[nowtvhub.Home (192.168.0.1)]\n[ip-84-38-37-124.easynet.co.uk (84.38.37.124)]\n[027ff1bb.bb.sky.com (2.127.241.187)]\n[dns.google (8.8.8.8)]",
+            details: "[nowtvhub.Home (192.168.0.1)]--->[ip-84-38-37-124.easynet.co.uk (84.38.37.124)]--->[027ff1bb.bb.sky.com (2.127.241.187)]--->[dns.google (8.8.8.8)]",
+            ports: "*any*",
+            color: "yellow",
+            category: "name"
+        }];
+        diagram.model.linkDataArray = [{
+            from: "BATMOBILE\n192.168.0.26",
+            to: "NOWTVHUB.HOME\n192.168.0.1"
+        }, {
+            from: "LAPTOP-MFCDETPI\n192.168.0.6",
+            to: "NOWTVHUB.HOME\n192.168.0.1",
+            to: "BATMOBILE\n192.168.0.26"
+        }, {
+            from: "NOWTVHUB.HOME\n192.168.0.1",
+            to: "Internet Gateway"
+        }];
+    </script>
+
+    <script>
+        goCode("changingCategory", 100, 600)
+    </script>
+</div>
+</body>
+
+</html>

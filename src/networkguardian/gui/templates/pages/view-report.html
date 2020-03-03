@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends 'layouts/panel.html' %}
 {% set active_page = "reports" %}
 {% block body %}
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -7,62 +7,26 @@
                 <h2><i class="{{ icon }}"></i> {{ report.name }}</h2>
             {% endif %}
         {% endfor %}
+
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group btn-group-sm">
+                <a data-toggle="tooltip" data-placement="bottom" data-original-title="Export Report as HTML"
+                   href="{{ url_for("panel.export_report", report_id=report_id) }}" class="btn btn-success">
+                    <i class="fa fa-floppy-o"></i>
+                </a>
+                <a data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Report"
+                   href="{{ url_for("panel.delete_report", report_id=report_id) }}" class="btn btn-danger text-white">
+                    <i class="fa fa-trash-o"></i>
+                </a>
+            </div>
+        </div>
+
     </div>
 
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url_for("panel.view_reports") }}">Reports</a></li>
         <li class="breadcrumb-item active">{{ report.name }}</li>
     </ol>
-    <section id="view-report">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        Plugins
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        {% for result in report.results %}
-                            <li class="list-group-item">
-                                <a href="#plugin-section-{{ loop.index }}">{{ result.plugin.name }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
 
-        {% for result in report.results %}
-            <section id="plugin-section-{{ loop.index }}">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h4>
-                        {{ result.plugin.name }}
-                    </h4>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <div class="btn-group mr-2">
-                            <button type="button"
-                                    class="btn btn-sm btn-info">{{ result.plugin.category.value }}</button>
-                            <button type="button" class="btn btn-sm btn-success">{{ result.plugin.version }}</button>
-                            <button type="button" class="btn btn-sm btn-secondary">{{ result.plugin.author }}</button>
-                            <a data-toggle="tooltip" data-placement="bottom" data-original-title="Learn More">
-                                <button class="btn btn-sm btn-dark" data-toggle="collapse"
-                                        data-target="#plugin-description-{{ loop.index }}">
-                                    <i class="fa fa-question"></i>
-                                </button>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="collapse multi-collapse mb-3" id="plugin-description-{{ loop.index }}">
-                    <div class="card card-body">
-                        {{ result.plugin.description }}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        {{ result.render() | safe }}
-                    </div>
-                </div>
-            </section>
-        {% endfor %}
-    </section>
+    {% include 'elements/view_report_object.html' %}
 {% endblock %}
