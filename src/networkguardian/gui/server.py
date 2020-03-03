@@ -29,16 +29,16 @@ if not application_frozen:  # cache when in production to improve loading speed 
         response.headers['Cache-Control'] = 'no-store'  # disable caching
         return response
 
-
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('pages/404.html'), 404
-
-
-@app.errorhandler(500)
-def internal_server_error(e):
-    flash("An unexpected error occurred, see the Log for more information.")
-    return render_template('pages/dashboard.html'), 500
+#
+# @app.errorhandler(404)
+# def page_not_found(e):
+#     return render_template('pages/404.html'), 404
+#
+#
+# @app.errorhandler(500)
+# def internal_server_error(e):
+#     flash("An unexpected error occurred, see the Log for more information.")
+#     return render_template('pages/dashboard.html'), 500
 
 
 @app.context_processor

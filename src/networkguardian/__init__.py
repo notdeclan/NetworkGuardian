@@ -20,7 +20,7 @@ logging_mode = logging.INFO
 if application_frozen:
     application_path = os.path.dirname(sys.executable)  # executable entry point i.e Network Guardian.exe
 else:  # if not frozen
-    application_path = os.path.dirname(sys.argv[0])  # entry point path
+    application_path = os.path.abspath(os.path.dirname(sys.argv[0]))  # entry point path
 
 application_directory = os.path.join(application_path, application_name)
 config_path = os.path.join(application_directory, application_config_file)

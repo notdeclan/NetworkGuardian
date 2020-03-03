@@ -18,7 +18,7 @@ from networkguardian.framework.registry import get_thread_count
 reports = []  # Used to store all Report obj's
 processing_reports = {}  # Thread ID, Report obj
 
-report_filename_template = "{{ name }} ({{ system_name }} | {{ platform }}) {{ date }}"
+report_filename_template = "{{ name }} ({{ system_name }} - {{ platform }}) {{ date }}"
 report_extension = 'rng'
 
 
@@ -102,8 +102,7 @@ def generate_report_filename(report: Report, append_extension: str = report_exte
         "name": report.name,
         "system_name": report.system_name,
         "platform": report.system_platform,
-        "date": report.date
-
+        "date": str(report.date).replace(":","-")
     })
 
     if append_extension:
@@ -119,8 +118,10 @@ def export_report(report: Report):
     report_path = os.path.join(reports_directory, report_filename)
 
     # save it
+    print(report_path)
     with open(report_path, "wb") as fw:
-        fw.write(pickle.dumps(report))  # dump to pickle then write the bytes
+        data = pickle.dumps(report)
+        fw.write(data)  # dump to pickle then write the bytes
 
     return report_path  # return the final saved abs path
 

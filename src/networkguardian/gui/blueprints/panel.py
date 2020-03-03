@@ -90,6 +90,7 @@ def process_report(thread_id):
         report_processor = processing_reports[thread_id]
         if report_processor.progress >= 100 and not report_processor.isAlive():
             flash("Report completed")
+
             return redirect(url_for("panel.view_report", report_id=report_processor.report_id))
 
         return render_template('pages/processing-report.html', report=report_processor)
