@@ -13,7 +13,7 @@ from jinja2 import Template
 from networkguardian import application_version, reports_directory, logger, threading_enabled
 from networkguardian.exceptions import PluginProcessingError
 from networkguardian.framework.plugin import SystemPlatform, PluginInformation, AbstractPlugin
-from networkguardian.framework.registry import get_thread_count
+from networkguardian.framework.registry import get_thread_count, usable_plugins
 
 reports = []  # Used to store all Report obj's
 processing_reports = {}  # Thread ID, Report obj
@@ -149,6 +149,10 @@ def start_report(report_name: str, plugins: [AbstractPlugin]) -> int:
     processing_reports[thread_id] = processor
 
     return thread_id
+
+
+def start_quick_report():
+    return start_report("Quick Report", usable_plugins())
 
 
 class ReportProcessor:

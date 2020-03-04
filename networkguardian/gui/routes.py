@@ -8,7 +8,7 @@ from networkguardian import reports_directory, plugins_directory, logger, applic
 from networkguardian.framework.plugin import SystemPlatform
 from networkguardian.framework.registry import registered_plugins, usable_plugins, import_external_plugins, load_plugins
 from networkguardian.framework.report import reports, processing_reports, start_report, export_report_as_html, \
-    generate_report_filename, report_extension, report_filename_template
+    generate_report_filename, report_extension, report_filename_template, start_quick_report
 from networkguardian.gui import app, window
 from networkguardian.gui.forms import SettingsForm, CreateReportForm
 
@@ -102,7 +102,11 @@ def create_report():
 
 @app.route('/reports/create/quick')
 def quick_report():
-    thread_id = start_report("Quick Scan", usable_plugins())
+    if len(usable_plugins()) <= 0:
+        flash("Cannot create report with no plugins")
+        return index()
+
+    thread_id = start_quick_report()
     return redirect(url_for("process_report", thread_id=thread_id))
 
 

@@ -7,8 +7,8 @@ import click
 import psutil
 
 from networkguardian import logger, application_frozen, application_directory, plugins_directory, reports_directory
-from networkguardian.framework.registry import registered_plugins, load_plugins, import_external_plugins, usable_plugins
-from networkguardian.framework.report import load_reports, start_report, processing_reports
+from networkguardian.framework.registry import registered_plugins, load_plugins, import_external_plugins
+from networkguardian.framework.report import load_reports, processing_reports, start_quick_report
 from networkguardian.gui.server import start_server, is_alive
 from networkguardian.gui.webview import open_window
 
@@ -45,7 +45,7 @@ def cli(ctx, debug):
 @cli.command()
 def quick_report():
     print("Starting Report")
-    thread_id = start_report("Quick Scan", usable_plugins())
+    thread_id = start_quick_report()
     thread = processing_reports[thread_id]
 
     progress = 0
