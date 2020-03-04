@@ -8,20 +8,20 @@
             {% endif %}
         {% endfor %}
         <div class="btn-toolbar mb-2 mb-md-0">
-            {% if not plugin.supported %}
+            {% if plugin.loading_exception %}
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" disabled="">
+                    <label class="custom-control-label">{{ plugin.loading_exception.__class__.__name__ }}</label>
+                </div>
+            {% elif not plugin.supported %}
                 <div class="custom-control custom-switch">
                     <input type="checkbox" class="custom-control-input" disabled="">
                     <label class="custom-control-label">Unsupported Platform</label>
                 </div>
-            {% elif plugin.loading_exception %}
-                <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" disabled="">
-                    <label class="custom-control-label">Loading Error Occurred</label>
-                </div>
             {% else %}
                 <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="customSwitch1" checked="">
-                    <label class="custom-control-label" for="customSwitch1"></label>
+                    <input type="checkbox" class="custom-control-input" checked="" disabled="">
+                    <label class="custom-control-label"></label>
                 </div>
             {% endif %}
         </div>
@@ -34,7 +34,7 @@
 
     {% if plugin.loading_exception %}
         <div class="alert alert-danger">
-            <strong>Loading Error:</strong> {{ plugin.loading_exception }}
+            <strong>{{ plugin.loading_exception.__class__.__name__ }}:</strong> {{ plugin.loading_exception }}
         </div>
     {% endif %}
 

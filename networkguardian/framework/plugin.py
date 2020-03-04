@@ -4,7 +4,7 @@ import platform
 from enum import Enum
 
 from networkguardian.exceptions import PluginUnsupportedPlatformError, PluginProcessingError, \
-    PluginRequiresElevationError
+    PluginRequiresElevationError, PluginExecutorError
 
 
 class SystemPlatform(Enum):
@@ -17,14 +17,14 @@ class SystemPlatform(Enum):
 
     WINDOWS = 'Windows'
     LINUX = 'Linux'
-    MAC_OS = 'Darwin'
+    MAC_OS = 'Mac OS X'
 
     @staticmethod
     def detect() -> Enum:
         """
         Function return's correct Platform enum for the running operating system
         """
-        system = platform.system()  # get system tag
+        system = platform.system().replace("Darwin", "Mac OS X")  # get system tag
         return SystemPlatform(system)
 
     def __str__(self):
@@ -135,6 +135,8 @@ class AbstractPlugin(PluginInformation, metaclass=MetaPlugin):
         function should be used.
         """
         self._running_platform = running_platform
+        if not self._executors:  # if executors is empty
+            raise PluginExecutorError("No executor found within class")
 
         if not self.supported:
             raise PluginUnsupportedPlatformError(

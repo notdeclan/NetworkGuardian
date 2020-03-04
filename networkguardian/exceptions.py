@@ -41,3 +41,10 @@ class PluginRequiresElevationError(PluginException):
     elevated system permissions while the software is not running with them.
     """
     ...
+
+
+class PluginExecutorError(PluginException):
+    """
+    Exception is raised when a plugin is attempted to be loaded but the plugin contains no valid methods of executing
+    i.e there is no @executor in the class
+    """

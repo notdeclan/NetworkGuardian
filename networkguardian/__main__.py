@@ -23,12 +23,15 @@ def cli(ctx, debug):
 
     create_directories()
 
+    # Die if other instances running
     if application_frozen:
         detect_siblings()
 
+    # Import Plugins from directory
     logger.debug('Importing External Plugins')
     import_external_plugins(plugins_directory)
 
+    # Load Plugins
     logger.debug("Loading Plugins")
     load_plugins()
 
@@ -38,6 +41,7 @@ def cli(ctx, debug):
 
     logger.debug(f'Loaded {total_plugins} plugins ({total_loaded} successfully, {total_failed} failed)')
 
+    # Start GUI if no command specified
     if ctx.invoked_subcommand is None:
         gui()
 
