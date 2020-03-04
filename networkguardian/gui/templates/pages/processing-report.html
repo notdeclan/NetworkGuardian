@@ -1,0 +1,65 @@
+{% extends 'layouts/panel.html' %}
+{% set active_page = "reports" %}
+{% block body %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        {% for href, id, icon, title, sidebar in navigation_bar %}
+            {% if id == active_page %}
+                <h2><i class="{{ icon }}"></i> Processing Report: {{ report.report_name }}</h2>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item "><a href="{{ url_for("view_reports") }}">Reports</a></li>
+        <li class="breadcrumb-item active">Processing Report</li>
+    </ol>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="progress">
+                <div class="progress-bar-animated progress-bar-striped bg-dark" role="progressbar"
+                     style="width: {{ report.progress }}%"></div>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-hover text-center">
+        <thead class="thead-dark">
+        <tr>
+            <th class="text-left">Plugin Name</th>
+            <th>Progress</th>
+            <th>Category</th>
+            <th>Author</th>
+            <th>Version</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for plugin, complete in report.plugins.items() %}
+            <tr>
+                <td class="text-left">{{ plugin.name }}</td>
+                <td>
+                    {% if complete %}
+                        <span scope="row" class="badge badge-pill badge-success">Finished</span>
+                    {% else %}
+                        <div class="spinner-border spinner-border-sm" role="status">
+                        </div>
+                    {% endif %}
+                </td>
+                <td>{{ plugin.category.value }}</td>
+                <td>{{ plugin.author }}</td>
+                <td>{{ plugin.version }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+{% block scripts %}
+    <script>
+        $(document).ready(function () {
+            setInterval(function () {
+                window.location.reload();
+            }, 500);
+        });
+
+    </script>
+{% endblock %}
