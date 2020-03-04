@@ -1,0 +1,101 @@
+{% set navigation_bar = [
+    ('/', 'dashboard', 'fa fa-home', 'Dashboard', True),
+    (url_for("view_reports"), 'reports', 'fa fa-list-alt', 'Reports', True),
+    (url_for("view_plugins"), 'plugins', 'fa fa-list',' Plugins', True),
+    (url_for("view_help"), 'help', 'fa fa-question', 'Help', True),
+    (url_for("create_report"), 'create-report', 'fa fa-desktop', 'Create Report', False),
+    (url_for("settings"), 'settings', 'fa fa-cog', 'Settings', False),
+] %}
+
+{% set active_page = active_page | default('dashboard') %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    <title>{{ application_name }}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-reboot.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dataTables.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/font-awesome.css') }}"/>
+</head>
+<body>
+<nav class="p-0 navbar navbar-dark bg-dark fixed-top justify-content-between">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0">
+        {{ application_name }}
+    </a>
+    <div class="form-inline mr-2 btn-group">
+        <a class="btn btn-primary my-2 my-sm-0" href="{{ url_for("create_report") }}">Create Report</a>
+        <a class="btn btn-dark my-2 my-sm-0" role="button" title="Settings" data-toggle="tooltip"
+           data-placement="bottom" href="{{ url_for("settings") }}"><i class="fa fa-cog"></i></a>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+                    {% for href, id, icon, caption, sidebar in navigation_bar %}
+                        {% if sidebar %}
+                            <li class="nav-item">
+                            <a id="{{ id | e }}" class="nav-link {% if id == active_page %} active {% endif %}"
+                               href="{{ href|e }}">
+                                <i class="{{ icon|e }}"></i> {{ caption|e }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </nav>
+
+        <main role="main" class="col-md-10 ml-sm-auto px-4 mb-3">
+            {% block body %}
+            {% endblock %}
+        </main>
+
+        <a id="back-to-top" href="#" class="btn btn-dark btn-sm back-to-top" role="button" title="Back to top"
+           data-toggle="tooltip" data-placement="left">
+            <i class="fa fa-chevron-up"></i>
+        </a>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div style="bottom: 0; right: 0;" class="position-absolute mr-3 mb-3">
+                    {% for message in messages %}
+                        <div class="toast bg-dark text-white" role="alert" data-delay="3000">
+                            <div class="toast-header">
+                                <img src="{{ url_for("static", filename="images/icon.png") }}"
+                                     style="width: 15px"
+                                     class="rounded mr-2" alt="{{ application_name }} Logo">
+
+                                <strong class="mr-auto">{{ application_name }}</strong>
+                                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="toast-body">
+                                {{ message }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+</div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.4.1.slim.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.bundle.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/panel.js') }}"></script>
+
+{% block scripts %}
+{% endblock %}
+</body>
+</html>

@@ -1,4 +1,4 @@
-# License
+# License Information
     Copyright (C) 2020 - Team Pentagon - Abertay University
 
 License: TODO: Include OUR license here
@@ -18,7 +18,7 @@ License : BSD 3-Clause License
 	Copyright (c) 2013 by Hsiaoming Yang.
 License : BSD 3-Clause License
 
-### Jinja2 
+### Jinja2
 	Copyright (c) 2009 by the Jinja Team
 License : BSD 3-Clause License
 

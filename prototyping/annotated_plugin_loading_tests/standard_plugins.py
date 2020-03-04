@@ -1,4 +1,4 @@
-from networkguardian.plugin import AbstractPlugin
+from networkguardian import AbstractPlugin
 
 from prototyping.annotated_plugin_loading_tests.registry import register_plugin
 
