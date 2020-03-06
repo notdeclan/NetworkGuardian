@@ -56,7 +56,7 @@ class Report:
     """
 
     def __init__(self, name: str):
-        self.date = datetime.now()  # get current time
+        self.date = str(datetime.now().date()).replace(":", "-")  # get current time
         self.name = name  # user set name of the report
         self.system_name = platform.node()  # the name of the system
         self.system_platform = SystemPlatform.detect()  # the os the report was performed on
@@ -134,9 +134,11 @@ def generate_report_filename(report: Report, append_extension: str = report_exte
 
 def export_report(report: Report):
     report_filename = generate_report_filename(report)
+    if not os.path.exists(reports_directory):
+        os.mkdir(reports_directory)
 
     # combine filename with path and extension
-    report_path = os.path.join(reports_directory, report_filename)
+    report_path = os.path.abspath(os.path.join(reports_directory, report_filename))
 
     # save it
     print(report_path)
