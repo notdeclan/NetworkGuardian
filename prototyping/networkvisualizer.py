@@ -1,6 +1,5 @@
 import ipaddress
 import json
-import random
 import socket
 import xml
 from contextlib import closing
@@ -11,111 +10,7 @@ from libnmap.parser import NmapParser
 from libnmap.process import NmapProcess
 from netaddr import IPNetwork
 from networkx.readwrite import json_graph
-
-
-class Tracer(object):
-    def __init__(self, dst, hops=30):
-        """
-        Initializes a new tracer object
-
-        Args:
-            dst  (str): Destination host to probe
-            hops (int): Max number of hops to probe
-
-        """
-        self.dst = dst
-        self.hops = hops
-        self.ttl = 1
-
-        # Pick up a random port in the range 33434-33534
-        self.port = random.choice(range(33434, 33535))
-
-    def run(self):
-        """
-        Run the tracer
-
-        Raises:
-            IOError
-
-        """
-        try:
-            dst_ip = socket.gethostbyname(self.dst)
-        except socket.error as e:
-            raise IOError('Unable to resolve {}: {}', self.dst, e)
-
-        text = 'traceroute to {} ({}), {} hops max'.format(
-            self.dst,
-            dst_ip,
-            self.hops
-        )
-
-        print(text)
-
-        while True:
-            receiver = self.create_receiver()
-            sender = self.create_sender()
-            sender.sendto(b'', (self.dst, self.port))
-
-            addr = None
-            try:
-                data, addr = receiver.recvfrom(1024)
-            except socket.error:
-                raise IOError('Socket error: {}'.format(e))
-            finally:
-                receiver.close()
-                sender.close()
-
-            if addr:
-                print('{:<4} {}'.format(self.ttl, addr[0]))
-            else:
-                print('{:<4} *'.format(self.ttl))
-
-            self.ttl += 1
-
-            if addr[0] == dst_ip or self.ttl > self.hops:
-                break
-
-    def create_receiver(self):
-        """
-        Creates a receiver socket
-
-        Returns:
-            A socket instance
-
-        Raises:
-            IOError
-
-        """
-        s = socket.socket(
-            family=socket.AF_INET,
-            type=socket.SOCK_RAW,
-            proto=socket.IPPROTO_ICMP
-        )
-
-        try:
-            s.bind(('', self.port))
-        except socket.error as e:
-            raise IOError('Unable to bind receiver socket: {}'.format(e))
-
-        return s
-
-    def create_sender(self):
-        """
-        Creates a sender socket
-
-        Returns:
-            A socket instance
-
-        """
-        s = socket.socket(
-            family=socket.AF_INET,
-            type=socket.SOCK_DGRAM,
-            proto=socket.IPPROTO_UDP
-        )
-
-        s.setsockopt(socket.SOL_IP, socket.IP_TTL, self.ttl)
-
-        return s
+from nmap import nmap
 
 
 def get_networks():
@@ -165,28 +60,63 @@ def pretty(d, indent=0):
             print('\t' * (indent + 1) + str(value))
 
 
+def get_node_data(host):
+    print(dir(host.os_fingerprint))
+    data = {
+        "hostname": host.hostnames,
+        "ports": host.get_ports(),
+        "os": host.os_fingerprint,
+    }
+    return data
+
+
 if __name__ == '__main__':
     networks = get_networks()
     graph = networkx.Graph()
-
     print(networks)
+
+    nm = nmap.PortScanner()
+    for interface_name, network in networks.items():
+        nm.scan(str(network), arguments="-A -n")
+        all_hosts = nm.all_hosts()
+        for key in all_hosts:
+            host = nm[key]
+            print(key)
+
+            print(host)
+            print(host.hostname())
+            print(host.all_tcp())
+            print(host.all_udp())
+            print(host.all_ip())
+            for osclass in host['osclass']:
+                print('OsClass.type : {0}'.format(osclass['type']))
+                print('OsClass.vendor : {0}'.format(osclass['vendor']))
+                print('OsClass.osfamily : {0}'.format(osclass['osfamily']))
+                print('OsClass.osgen : {0}'.format(osclass['osgen']))
+                print('OsClass.accuracy : {0}'.format(osclass['accuracy']))
+
+    exit(0)
 
     for interface_name, network in networks.items():
         print(f"Scanning {network} on interface {interface_name}")
 
+        # Host Discovery
         network_scan = NmapProcess(str(network), options="-A -n")
         network_scan.run()
         parsed = NmapParser.parse(network_scan.stdout)
 
+        # Traceroute
         traceroute_scan = NmapProcess("google.com", options="--traceroute")
         traceroute_scan.run()
-
         collection = xml.etree.ElementTree.fromstring(traceroute_scan.stdout)
-        nodes = collection.getiterator("hop")
+        traceroute_nodes = collection.getiterator("hop")
+
         trace_list = []
         pre_node = ''
 
-        for node in nodes:
+        for node in traceroute_nodes:
+            print(node.attrib)
+
             trace_list.append(node.attrib["ipaddr"])
             graph.add_node(node.attrib["ipaddr"])
 
@@ -198,37 +128,11 @@ if __name__ == '__main__':
 
         for host in parsed.hosts:
             if host.is_up():
-                graph.add_node(host.address)
+                graph.add_node(host.address, **get_node_data(host))
                 if len(trace_list) > 0:
                     print("edge")
                     graph.add_edge(host.address, trace_list[0])
 
-    data = json_graph.node_link_data(graph)
-    print(json.dumps(data, indent=4))
-
-    # data = json.dumps(networkx.json_graph.adjacency_data(graph))
-    # print(data)
-
-    # nm = nmap.PortScanner()
-    #
-    # all_devices = []
-    # for network in all_networks:
-    #     # nm.scan(str(network.cidr), arguments="-A -n")  # correct args
-    #     nm.scan(str(network.cidr), arguments="-sP")  # quick scan args
-    #     for host in nm.all_hosts():
-    #         all_devices.append(nm[host])
-    #
-    #     break  # just scan first network during testing
-    #
-    # print(all_devices)
-    #
-    # for device in all_devices:
-    #     for type, address in device['addresses'].items():
-    #         if 'mac' in type:
-    #             continue
-    #
-    #         print("Gunna try traceroute ", address)
-    #         hops = traceroute(address, count=3, interval=0.05, timeout=2, max_hops=30, fast_mode=True)
-    #
-    #         print(hops)
-    #         print(dir(hops))
+        data = json_graph.node_link_data(graph)
+        print(json.dumps(data, indent=4))
+        exit()

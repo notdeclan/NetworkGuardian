@@ -1,84 +1,171 @@
-<html lang="">
-<head>
-    <meta charset="UTF-8">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.15.0/d3.js"></script>
-    <title></title>
-    <style>
-        .links line {
-            stroke: #999;
-            stroke-opacity: 0.6;
-        }
+<script src="https://d3js.org/d3.v4.min.js"></script>
 
-        .nodes circle {
-            stroke: #fff;
-            stroke-width: 1.5px;
-        }
+<style>
+    .links line {
+        stroke: #999;
+        stroke-opacity: 0.6;
+    }
 
-        text {
-            font-family: sans-serif;
-            font-size: 10px;
-            color: #ffffff;
-        }
-    </style>
-</head>
+    .nodes circle {
+        stroke: #fff;
+        stroke-width: 1.5px;
+    }
 
-<body>
-<h1>Network Visualization</h1>
-<div id="d3-container"></div>
+    text {
+        font-family: sans-serif;
+        font-size: 10px;
+    }
+</style>
+
+<svg width="960" height="600"></svg>
+
 <script>
-    const data = {
+    const graph = {
         "directed": false,
         "multigraph": false,
         "graph": {},
-        "nodes": [{
-            "id": "216.58.204.14"
-        }, {
-            "id": "192.168.43.1"
-        }, {
-            "id": "192.168.43.253"
-        }, {
-            "id": "192.168.213.21"
-        }, {
-            "id": "192.168.213.22"
-        }, {
-            "id": "10.206.137.165"
-        }, {
-            "id": "192.168.122.1"
-        }],
-        "links": [{
-            "source": "216.58.204.14",
-            "target": "192.168.43.1"
-        }, {
-            "source": "216.58.204.14",
-            "target": "192.168.43.253"
-        }, {
-            "source": "216.58.204.14",
-            "target": "10.206.137.165"
-        }, {
-            "source": "192.168.43.1",
-            "target": "192.168.213.21"
-        }, {
-            "source": "192.168.43.1",
-            "target": "192.168.122.1"
-        }, {
-            "source": "192.168.213.21",
-            "target": "192.168.213.22"
-        }, {
-            "source": "192.168.213.22",
-            "target": "10.206.137.165"
-        }]
+        "nodes": [
+            {
+                "hostname": [],
+                "ports": [
+                    [
+                        53,
+                        "tcp"
+                    ]
+                ],
+                "os": "OS:SCAN(V=7.80%E=4%D=3/10%OT=53%CT=1%CU=30727%PV=Y%DS=1%DC=D%G=Y%M=0AC5E1%T\nOS:M=5E6789BB%P=x86_64-redhat-linux-gnu)SEQ(SP=100%GCD=1%ISR=10C%TI=Z%CI=I%\nOS:II=I%TS=8)OPS(O1=M5B4ST11NW8%O2=M5B4ST11NW8%O3=M5B4NNT11NW8%O4=M5B4ST11N\nOS:W8%O5=M5B4ST11NW8%O6=M5B4ST11)WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFF\nOS:F%W6=FFFF)ECN(R=Y%DF=Y%T=40%W=FFFF%O=M5B4NNSNW8%CC=Y%Q=)T1(R=Y%DF=Y%T=40\nOS:%S=O%A=S+%F=AS%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=\nOS:%RD=0%Q=)T5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%\nOS:W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=\nOS:)U1(R=Y%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%\nOS:DFI=N%T=40%CD=S)\n",
+                "id": "192.168.43.1"
+            },
+            {
+                "id": "172.16.255.254"
+            },
+            {
+                "id": "193.60.160.253"
+            },
+            {
+                "id": "172.217.169.46"
+            },
+            {
+                "hostname": [],
+                "ports": [],
+                "os": "SCAN(V=7.80%E=4%D=3/10%OT=%CT=1%CU=32477%PV=Y%DS=0%DC=L%G=N%TM=5E6789BD%P=x86_64-redhat-linux-gnu)\nSEQ(CI=Z%II=I)\nT5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)\nT6(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)\nT7(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)\nU1(R=Y%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)\nIE(R=Y%DFI=N%T=40%CD=S)\n",
+                "id": "192.168.43.253"
+            }
+        ],
+        "links": [
+            {
+                "source": "192.168.43.1",
+                "target": "172.16.255.254"
+            },
+            {
+                "source": "192.168.43.1",
+                "target": "192.168.43.1"
+            },
+            {
+                "source": "192.168.43.1",
+                "target": "192.168.43.253"
+            },
+            {
+                "source": "172.16.255.254",
+                "target": "193.60.160.253"
+            },
+            {
+                "source": "193.60.160.253",
+                "target": "172.217.169.46"
+            }
+        ]
     };
 
-    const height = 400,
-        width = 600;
+    var svg = d3.select("svg");
+    var width = +svg.attr("width");
+    var height = +svg.attr("height");
 
-    const links = data.links.map(d => Object.create(d));
-    const nodes = data.nodes.map(d => Object.create(d));
+    var color = d3.scaleOrdinal(d3.schemeCategory20);
 
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
+    var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().distance(50).id(function (d) {
+            return d.id;
+        }))
+        .force("charge", d3.forceManyBody())
+        .force("center", d3.forceCenter(width / 2, height / 2));
 
-    function dragstarted(d) {
-        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+
+    var link = svg.append("g")
+        .attr("class", "links")
+        .selectAll("line")
+        .data(graph.links)
+        .enter().append("line")
+        .attr("stroke-width", function (d) {
+            return Math.sqrt(d.value);
+        });
+
+    var node = svg.append("g")
+        .attr("class", "nodes")
+        .selectAll("g")
+        .data(graph.nodes)
+        .enter().append("g");
+
+    var circles = node.append("circle")
+        .attr("r", 5)
+        .attr("fill", function (d) {
+            return color(d.group);
+        })
+        .call(d3.drag()
+            .on("start", dragStarted)
+            .on("drag", dragged)
+            .on("end", dragEnded));
+
+    var lables = node.append("text")
+        .text(function (d) {
+            return d.id;
+        })
+        .attr('x', 6)
+        .attr('y', 3);
+
+    node.append("text")
+        .text(function (d) {
+            return d.os;
+        })
+        .attr('x', 6)
+        .attr('y', 20);
+
+    node.append("text")
+        .text(function (d) {
+            return d.ports;
+        })
+        .attr('x', 6)
+        .attr('y', 37);
+
+    simulation
+        .nodes(graph.nodes)
+        .on("tick", ticked);
+
+    simulation.force("link")
+        .links(graph.links);
+
+    function ticked() {
+        link
+            .attr("x1", function (d) {
+                return d.source.x;
+            })
+            .attr("y1", function (d) {
+                return d.source.y;
+            })
+            .attr("x2", function (d) {
+                return d.target.x;
+            })
+            .attr("y2", function (d) {
+                return d.target.y;
+            });
+
+        node
+            .attr("transform", function (d) {
+                return "translate(" + d.x + "," + d.y + ")";
+            })
+    }
+
+    function dragStarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(1).restart();
         d.fx = d.x;
         d.fy = d.y;
     }
@@ -88,63 +175,9 @@
         d.fy = d3.event.y;
     }
 
-    function dragended(d) {
+    function dragEnded(d) {
         if (!d3.event.active) simulation.alphaTarget(0);
         d.fx = null;
         d.fy = null;
     }
-
-    const simulation = d3.forceSimulation(nodes);
-    simulation.force("link", d3.forceLink(links).id(d => d.id));
-    simulation.force("charge", d3.forceManyBody());
-    simulation.force("center", d3.forceCenter(width / 2, height / 2));
-
-    let svg = d3.select("#d3-container").select("svg");
-
-    if (svg.empty()) {
-        svg = d3.select("#d3-container").append("svg").attr("width", width).attr("height", height);
-    }
-
-    const link = svg.append("g")
-        .attr("stroke", "#999")
-        .attr("stroke-opacity", 0.6)
-        .selectAll("line")
-        .data(links)
-        .join("line")
-        .attr("stroke-width", d => Math.sqrt(d.value));
-
-    const node = svg.append("g").attr("class", "nodes").selectAll("g").data(nodes).enter().append("g");
-
-    var circles = node.append("circle")
-        .attr("r", 5)
-        .attr("fill", function (d) {
-            return color(d.group);
-        })
-        .call(d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended));
-
-    node.append("text")
-        .attr("dx", ".10em")
-        .attr("dy", ".10em")
-        .text(function (d) {
-            return d.id;
-        });
-
-    simulation.on("tick", () => {
-        link
-            .attr("x1", d => d.source.x)
-            .attr("y1", d => d.source.y)
-            .attr("x2", d => d.target.x)
-            .attr("y2", d => d.target.y);
-        node
-            .attr("cx", d => d.x)
-            .attr("cy", d => d.y);
-    });
-
-    svg.node();
 </script>
-</body>
-
-</html>

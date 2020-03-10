@@ -16,7 +16,6 @@ class UserEnumerationPlugin(AbstractPlugin):
 
     """
 
-
     @executor("windows.template.html", SystemPlatform.WINDOWS)
     def windows(self):
         process = os.subprocess.Popen(["wmic", "useraccount", "list", "full", "/format:csv"], stdout=os.subprocess.PIPE)
@@ -28,11 +27,19 @@ class UserEnumerationPlugin(AbstractPlugin):
         reader = csv.reader(file_stream)
         return {"reader": reader}
 
-    @executor("unix.template.html", SystemPlatform.MAC_OS, SystemPlatform.LINUX)
-    def unix(self):
+    @executor("linux.template.html", SystemPlatform.MAC_OS, SystemPlatform.LINUX)
+    def linux(self):
         import grp
-        users = {}
-        for p in psutil.pwd.getpwall():
-            users[p[0]] = grp.getgrgid(p[3])[0]
+        return {
+            "users": {
+                user[0]: grp.getgrgid(user[3])[0] for user in psutil.pwd.getpwall()
+            }
+        }
 
-        return {"users": users}
+    @executor("mac.template.html", SystemPlatform.MAC_OS)
+    def mac(self):
+        return {
+            "users": [
+                user[0] for user in psutil.pwd.getpwall()
+            ]
+        }

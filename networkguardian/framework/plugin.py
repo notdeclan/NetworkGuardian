@@ -64,7 +64,7 @@ def executor(template_path: str, *platforms: SystemPlatform, requires_elevation:
         Decorators are called BEFORE class is built i.e __new__, so with a decorator we can tag the function with the
         supported platform e.t.c, and then post process it later with the base class
 
-        :param template_path: The template file path required to render the data produced by the excecutor
+        :param template_path: The template file path required to render the data produced by the executor
         :param platforms: A list containing the supported platforms enums that the function can run on
         :param requires_elevation: Boolean stating whether the plugin requires the software to be running with elevated
         system permissions (i.e. root/Administrator)
