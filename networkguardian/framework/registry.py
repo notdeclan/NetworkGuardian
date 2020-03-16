@@ -10,7 +10,6 @@ from networkguardian import logger
 from networkguardian.framework.plugin import PluginCategory, SystemPlatform, AbstractPlugin
 
 registered_plugins = {}
-max_threads = None  # ie if it has been set by the user TODO: add this into config when done
 
 
 def usable_plugins() -> [AbstractPlugin]:

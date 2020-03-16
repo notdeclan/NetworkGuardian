@@ -132,7 +132,7 @@ def report_progress(thread_id):
         })
 
     # TODO: Use this rather than refreshing whole page
-    # TODO: add to api probs
+    #  add to api probs
     return abort(404)
 
 
