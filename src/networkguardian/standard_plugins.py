@@ -140,11 +140,10 @@ class SystemInformationPlugin(AbstractPlugin):
         return byte_count, power_labels[n]
 
 
-@register_plugin("NMap TCP Ports", PluginCategory.INFO, "Owen", 0.1)
-# @test_plugin
+@register_plugin("NMap TCP Ports Current Machine", PluginCategory.INFO, "Owen", 0.1)
 class NMapTcpPorts(AbstractPlugin):
     """
-        Blank
+       Uses NMAP to scan the current machines open TCP ports
     """
 
     template = Template("""
@@ -194,12 +193,11 @@ class NMapTcpPorts(AbstractPlugin):
 
         return {'results': new_dict}
 
-
-# @register_plugin("NMapNetworkScan", PluginCategory.INFO, "Owen", 0.1)
+# @register_plugin("NMapCurrentMachineScan", PluginCategory.INFO, "Owen", 0.1)
 @test_plugin
-class NMapNetworkScan(AbstractPlugin):
+class NMapCurrentMachineScan(AbstractPlugin):
     """
-        Blank
+        Uses Nmap to do a network scan and display information about each machine on the network
     """
 
     template = Template("""
@@ -218,141 +216,81 @@ class NMapNetworkScan(AbstractPlugin):
                     <th>UDP - Open Filtered Ports</th>
                     <th>UDP - Open Ports</th>
                 </tr>
-                {% for name, value in results.items() %}
-                <tr>
-                    <td>{{name}}</td>
-                    <td>{{value.hostname}}</td>
-                    <td>{{value.mac}}</td>
-                    <td>{{value.vendor}}</td>
-                    <td>{{value.os}}</td>
-                    <td>{{value.tcp_closed}}</td>
-                    <td>{{value.tcp_filtered}}</td>
-                    <td>{{value.tcp_open}}</td  
-                    <td>{{value.udp_closed}}</td>
-                    <td>{{value.udp_filtered}}</td>
-                    <td>{{value.udp_open_filtered}}</td  
-                    <td>{{value.udp_open}}</td  
-                </tr>
-                {% endfor %}
+                {%- for key,parent_dict_item in parent_dict.items() -%}
+                    {%- for key2, nested_value in parent_dict_item.items() -%}
+                                <td>{{ key }}</td>
+                                <td>{{ key2 }}</td>
+                                {% for key3, nested_value2 in nested_value.items() %}
+                                    {%- if nested_value2 is mapping %}
+                                        {%- for key4, nested_value3 in nested_value2.items() %}
+                                            <td>{{ nested_value3 }}</td>
+                                        {%- endfor -%}
+                                    {%- else -%}
+                                        {%- for nested_value3 in nested_value2 %}
+                                            {%- for nested_value4 in nested_value3 %}
+                                                <td>{{ nested_value3[key4] }}</td>                                           
+                                            {%- endfor -%}
+                                        {%- endfor -%}
+                                    {%- endif -%}
+                                {% endfor -%}
+                    {%- endfor -%}
+                {%- endfor -%}
             </table>
         """)
+
+    def get_networks(self):
+        """Uses psutil to go through all network interfaces and excludes interfaces that are of no use such as
+        loopbacks or if the interface is down"""
+        network_list = []
+        for interface_name, interfaces in psutil.net_if_addrs().items():
+            for interface in interfaces:
+                try:
+                    # Validate Interface / Network
+                    assert not ipaddress.ip_address(interface.address).is_loopback  # if loopback
+                    assert not ipaddress.ip_address(interface.address).is_link_local  # if  link local
+                    assert psutil.net_if_stats()[interface_name].isup  # if disabled (down)
+                except (AssertionError, ValueError):  # not valid ip address
+                    continue  # goto next one
+
+                ipn = IPNetwork(f"{interface.address}/{interface.netmask}")
+
+                network_list.append(ipn)
+
+        return network_list
+
 
     @executor(template)
     def execute(self):
 
         temp_dict = {}
         new_dict = {}
-        i = 0
-        e = 0
-        networks = {}
+        c = 0
+        d = 0
 
-        for interface_name, interfaces in psutil.net_if_addrs().items():
-            for interface in interfaces:
-
-                # Validate
-                try:
-                    if ipaddress.IPv4Address(interface.address).is_loopback:  # if loopback
-                        continue  # goto next one
-                except ValueError:  # not valid ip address
-                    continue  # goto next one
-                ipn = IPNetwork(f"{interface.address}/{interface.netmask}")
-                networks[interface_name] = [ipn[0], ipn.broadcast, interface.address, interface.netmask, ipn.cidr, ipn._prefixlen,
-                                            ipn.cidr.size]
-
-        current_ip = networks['Wi-Fi'][2]
-        network_addr = str(networks['Wi-Fi'][4])
-        print(networks['Wi-Fi'])
-        print(networks)
-
+        networks = self.get_networks()
         nm = nmap.PortScanner()
-        temp_dict = nm.scan(hosts=network_addr, arguments='-O -sU -sT --top-ports 20')
-
-        keys = temp_dict['scan'].keys()
-        keys = list(keys)
-
-        while i < len(keys):
-            print(i)
-            open_list, filtered_list, closed_list = [], [], []
-            udp_open_list, udp_openfil_list, udp_filtered_list, udp_closed_list = [], [], [], []
-            if keys[i] == current_ip:
-                pass
-            else:
-                mac = temp_dict['scan'][keys[i]]['addresses']['mac']
-                try:
-                    vendor = temp_dict['scan'][keys[i]]['vendor'][mac]
-                except KeyError:
-                    vendor = "-"
-
-                try:
-                    oss = temp_dict['scan'][keys[i]]['osmatch'][0]['name']
-                except IndexError:
-                    oss = "Unknown"
-
-                try:
-                    hostname = temp_dict['scan'][keys[i]]['hostnames'][0]['name']
-                except IndexError:
-                    hostname = "Unknown"
-
-                try:
-                    keys2 = temp_dict['scan'][keys[i]]['tcp'].keys()
-                    keys2 = list(keys2)
-                except KeyError:
-                    keys2 = 'Nothanks'
-
+        """Creates a dictionary the size of all the network interfaces in use"""
+        for network in networks:
+            print(network)
+            new_dict[c] = {}
+            c += 1
+        """Starts a nmap scan for a network interface and then stores all the information into a dictionary,
+        then loops and goes through next interface in the list"""
+        for network in networks:
+            temp_dict[d] = nm.scan(hosts=str(network.cidr), arguments="-O -F -T5")
+            keys = temp_dict[d]['scan'].keys()
+            keys = list(keys)
+            i = 0
+            while i < len(keys):
                 x = 0
+                key = list(temp_dict[d]['scan'][keys[i]].keys())
+                while x < len(key):
+                    new_dict[d][keys[i]] = temp_dict[d]['scan'][keys[i]]
+                    x += 1
+                i += 1
+            d += 1
+        return {'parent_dict': new_dict}
 
-                if keys2 != 'Nothanks':
-                    while x < len(keys2):
-                        if temp_dict['scan'][keys[i]]['tcp'][keys2[x]]['state'] == "open":
-                            open_list.append(keys2[x])
-                        elif temp_dict['scan'][keys[i]]['tcp'][keys2[x]]['state'] == "filtered":
-                            temp = temp_dict['scan'][keys[i]]['tcp'][keys2[x]]
-                            filtered_list.append(keys2[x])
-                        else:
-                            closed_list.append(keys2[x])
-                        x += 1
-                else:
-                    open_list, filtered_list, closed_list = 'No Ports', 'No Ports', 'NoPorts'
-
-                try:
-                    keys3 = temp_dict['scan'][keys[i]]['udp'].keys()
-                    keys3 = list(keys3)
-                except KeyError:
-                    keys3 = 'Nothanks'
-
-                h = 0
-                if keys3 != 'Nothanks':
-                    while h < len(keys3):
-                        if temp_dict['scan'][keys[i]]['udp'][keys3[h]]['state'] == "open":
-                            udp_open_list.append(keys3[h])
-                        elif temp_dict['scan'][keys[i]]['udp'][keys3[h]]['state'] == "open|filtered":
-                            udp_openfil_list.append(keys3[h])
-                        elif temp_dict['scan'][keys[i]]['udp'][keys3[h]]['state'] == "filtered":
-                            temp = temp_dict['scan'][keys[i]]['udp'][keys3[h]]
-                            udp_filtered_list.append(keys3[h])
-                        else:
-                            udp_closed_list.append(keys3[h])
-                        h += 1
-                else:
-                    udp_open_list, udp_openfil_list, udp_filtered_list, udp_closed_list = 'No Ports', 'No Ports', \
-                                                                                          'No Ports', 'No Ports'
-
-                new_dict.update({keys[i]: {"mac": mac or '-',
-                                           "vendor": vendor or '-',
-                                           "os": oss,
-                                           "tcp_closed": closed_list,
-                                           "tcp_filtered": filtered_list,
-                                           "tcp_open": open_list,
-                                           "udp_closed": udp_closed_list,
-                                           "udp_filtered": udp_filtered_list,
-                                           "udp_open_filtered": udp_openfil_list,
-                                           "udp_open": udp_open_list,
-                                           "hostname": hostname or 'N/A'
-                                           }})
-
-            i += 1
-
-        return {'results': new_dict}
 
 
 @register_plugin("Internet Connectivity", PluginCategory.INFO, "Velislav V", 1.0)
