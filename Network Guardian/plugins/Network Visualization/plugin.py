@@ -29,15 +29,6 @@ class NetworkVisualization(AbstractPlugin):
                     continue  # goto next one
 
                 ipn = IPNetwork(f"{interface.address}/{interface.netmask}")
-
-                print(f"Interface: {interface_name}")
-                print("\tNetwork:", ipn[0])
-                print("\tBroadcast:", ipn.broadcast)
-                print("\tNetmask:", interface.netmask)
-                print("\tCIDR:", ipn.cidr)
-                print("\tNetbit", ipn._prefixlen)
-                print("\tTotal IP's:", ipn.cidr.size)
-
                 networks[interface_name] = ipn
 
         return networks
@@ -58,14 +49,12 @@ class NetworkVisualization(AbstractPlugin):
         print(networks)
 
         for interface_name, network in networks.items():
-            print(f"Scanning {network} on interface {interface_name}")
-
             # Host Discovery
             network_scan = NmapProcess(str(network), options="-A -n")
             network_scan.run()
             parsed = NmapParser.parse(network_scan.stdout)
 
-            # Traceroute
+            # Trace-route
             traceroute_scan = NmapProcess("google.com", options="--traceroute")
             traceroute_scan.run()
             collection = xml.etree.ElementTree.fromstring(traceroute_scan.stdout)

@@ -1,0 +1,35 @@
+<table class="table table-responsive table-sm">
+    <tr>
+        <th>IP</th>
+        <th>Host Name</th>
+        <th>MAC</th>
+        <th>Vendor</th>
+        <th>OS - Estimation</th>
+        <th>TCP - Closed Ports</th>
+        <th>TCP - Filtered Ports</th>
+        <th>TCP - Open Ports</th>
+        <th>UDP - Closed Ports</th>
+        <th>UDP - Filtered Ports</th>
+        <th>UDP - Open Filtered Ports</th>
+        <th>UDP - Open Ports</th>
+    </tr>
+    {%- for key,parent_dict_item in parent_dict.items() -%}
+        {%- for key2, nested_value in parent_dict_item.items() -%}
+                    <td>{{ key }}</td>
+                    <td>{{ key2 }}</td>
+                    {% for key3, nested_value2 in nested_value.items() %}
+                        {%- if nested_value2 is mapping %}
+                            {%- for key4, nested_value3 in nested_value2.items() %}
+                                <td>{{ nested_value3 }}</td>
+                            {%- endfor -%}
+                        {%- else -%}
+                            {%- for nested_value3 in nested_value2 %}
+                                {%- for nested_value4 in nested_value3 %}
+                                    <td>{{ nested_value3[key4] }}</td>
+                                {%- endfor -%}
+                            {%- endfor -%}
+                        {%- endif -%}
+                    {% endfor -%}
+        {%- endfor -%}
+    {%- endfor -%}
+</table>

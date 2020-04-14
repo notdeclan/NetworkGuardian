@@ -6,3 +6,6 @@ pywebview
 psutil
 netaddr
 python-nmap
+python-libnmap
+networkx
+click
