@@ -1,5 +1,4 @@
 import csv
-import os
 from io import StringIO
 
 import psutil
@@ -18,16 +17,19 @@ class UserEnumerationPlugin(AbstractPlugin):
 
     @executor("windows.template.html", SystemPlatform.WINDOWS)
     def windows(self):
-        process = os.subprocess.Popen(["wmic", "useraccount", "list", "full", "/format:csv"], stdout=os.subprocess.PIPE)
+        import subprocess
+        process = subprocess.Popen(["wmic", "useraccount", "list", "full", "/format:csv"], stdout=subprocess.PIPE)
         users_output = process.communicate()[0]
         file_stream = StringIO(users_output.decode())
+        psutil.users()
         for i in range(2):
             file_stream.readline()
 
-        reader = csv.reader(file_stream)
-        return {"reader": reader}
+        reader = csv.DictReader(file_stream)
 
-    @executor("linux.template.html", SystemPlatform.MAC_OS, SystemPlatform.LINUX)
+        return {"reader": list(reader)}
+
+    @executor("linux.template.html", SystemPlatform.LINUX)
     def linux(self):
         import grp
         return {
