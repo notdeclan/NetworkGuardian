@@ -7,16 +7,17 @@ import sys
 from os.path import basename
 
 from networkguardian import logger
-from networkguardian.framework.plugin import PluginCategory, SystemPlatform
+from networkguardian.framework.plugin import PluginCategory, SystemPlatform, AbstractPlugin
 
 registered_plugins = {}
 
 
-def usable_plugins() -> []:
+def usable_plugins() -> [AbstractPlugin]:
+    """
+    :return: Returns a list of all the plugins registered which are supported by the operating system and loaded without
+    any exceptions
+    """
     return [plugin for plugin in registered_plugins.values() if plugin.loaded and plugin.supported]
-
-
-max_threads = None  # ie if it has been set by the user TODO: add this into config when done
 
 
 def register_plugin(name: str, category: PluginCategory, author: str, version: float):
@@ -24,12 +25,6 @@ def register_plugin(name: str, category: PluginCategory, author: str, version: f
     Function annotation used to dynamically load/register plugins into the module
 
     Will fill out all of the variables required in PluginInformation.__init__
-
-    :param name: Name of plugin
-    :param category: Category of the plugin
-    :param author: Author/Developer of the plugin
-    :param version:
-    :return:
     """
 
     def __init__(cls):
@@ -45,47 +40,55 @@ def import_external_plugins(directory: str):
 
     :param directory: directory to look for modules
     """
+
+    # for each file in directory with .py extension
     for file_path in glob.iglob(os.path.join(directory, '**/*.py'), recursive=True):
-        if os.path.isfile(file_path):  # filter dirs
-            module_name = basename(file_path)[:-3]
+        if os.path.isfile(file_path):  # double check its not a folder
+            module_name = basename(file_path)[:-3]  # get the name of the module
             try:
                 spec = importlib.util.spec_from_file_location(module_name, file_path)
                 module = importlib.util.module_from_spec(spec)
                 sys.modules[module_name] = module
-                spec.loader.exec_module(module)
+                spec.loader.exec_module(module)  # import and exec
             except Exception as e:
                 """
                 Using a broader expression is difficult here because there are so many which the user plugin may raise.
                 Therefore it is easier, and safer for program execution, to just ignore loading the plugin if any
                 exception is raised.
                 """
-                logger.error(f'Failed to load module {module_name}', e)
-                continue
+                logger.debug(f'Failed to load module {module_name}', e)
+                continue  # goto next file
 
 
-def load_plugins():
+def load_plugins() -> bool:
     """
     Function is used to all plugins stored in the registered_plugins list
     """
     running_platform = SystemPlatform.detect()  # store running platform as a variable for efficiency
-    running_elevated = is_elevated()
-    for plugin in registered_plugins.values():
+    running_elevated = is_elevated()  # get status on whether software is running with adminstrator rights
+    for plugin in registered_plugins.values():  # loop through all plugins
         try:
             plugin.load(running_platform, running_elevated)  # attempt to load
             logger.debug(f'Successfully loaded {plugin}')
         except Exception as loading_exception:  # if exception add to the plugin so it can be displayed later in GUI
-            logger.error(f'Failed to load {plugin} due to {loading_exception}, disabling.')
+            logger.debug(f'Failed to load {plugin} due to {loading_exception}, disabling.')
             plugin.loading_exception = loading_exception
 
+    return len(usable_plugins()) > 0
 
-def is_elevated():
+
+def is_elevated() -> bool:
+    """
+    Attempts to determine whether Network Guardian is running with elevated permissions (i.e. Sudo or Administrator)
+    :return: True if elevated, False otherwise
+    """
     try:
-        return os.getuid() == 0
-    except AttributeError:
+        return os.getuid() == 0  # unix
+    except AttributeError:  # windows
         return ctypes.windll.shell32.IsUserAnAdmin() != 0
 
 
-def get_thread_count(max_required: int = None):
+def get_thread_count(max_required: int = None) -> int:
     """
     Function is used to calculate the amount of threads that should be used based on three different factors, the
     function can be used in multiple use cases

@@ -24,13 +24,14 @@ report_extension = 'rng'
 
 class PluginResult(PluginInformation):
 
-    def __init__(self, plugin, data=None, exception=None, template=None):
+    def __init__(self, plugin: AbstractPlugin, data: {} = None, exception: Exception = None, template: str = None):
         super().__init__(plugin.name, plugin.category, plugin.author, plugin.version)
+        # description is usually loaded from __doc__ so needs to be copied manually
         self.description = plugin.description
 
-        self.data = data
-        self.exception = exception
-        self.template = template
+        self.data = data  # store the data produced by executor
+        self.exception = exception  # store the exception produced by executor
+        self.template = template  # store the plugin template
 
         if exception is None:
             if template is None:
@@ -38,8 +39,12 @@ class PluginResult(PluginInformation):
             if data is None:
                 self.exception = PluginProcessingError("Plugin returned no data to render")
 
-    def render(self):
-        return Template(self.template).render(self.data)
+    def render(self) -> str:
+        """
+        Function is used to produce the HTML output of the result for display
+        :return: HTML String
+        """
+        return Template(self.template).render(self.data)  # render plugin template with data produced
 
 
 class Report:
@@ -50,45 +55,64 @@ class Report:
         essentially a model probably convert this to just a dict at some point when its completely figured out
     """
 
-    def __init__(self, name):
-        self.date = datetime.now()
-        self.name = name
-        self.system_name = platform.node()
-        self.system_platform = SystemPlatform.detect()
-        self.software_version = application_version
+    def __init__(self, name: str):
+        self.date = str(datetime.now().date()).replace(":", "-")  # get current time
+        self.name = name  # user set name of the report
+        self.system_name = platform.node()  # the name of the system
+        self.system_platform = SystemPlatform.detect()  # the os the report was performed on
+        self.software_version = application_version  # application version
 
-        self.results = []
-        self.path = None
+        self.results = []  # used to store PluginResult instances
+        self.path = None  # path variable to where the report is saved to, which is updated at program startup and save
 
     def __repr__(self):
         return f"Report(name='{self.name}', system_name='{self.system_name}', system_platform='{self.system_platform}', date='{self.date}')"
 
-    def add_result(self, plugin, data, template):
+    def add_result(self, plugin: AbstractPlugin, data: {}, template: str):
+        """
+        Function is used to add successful results to the Report
+        :param plugin: Plugin which produced the result
+        :param data:  data produced by the plugin executor
+        :param template:  template html required to render the data
+        """
         self.results.append(PluginResult(plugin, data=data, template=template))
 
-    def add_exception(self, plugin, exception):
+    def add_exception(self, plugin: AbstractPlugin, exception: Exception):
+        """
+        Function is used to add failed results to the Report i.e the plugin raised an exception during execution
+        :param plugin: Plugin which produced the result
+        :param exception: Exception raised by Plugin Executor
+        """
         self.results.append(PluginResult(plugin, exception=exception))
 
 
-def load_reports():
+def load_reports() -> bool:
     for root, dirs, files in os.walk(reports_directory):
         for file in files:
             if file.endswith(report_extension):
                 import_report(os.path.join(reports_directory, file))
 
+    return len(reports) > 0
 
-def import_report(report_path: str):
+
+def import_report(report_path: str) -> bool:
     try:
         report_pickle = pickle.load(open(report_path, "rb"))
         if isinstance(report_pickle, Report):
             report_pickle.path = report_path
             reports.append(report_pickle)
             logger.debug(f'Successfully imported {report_pickle}')
+
+            return True
     except AttributeError:
-        logger.debug(f'Failed to import {report_path} due to missing dependency')
+        logger.error(f'Failed to import {report_path} due to missing dependency, skipping.')
+        return False
+    except Exception as e:
+        logger.error(f'Failed to import {report_path} due to an exception, skipping.')
+        logger.debug(e)
 
 
-def store_report(report: Report):
+def store_report(report: Report) -> int:
     export_path = export_report(report)  # export report to file and get path
     reports.append(report)  # add report to list
     report.path = export_path  # update path
@@ -113,9 +137,11 @@ def generate_report_filename(report: Report, append_extension: str = report_exte
 
 def export_report(report: Report):
     report_filename = generate_report_filename(report)
+    if not os.path.exists(reports_directory):
+        os.mkdir(reports_directory)
 
     # combine filename with path and extension
-    report_path = os.path.join(reports_directory, report_filename)
+    report_path = os.path.abspath(os.path.join(reports_directory, report_filename))
 
     # save it
     print(report_path)
@@ -130,7 +156,7 @@ def export_report_as_html(report: Report, path: str):
     export_template = render_template("layouts/export.html", report=report)
 
     # TODO add exception handling for permission errors, file exists, e.t.c...
-    with open(path, "w") as f:
+    with open(os.path.abspath(path), "w") as f:
         f.write(export_template)
 
 
@@ -204,7 +230,7 @@ class ThreadedReportProcessor(Thread, ReportProcessor):
                     template = plugin.template
                     data = future.result()
                     self.report.add_result(plugin, data, template)
-                except Exception as ppe:
-                    self.report.add_exception(plugin, ppe)
+                except Exception as executor_exception:
+                    self.report.add_exception(plugin, executor_exception)
 
         self.report_id = store_report(self.report)

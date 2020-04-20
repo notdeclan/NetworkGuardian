@@ -37,12 +37,18 @@ logger.addHandler(ch)
 
 
 def find_resource(file_path: str):
+    """
+    Function returns the correct path to a resource specified when running both directly from the entry point, and when
+    frozen.
+    :param file_path: Relative Path to resource
+    :return: Absolute Path to resource
+    """
     if application_frozen:
         resource_path = sys._MEIPASS
     else:
         resource_path = os.path.dirname(__file__)
 
-    return os.path.join(resource_path, file_path)
+    return os.path.abspath(os.path.join(resource_path, file_path))
 
 
 def find_user_resource(file_path: str = ''):

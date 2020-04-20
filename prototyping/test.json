@@ -1,58 +1,55 @@
 {
-  "directed": false,
-  "multigraph": false,
-  "graph": {},
-  "nodes": [
-    {
-      "id": "216.58.204.14"
-    },
-    {
-      "id": "192.168.43.1"
-    },
-    {
-      "id": "192.168.43.253"
-    },
-    {
-      "id": "192.168.213.21"
-    },
-    {
-      "id": "192.168.213.22"
-    },
-    {
-      "id": "10.206.137.165"
-    },
-    {
-      "id": "192.168.122.1"
-    }
-  ],
-  "links": [
-    {
-      "source": "216.58.204.14",
-      "target": "192.168.43.1"
-    },
-    {
-      "source": "216.58.204.14",
-      "target": "192.168.43.253"
-    },
-    {
-      "source": "216.58.204.14",
-      "target": "10.206.137.165"
-    },
-    {
-      "source": "192.168.43.1",
-      "target": "192.168.213.21"
-    },
-    {
-      "source": "192.168.43.1",
-      "target": "192.168.122.1"
-    },
-    {
-      "source": "192.168.213.21",
-      "target": "192.168.213.22"
-    },
-    {
-      "source": "192.168.213.22",
-      "target": "10.206.137.165"
-    }
-  ]
+    "directed": false,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+        {
+            "hostname": [],
+            "ports": [
+                [
+                    53,
+                    "tcp"
+                ]
+            ],
+            "os": "OS:SCAN(V=7.80%E=4%D=3/6%OT=53%CT=1%CU=31268%PV=Y%DS=1%DC=D%G=Y%M=0AC5E1%TM\nOS:=5E62436B%P=x86_64-redhat-linux-gnu)SEQ(SP=103%GCD=1%ISR=106%TI=Z%CI=I%I\nOS:I=I%TS=8)OPS(O1=M5B4ST11NW8%O2=M5B4ST11NW8%O3=M5B4NNT11NW8%O4=M5B4ST11NW\nOS:8%O5=M5B4ST11NW8%O6=M5B4ST11)WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF\nOS:%W6=FFFF)ECN(R=Y%DF=Y%T=40%W=FFFF%O=M5B4NNSNW8%CC=Y%Q=)T1(R=Y%DF=Y%T=40%\nOS:S=O%A=S+%F=AS%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%\nOS:RD=0%Q=)T5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W\nOS:=0%S=A%A=Z%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)\nOS:U1(R=Y%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%D\nOS:FI=N%T=40%CD=S)\n",
+            "id": "192.168.43.1"
+        },
+        {
+            "id": "172.16.255.254"
+        },
+        {
+            "id": "193.60.160.253"
+        },
+        {
+            "id": "216.58.198.174"
+        },
+        {
+            "hostname": [],
+            "ports": [],
+            "os": "SCAN(V=7.80%E=4%D=3/6%OT=%CT=1%CU=44659%PV=Y%DS=0%DC=L%G=N%TM=5E62436C%P=x86_64-redhat-linux-gnu)\nSEQ(CI=Z%II=I)\nT5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)\nT6(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)\nT7(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)\nU1(R=Y%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)\nIE(R=Y%DFI=N%T=40%CD=S)\n",
+            "id": "192.168.43.253"
+        }
+    ],
+    "links": [
+        {
+            "source": "192.168.43.1",
+            "target": "172.16.255.254"
+        },
+        {
+            "source": "192.168.43.1",
+            "target": "192.168.43.1"
+        },
+        {
+            "source": "192.168.43.1",
+            "target": "192.168.43.253"
+        },
+        {
+            "source": "172.16.255.254",
+            "target": "193.60.160.253"
+        },
+        {
+            "source": "193.60.160.253",
+            "target": "216.58.198.174"
+        }
+    ]
 }

@@ -1,0 +1,18 @@
+<table class="table table-responsive table-sm">
+    <tr>
+        <th>Port</th>
+        <th>State</th>
+        <th>Reason</th>
+        <th>Name</th>
+        <th>Product</th>
+    </tr>
+    {% for name, value in results.items() %}
+    <tr>
+        <td>{{name}}</td>
+        <td>{{value.State}}</td>
+        <td>{{value.Reason}}</td>
+        <td>{{value.Name}}</td>
+        <td>{{value.Product}}</td>
+    </tr>
+    {% endfor %}
+</table>

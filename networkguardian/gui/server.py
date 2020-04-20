@@ -46,5 +46,5 @@ def is_alive():
         r = conn.getresponse()
         return r.status == 200
 
-    except ConnectionRefusedError:  # TODO: figure out actual exception raise here and add to catch
+    except ConnectionRefusedError:
         return False

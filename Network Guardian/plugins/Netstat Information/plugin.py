@@ -6,7 +6,7 @@ from networkguardian.framework.plugin import PluginCategory, AbstractPlugin, exe
 from networkguardian.framework.registry import register_plugin
 
 
-@register_plugin("NetStat Information", PluginCategory.NETWORK, "Owen", 1.0)
+@register_plugin("Netstat Information", PluginCategory.NETWORK, "Owen", 1.0)
 class NetStatInformation(AbstractPlugin):
     """
         Netstat Information v1.0
@@ -19,7 +19,6 @@ class NetStatInformation(AbstractPlugin):
         """
             Get information using psutil and stores into variables
         """
-        AD = "-"
         AF_INET6 = getattr(socket, 'AF_INET6', object())
         proto_map = {
             (socket.AF_INET, socket.SOCK_STREAM): 'tcp',
@@ -36,7 +35,6 @@ class NetStatInformation(AbstractPlugin):
             proc_names[p.info['pid']] = p.info['name']
         for c in psutil.net_connections(kind='inet'):
             laddr = "%s:%s" % (c.laddr)
-            raddr = ""
             if c.raddr:
                 raddr = "%s:%s" % (c.raddr)
 

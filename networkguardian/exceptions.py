@@ -3,8 +3,6 @@ Module contains exceptions raised within Network Guardian
 """
 
 
-# TODO: Start raising and handling these properly...
-
 class PluginException(Exception):
     """
     Base Exception for all custom exceptions that are raised from a Plugin

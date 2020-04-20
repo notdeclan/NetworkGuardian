@@ -41,9 +41,8 @@ def cli(ctx, debug):
 
     logger.debug(f'Loaded {total_plugins} plugins ({total_loaded} successfully, {total_failed} failed)')
 
-    # Start GUI if no command specified
     if ctx.invoked_subcommand is None:
-        gui()
+        gui()  # Start GUI if no specific command specified
 
 
 @cli.command()
@@ -126,6 +125,10 @@ def detect_siblings():
 
 
 def enable_debugging(debug):
+    """
+    Function sets the logging level to DEBUG mode depending on boolean
+    :param debug: Enable debugging if True
+    """
     if debug:
         logger.setLevel(logging.DEBUG)
         for handler in logger.handlers:
