@@ -11,7 +11,7 @@ application_config_file = "config.ini"
 application_frozen = getattr(sys, 'frozen', False)
 threading_enabled = True
 
-logging_mode = logging.DEBUG
+logging_mode = logging.INFO
 
 if application_frozen:
     application_path = os.path.dirname(sys.executable)  # executable entry point i.e Network Guardian.exe

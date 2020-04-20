@@ -153,7 +153,7 @@ def export_report_as_html(report: Report, path: str):
     export_template = render_template("layouts/export.html", report=report)
 
     # TODO add exception handling for permission errors, file exists, e.t.c...
-    with open(path, "w") as f:
+    with open(os.path.abspath(path), "w") as f:
         f.write(export_template)
 
 
