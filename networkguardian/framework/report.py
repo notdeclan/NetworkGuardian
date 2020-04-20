@@ -105,8 +105,11 @@ def import_report(report_path: str) -> bool:
 
             return True
     except AttributeError:
-        logger.debug(f'Failed to import {report_path} due to missing dependency')
+        logger.error(f'Failed to import {report_path} due to missing dependency, skipping.')
         return False
+    except Exception as e:
+        logger.error(f'Failed to import {report_path} due to an exception, skipping.')
+        logger.debug(e)
 
 
 def store_report(report: Report) -> int:
