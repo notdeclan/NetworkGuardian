@@ -1,0 +1,16 @@
+<table class="table table-responsive">
+    <thead class="thead-dark">
+    <tr>
+        <th>Firewall</th>
+        <th>State</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for firewall, state in results.items() %}
+        <tr>
+            <td>{{ firewall }}</td>
+            <td>{{ state }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
