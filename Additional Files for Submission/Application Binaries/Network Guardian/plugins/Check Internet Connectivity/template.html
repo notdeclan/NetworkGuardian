@@ -1,0 +1,16 @@
+<table class="table">
+    <thead class="thead-dark">
+    <tr>
+        <th>URL</th>
+        <th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for url, status in results.items() %}
+        <tr>
+            <td>{{ url }}</td>
+            <td>{{ "Connected" if status else "Failed" }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

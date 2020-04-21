@@ -1,0 +1,26 @@
+<table class="table table-hover table-sm">
+    <thead class="thead-dark">
+    <tr>
+        <th>#</th>
+        <th>Protocol</th>
+        <th>Local Address</th>
+        <th>Remote Address</th>
+        <th>Status</th>
+        <th>PID</th>
+        <th>Program Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for name, value in result.items() %}
+        <tr>
+            <td>{{ name }}</td>
+            <td>{{ value.Protocol }}</td>
+            <td>{{ value.LocalAddress }}</td>
+            <td>{{ value.RemoteAddress }}</td>
+            <td>{{ value.Status }}</td>
+            <td>{{ value.PID }}</td>
+            <td>{{ value.ProgramName }}</td>
+        </tr>
+    {%- endfor %}
+    </tbody>
+</table>

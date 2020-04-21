@@ -1,0 +1,16 @@
+<table class="table">
+    <thead class="thead-dark">
+    <tr>
+        <th>Users</th>
+        <th>User Group</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user, user_group in users.items() %}
+        <tr>
+            <td> {{ user }} </td>
+            <td> {{ user_group }} </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

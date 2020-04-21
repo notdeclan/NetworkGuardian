@@ -1,0 +1,23 @@
+<table class="table table-responsive">
+    <thead class="thead-dark">
+    <tr>
+        <th>Interface</th>
+        <th>Network Address</th>
+        <th>Broadcast Address</th>
+        <th>Netmask</th>
+        <th>CIDR</th>
+        <th>Prefix</th>
+        <th>Total IP's</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for interface_name, values in interfaces.items() %}
+        <tr>
+            <td>{{ interface_name }}</td>
+            {% for value in values %}
+                <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
