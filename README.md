@@ -9,6 +9,7 @@ Network administrators and others who work in digital security may face issues w
 security of the network as the pre-existing, off the shelf products can require a high start-up cost (both monetarily and
 timewise), are not as user friendly or flexible as they require, nor do they provide the educational value that our client is
 requesting.
+
 This could create a major issue for security professionals as they are faced with either paying for an expensive product or
 taking the time to create scripts in order to do their job effectively which may result in turning important tasks (e.g. initial
 assessment and enumeration) into something tedious.
@@ -18,6 +19,7 @@ Unlike these tools, Network Guardian is free, open source, and provides better f
 of that, they are able to properly assess the specific network in a quick manner and therefore are able to improve the
 overall security of it if needed in a quicker and more efficient way than doing it manually or having to buy an expensive
 tool to do the job.
+
 By using Network Guardian, network administrators and security professionals can create their own plugins or use the
 standard ones in Network Guardian. This makes it useful, as it provides the ability to fine tune the tool towards the specific
 network requirements while keeping the costs low.
